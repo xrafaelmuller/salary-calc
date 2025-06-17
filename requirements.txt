@@ -1,3 +1,4 @@
 Flask
+werkzeug
 psycopg2-binary
 SQLAlchemy
