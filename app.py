@@ -441,4 +441,5 @@ with app.app_context():
     init_db()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000)) # Pega a porta da variável de ambiente PORT, senão usa 5000
+    app.run(host='0.0.0.0', port=port, debug=False) # '0.0.0.0' para escutar todas as interfaces, debug=False em produção
