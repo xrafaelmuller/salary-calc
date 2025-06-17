@@ -1,30 +1,61 @@
 from flask import Flask, render_template_string, request, redirect, url_for, session, flash, get_flashed_messages
-import sqlite3
+import os
 from werkzeug.security import generate_password_hash, check_password_hash
-import os # Para gerar a SECRET_KEY
+
+# --- Importações para PostgreSQL com SQLAlchemy ---
+from sqlalchemy import create_engine, text
+from sqlalchemy.engine import Connection
+from sqlalchemy.exc import IntegrityError, OperationalError
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24) # Chave secreta para sessões, essencial!
 
-# --- Configuração do Banco de Dados SQLite ---
-DATABASE = 'profiles.db'
+# --- Configuração do Banco de Dados PostgreSQL ---
+# O Render fornece a DATABASE_URL automaticamente.
+# Em desenvolvimento local, você pode definir uma URL padrão para PostgreSQL local,
+# ou continuar usando SQLite temporariamente para testes locais se preferir,
+# mas para deploy no Render, a DATABASE_URL é crucial.
+DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://user:password@localhost:5432/my_local_db')
+# IMPORTANTE: A string de conexão precisa ser ajustada para o driver psycopg2
+# e incluir 'sslmode=require' para o Render em produção.
+# O dj_database_url (usado em Django) faz isso automaticamente, mas aqui vamos explicitar.
+# Exemplo de DATABASE_URL do Render: postgresql://user:password@host:port/database_name
+# Para sqlalchemy, podemos precisar de: postgresql+psycopg2://user:password@host:port/database_name
+# E para SSL: postgresql+psycopg2://user:password@host:port/database_name?sslmode=require
+
+# Para garantir que o SSL seja usado em produção no Render
+if "RENDER" in os.environ: # Verifica se está no ambiente Render
+    DATABASE_URL = DATABASE_URL + "?sslmode=require" # Adiciona sslmode=require
+
+# Cria o engine do SQLAlchemy
+# Usamos psycopg2 como driver.
+engine = create_engine(DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://"))
+
+def get_db_connection():
+    """Função auxiliar para obter uma conexão com o banco de dados."""
+    try:
+        return engine.connect()
+    except OperationalError as e:
+        print(f"Erro ao conectar ao banco de dados: {e}")
+        # Em um ambiente real, você pode querer logar o erro ou lançar uma exceção mais específica
+        raise ConnectionError("Não foi possível conectar ao banco de dados.") from e
+
 
 def init_db():
     """Inicializa o banco de dados, criando tabelas de usuários e perfis."""
-    with sqlite3.connect(DATABASE) as conn:
-        cursor = conn.cursor()
+    with get_db_connection() as conn:
         # Tabela de Usuários
-        cursor.execute('''
+        conn.execute(text('''
             CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 username TEXT NOT NULL UNIQUE,
                 password_hash TEXT NOT NULL
             )
-        ''')
+        '''))
         # Tabela de Perfis, agora com user_id
-        cursor.execute('''
+        conn.execute(text('''
             CREATE TABLE IF NOT EXISTS profiles (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 user_id INTEGER NOT NULL,
                 name TEXT NOT NULL,
                 salario REAL,
@@ -35,81 +66,85 @@ def init_db():
                 odontologico REAL,
                 premiacao REAL,
                 UNIQUE(user_id, name), -- Garante que um usuário não tenha dois perfis com o mesmo nome
-                FOREIGN KEY (user_id) REFERENCES users(id)
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
-        ''')
-        conn.commit()
+        '''))
+        conn.commit() # Commit é necessário ao usar conn.execute direto
 
 # --- Funções de Banco de Dados para Usuários ---
 def add_user(username, password):
     """Adiciona um novo usuário ao banco de dados."""
     hashed_password = generate_password_hash(password)
-    with sqlite3.connect(DATABASE) as conn:
-        cursor = conn.cursor()
+    with get_db_connection() as conn:
         try:
-            cursor.execute("INSERT INTO users (username, password_hash) VALUES (?, ?)",
-                           (username, hashed_password))
+            conn.execute(text("INSERT INTO users (username, password_hash) VALUES (:username, :password_hash)"),
+                         {"username": username, "password_hash": hashed_password})
             conn.commit()
             return True
-        except sqlite3.IntegrityError:
-            return False # Usuário já existe
+        except IntegrityError: # Captura erro de chave única (usuário já existe)
+            conn.rollback() # Garante que a transação seja revertida em caso de erro
+            return False
 
 def get_user_by_username(username):
     """Obtém um usuário pelo nome de usuário."""
-    with sqlite3.connect(DATABASE) as conn:
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
-        return cursor.fetchone()
+    with get_db_connection() as conn:
+        result = conn.execute(text("SELECT id, username, password_hash FROM users WHERE username = :username"),
+                              {"username": username})
+        row = result.fetchone()
+        if row:
+            return dict(row._mapping) # Converte o RowProxy para dicionário
+        return None
 
 # --- Funções de Banco de Dados para Perfis (Atualizadas com user_id) ---
 def save_profile_to_db(user_id, profile_name, data):
     """Salva ou atualiza um perfil para um usuário específico."""
-    with sqlite3.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        cursor.execute('SELECT id FROM profiles WHERE user_id = ? AND name = ?', (user_id, profile_name))
-        existing_profile = cursor.fetchone()
+    with get_db_connection() as conn:
+        result = conn.execute(text('SELECT id FROM profiles WHERE user_id = :user_id AND name = :name'),
+                             {"user_id": user_id, "name": profile_name})
+        existing_profile = result.fetchone()
 
         if existing_profile:
-            cursor.execute('''
+            conn.execute(text('''
                 UPDATE profiles SET
-                    salario=?, quinquenio=?, vale_alimentacao=?, plano_saude=?,
-                    previdencia_privada=?, odontologico=?, premiacao=?
-                WHERE id=?
-            ''', (
-                data['salario'], data['quinquenio'], data['vale_alimentacao'],
-                data['plano_saude'], data['previdencia_privada'],
-                data['odontologico'], data['premiacao'], existing_profile[0]
-            ))
+                    salario=:salario, quinquenio=:quinquenio, vale_alimentacao=:vale_alimentacao, plano_saude=:plano_saude,
+                    previdencia_privada=:previdencia_privada, odontologico=:odontologico, premiacao=:premiacao
+                WHERE id=:id
+            '''), {
+                "salario": data['salario'], "quinquenio": data['quinquenio'], "vale_alimentacao": data['vale_alimentacao'],
+                "plano_saude": data['plano_saude'], "previdencia_privada": data['previdencia_privada'],
+                "odontologico": data['odontologico'], "premiacao": data['premiacao'],
+                "id": existing_profile[0]
+            })
         else:
-            cursor.execute('''
+            conn.execute(text('''
                 INSERT INTO profiles (user_id, name, salario, quinquenio, vale_alimentacao,
                                       plano_saude, previdencia_privada, odontologico, premiacao)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (
-                user_id, profile_name, data['salario'], data['quinquenio'], data['vale_alimentacao'],
-                data['plano_saude'], data['previdencia_privada'],
-                data['odontologico'], data['premiacao']
-            ))
+                VALUES (:user_id, :name, :salario, :quinquenio, :vale_alimentacao,
+                        :plano_saude, :previdencia_privada, :odontologico, :premiacao)
+            '''), {
+                "user_id": user_id, "name": profile_name, "salario": data['salario'], "quinquenio": data['quinquenio'],
+                "vale_alimentacao": data['vale_alimentacao'], "plano_saude": data['plano_saude'],
+                "previdencia_privada": data['previdencia_privada'], "odontologico": data['odontologico'],
+                "premiacao": data['premiacao']
+            })
         conn.commit()
 
 def load_profile_from_db(user_id, profile_name):
     """Carrega os dados de um perfil específico de um usuário."""
-    with sqlite3.connect(DATABASE) as conn:
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM profiles WHERE user_id = ? AND name = ?', (user_id, profile_name))
-        row = cursor.fetchone()
+    with get_db_connection() as conn:
+        result = conn.execute(text('SELECT * FROM profiles WHERE user_id = :user_id AND name = :name'),
+                             {"user_id": user_id, "name": profile_name})
+        row = result.fetchone()
         if row:
-            return dict(row)
+            return dict(row._mapping)
     return None
 
 def get_all_profile_names(user_id):
     """Retorna uma lista de nomes de perfis para um usuário específico."""
-    with sqlite3.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        cursor.execute('SELECT name FROM profiles WHERE user_id = ? ORDER BY name', (user_id,))
-        return [row[0] for row in cursor.fetchall()]
+    with get_db_connection() as conn:
+        result = conn.execute(text('SELECT name FROM profiles WHERE user_id = :user_id ORDER BY name'),
+                             {"user_id": user_id})
+        return [row[0] for row in result.fetchall()]
 
 # --- Tabelas de Cálculo (INSS e IRPF 2025) ---
 # [2025-06-17] Os cálculos de IRPF e INSS estão corretos.
@@ -307,12 +342,15 @@ def index():
 
                 total_descontos = (profile_data['vale_alimentacao'] + profile_data['plano_saude'] + 
                                    profile_data['previdencia_privada'] + profile_data['odontologico'] + 
-                                   profile_data['premiacao'] + desconto_inss + desconto_irpf)
-                
+                                   desconto_inss + desconto_irpf) # Premiacao não é um desconto, é rendimento
+                                   
                 salario_liquido = total_rendimentos_base - total_descontos
                 
         except ValueError:
             flash('Erro: Por favor, insira valores numéricos válidos.', 'danger')
+        except ConnectionError: # Captura o erro de conexão do get_db_connection
+            flash('Erro: Não foi possível conectar ao banco de dados. Tente novamente mais tarde.', 'danger')
+            return redirect(url_for('login')) # Ou renderize uma página de erro
     
     profile_to_load = request.args.get('load_profile')
     if profile_to_load:
