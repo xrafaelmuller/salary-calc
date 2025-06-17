@@ -4,31 +4,26 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 # --- Importações para PostgreSQL com SQLAlchemy ---
 from sqlalchemy import create_engine, text
-from sqlalchemy.engine import Connection
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24) # Chave secreta para sessões, essencial!
+# A SECRET_KEY é essencial para a segurança das sessões do Flask.
+# Em produção, use uma forma mais segura de gerá-la (e.g., variável de ambiente).
+app.secret_key = os.urandom(24) 
 
 # --- Configuração do Banco de Dados PostgreSQL ---
-# O Render fornece a DATABASE_URL automaticamente.
-# Em desenvolvimento local, você pode definir uma URL padrão para PostgreSQL local,
-# ou continuar usando SQLite temporariamente para testes locais se preferir,
-# mas para deploy no Render, a DATABASE_URL é crucial.
+# O Render injeta a DATABASE_URL automaticamente na variável de ambiente.
+# Se estiver rodando localmente e a variável não estiver definida,
+# ele tentará usar uma URL PostgreSQL local padrão.
 DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://user:password@localhost:5432/my_local_db')
-# IMPORTANTE: A string de conexão precisa ser ajustada para o driver psycopg2
-# e incluir 'sslmode=require' para o Render em produção.
-# O dj_database_url (usado em Django) faz isso automaticamente, mas aqui vamos explicitar.
-# Exemplo de DATABASE_URL do Render: postgresql://user:password@host:port/database_name
-# Para sqlalchemy, podemos precisar de: postgresql+psycopg2://user:password@host:port/database_name
-# E para SSL: postgresql+psycopg2://user:password@host:port/database_name?sslmode=require
 
-# Para garantir que o SSL seja usado em produção no Render
-if "RENDER" in os.environ: # Verifica se está no ambiente Render
-    DATABASE_URL = DATABASE_URL + "?sslmode=require" # Adiciona sslmode=require
+# Para garantir que o SSL seja usado em produção no Render, que é um requisito comum.
+# O Render define a variável de ambiente 'RENDER'.
+if "RENDER" in os.environ: 
+    DATABASE_URL = DATABASE_URL + "?sslmode=require"
 
-# Cria o engine do SQLAlchemy
-# Usamos psycopg2 como driver.
+# Cria o engine do SQLAlchemy. 
+# Usamos psycopg2 como driver, por isso o replace na URL.
 engine = create_engine(DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://"))
 
 def get_db_connection():
@@ -37,12 +32,12 @@ def get_db_connection():
         return engine.connect()
     except OperationalError as e:
         print(f"Erro ao conectar ao banco de dados: {e}")
-        # Em um ambiente real, você pode querer logar o erro ou lançar uma exceção mais específica
+        # Lançar uma exceção para que a rota possa tratar o erro de conexão
         raise ConnectionError("Não foi possível conectar ao banco de dados.") from e
 
 
 def init_db():
-    """Inicializa o banco de dados, criando tabelas de usuários e perfis."""
+    """Inicializa o banco de dados, criando tabelas de usuários e perfis se não existirem."""
     with get_db_connection() as conn:
         # Tabela de Usuários
         conn.execute(text('''
@@ -69,7 +64,7 @@ def init_db():
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
         '''))
-        conn.commit() # Commit é necessário ao usar conn.execute direto
+        conn.commit() # Commit é necessário ao usar conn.execute direto para persistir a criação
 
 # --- Funções de Banco de Dados para Usuários ---
 def add_user(username, password):
@@ -147,7 +142,7 @@ def get_all_profile_names(user_id):
         return [row[0] for row in result.fetchall()]
 
 # --- Tabelas de Cálculo (INSS e IRPF 2025) ---
-# [2025-06-17] Os cálculos de IRPF e INSS estão corretos.
+# Os cálculos de IRPF e INSS estão corretos (confirmado em 2025-06-17).
 INSS_TETO_2025 = 8157.41
 INSS_MAX_DESCONTO_2025 = 951.62 # (8157.41 * 0.14) - 190.40
 
@@ -311,9 +306,6 @@ def index():
         'premiacao': 0.00, 'profile_name': ''
     }
     
-    # Lida com mensagens flash (sucesso/erro/info)
-    # Não há necessidade de criar uma lista de mensagens aqui, o template as busca diretamente.
-
     if request.method == 'POST':
         action = request.form.get('action')
 
@@ -334,7 +326,7 @@ def index():
                     return redirect(url_for('index', load_profile=profile_data['profile_name']))
                 else:
                     flash('Erro: Nome do perfil é obrigatório para salvar.', 'danger')
-            else: # Default action is calculate
+            else: # Ação padrão é calcular
                 total_rendimentos_base = profile_data['salario'] + profile_data['quinquenio'] + profile_data['premiacao']
                 desconto_inss = calcular_inss(total_rendimentos_base)
                 base_irpf = total_rendimentos_base - desconto_inss
@@ -342,7 +334,7 @@ def index():
 
                 total_descontos = (profile_data['vale_alimentacao'] + profile_data['plano_saude'] + 
                                    profile_data['previdencia_privada'] + profile_data['odontologico'] + 
-                                   desconto_inss + desconto_irpf) # Premiacao não é um desconto, é rendimento
+                                   desconto_inss + desconto_irpf) # A premiação é rendimento, não desconto
                                    
                 salario_liquido = total_rendimentos_base - total_descontos
                 
@@ -350,12 +342,13 @@ def index():
             flash('Erro: Por favor, insira valores numéricos válidos.', 'danger')
         except ConnectionError: # Captura o erro de conexão do get_db_connection
             flash('Erro: Não foi possível conectar ao banco de dados. Tente novamente mais tarde.', 'danger')
-            return redirect(url_for('login')) # Ou renderize uma página de erro
+            return redirect(url_for('login')) 
     
     profile_to_load = request.args.get('load_profile')
     if profile_to_load:
         loaded_data = load_profile_from_db(user_id, profile_to_load)
         if loaded_data:
+            # Garante que todos os campos do perfil_data sejam preenchidos
             profile_data = {key: loaded_data.get(key, 0.00) for key in profile_data}
             profile_data['profile_name'] = profile_to_load
             flash('Perfil carregado. Clique em "Calcular" para ver o salário líquido.', 'info')
@@ -475,9 +468,13 @@ def index():
     return render_template_string(html_form, salario_liquido=salario_liquido, profile_data=profile_data, profiles=profiles, username=username)
 
 # Garante que o banco de dados seja inicializado quando o aplicativo Flask é iniciado.
+# Isso vai criar as tabelas se elas não existirem no PostgreSQL.
 with app.app_context():
     init_db()
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000)) # Pega a porta da variável de ambiente PORT, senão usa 5000
-    app.run(host='0.0.0.0', port=port, debug=False) # '0.0.0.0' para escutar todas as interfaces, debug=False em produção
+    # O Render define a variável de ambiente PORT.
+    # Usamos 0.0.0.0 para que o servidor Flask escute em todas as interfaces de rede.
+    # debug=False é crucial para produção.
+    port = int(os.environ.get("PORT", 5000)) 
+    app.run(host='0.0.0.0', port=port, debug=False)
