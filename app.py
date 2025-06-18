@@ -22,7 +22,7 @@ users_collection = db['users']
 profiles_collection = db['profiles']
 
 def init_db():
-    """Inicializa o MongoDB: testa conexão e cria índices."""
+    """Inicializa o banco de dados MongoDB, garantindo conexão e índices."""
     try:
         client.admin.command('ping') 
         print("Conexão com MongoDB Atlas estabelecida com sucesso!")
@@ -38,7 +38,7 @@ def init_db():
         raise
 
 def add_user(username, password):
-    """Adiciona um novo usuário."""
+    """Adiciona um novo usuário ao banco de dados."""
     hashed_password = generate_password_hash(password)
     try:
         result = users_collection.insert_one({"username": username, "password_hash": hashed_password})
@@ -55,7 +55,7 @@ def get_user_by_username(username):
     return None
 
 def save_profile_to_db(user_id_str, profile_name, data):
-    """Salva ou atualiza um perfil para um usuário."""
+    """Salva ou atualiza um perfil para um usuário específico."""
     user_id_obj = ObjectId(user_id_str) 
 
     profile_data_to_save = {
@@ -79,7 +79,7 @@ def save_profile_to_db(user_id_str, profile_name, data):
     return result.acknowledged 
 
 def load_profile_from_db(user_id_str, profile_name):
-    """Carrega os dados de um perfil."""
+    """Carrega os dados de um perfil específico de um usuário."""
     user_id_obj = ObjectId(user_id_str) 
     profile_doc = profiles_collection.find_one({"user_id": user_id_obj, "name": profile_name})
     if profile_doc:
@@ -88,7 +88,7 @@ def load_profile_from_db(user_id_str, profile_name):
     return None
 
 def get_all_profile_names(user_id_str):
-    """Retorna nomes de perfis para um usuário."""
+    """Retorna uma lista de nomes de perfis para um usuário específico."""
     user_id_obj = ObjectId(user_id_str) 
     names = []
     for doc in profiles_collection.find({"user_id": user_id_obj}, {"name": 1}).sort("name", 1):
@@ -96,7 +96,7 @@ def get_all_profile_names(user_id_str):
     return names
 
 def get_last_profile_name(user_id_str):
-    """Retorna o último perfil atualizado de um usuário."""
+    """Retorna o nome do perfil mais recentemente atualizado para um usuário."""
     user_id_obj = ObjectId(user_id_str) 
     profile_doc_cursor = profiles_collection.find({"user_id": user_id_obj}).sort("updated_at", -1).limit(1)
     
@@ -140,7 +140,7 @@ def login():
         if user and check_password_hash(user['password_hash'], password):
             session['user_id'] = user['id'] 
             session['username'] = user['username']
-            # REMOVIDO: flash('Login realizado com sucesso!', 'success')
+            flash('Login realizado com sucesso!', 'success')
             return redirect(url_for('index'))
         else:
             flash('Usuário ou senha inválidos.', 'danger')
@@ -374,57 +374,56 @@ def index():
         <title>Calculadora de Salário Líquido</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
-            /* Reset */
             body, h1, h2, h3, p, form, div, input, select, button, label {
                 margin: 0;
                 padding: 0;
                 box-sizing: border-box;
             }
 
-            /* Body & Main Container */
             body { 
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                margin: 0; 
                 background-color: #e9eff2; 
                 display: flex; 
                 justify-content: center; 
                 align-items: flex-start; 
                 min-height: 100vh;
-                padding: 10px; /* Reduzido padding geral */
+                padding: 20px; 
             }
 
             .container { 
                 background-color: white; 
-                padding: 25px; /* Reduzido padding */
+                padding: 30px; 
                 border-radius: 12px; 
                 box-shadow: 0 6px 20px rgba(0,0,0,0.1); 
                 max-width: 960px; 
                 width: 100%; 
                 display: flex; 
                 flex-direction: column; 
-                gap: 20px; /* Reduzido gap */
+                gap: 25px; 
             }
 
-            /* Header Minimalista */
             header { 
                 display: flex; 
                 justify-content: space-between; 
                 align-items: center; 
-                padding-bottom: 10px; /* Reduzido padding */
+                margin-bottom: 15px; 
+                padding-bottom: 15px; 
                 border-bottom: 1px solid #eceff1; 
                 flex-wrap: wrap; 
-                gap: 5px; /* Reduzido gap */
+                gap: 10px; 
             }
             header h2 { 
-                font-size: 1.2em; /* Título menor */
+                margin: 0; 
+                font-size: 1.8em; 
                 color: #334e68; 
-                margin: 0;
             }
             header .user-info { 
-                font-size: 0.8em; /* Info de usuário menor */
+                font-size: 0.95em; 
                 color: #5a778e;
                 display: flex;
                 align-items: center;
-                gap: 10px;
+                gap: 15px;
             }
             header .user-info strong {
                 color: #2b3a4a;
@@ -439,157 +438,202 @@ def index():
                 color: #c9302c;
             }
 
-            /* Labels e Inputs - Mais Aparentes */
             label { 
                 display: block; 
-                margin-bottom: 4px; /* Espaço menor */
+                margin-bottom: 6px; 
                 font-weight: 600; 
                 color: #4a6572; 
-                font-size: 0.95em; /* Ligeiramente maior */
             }
             input[type="text"], input[type="password"], select { 
                 width: 100%; 
-                padding: 10px; /* Padding ajustado */
-                margin-bottom: 12px; /* Espaço ajustado */
-                border: 1px solid #a7c7e0; /* Borda mais evidente */
+                padding: 12px; 
+                margin-bottom: 15px; 
+                border: 1px solid #ccd6dd; 
                 border-radius: 8px; 
-                font-size: 1.05em; /* Font maior nos campos */
+                font-size: 1em;
                 color: #333;
                 transition: border-color 0.3s ease, box-shadow 0.3s ease;
             }
             input[type="text"]:focus, input[type="password"]:focus, select:focus {
                 border-color: #007bff; 
-                box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.35); /* Sombra mais forte */
+                box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); 
                 outline: none;
             }
 
-            /* Seções de Formulário */
             .form-section {
-                border: 1px solid #d4e2ea; /* Borda mais suave */
+                border: 1px solid #e0e6ea; 
                 border-radius: 10px;
-                padding: 18px; /* Padding ajustado */
+                padding: 20px;
                 background-color: #fcfdfe; 
-                margin-bottom: 15px; /* Reduzido espaço */
+                margin-bottom: 20px; 
             }
             .form-section h4 {
                 color: #334e68;
-                margin-bottom: 12px; /* Reduzido espaço */
-                font-size: 1.15em; 
+                margin-bottom: 15px;
+                font-size: 1.2em;
                 border-bottom: 1px dashed #e0e6ea;
-                padding-bottom: 8px; /* Reduzido padding */
+                padding-bottom: 10px;
             }
 
             .input-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Reduzido minwidth */
-                gap: 15px; /* Reduzido gap */
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+                gap: 20px; 
             }
 
-            /* Botões */
             .button-group { 
                 display: flex; 
                 justify-content: flex-end; 
-                gap: 10px; /* Reduzido gap */
+                gap: 15px; 
                 margin-top: 15px;
                 flex-wrap: wrap; 
             }
             .button-group button, .button-group input[type="submit"] { 
                 background-color: #28a745; 
                 color: white; 
-                padding: 10px 20px; /* Padding ajustado */
+                padding: 12px 25px; 
                 border: none; 
                 border-radius: 8px; 
                 cursor: pointer; 
-                font-size: 0.95em; /* Font ajustada */
+                font-size: 1em; 
                 font-weight: bold;
                 transition: background-color 0.3s ease, transform 0.2s ease;
                 flex-shrink: 0; 
             }
-            /* Consistência dos botões secondary (Salvar Perfil e Aplicar Aumento) */
-            .button-group button.secondary, 
-            .button-group input[type="submit"].secondary,
-            .profile-actions button.secondary { /* Adicionado seletor para o botão de salvar perfil */
+            .button-group button.secondary, .button-group input[type="submit"].secondary { 
                 background-color: #007bff; 
             }
             .button-group button:hover, .button-group input[type="submit"]:hover { 
                 background-color: #218838; 
-                transform: translateY(-1px); /* Menor elevação */
+                transform: translateY(-2px); 
             }
-            .button-group button.secondary:hover, 
-            .button-group input[type="submit"].secondary:hover,
-            .profile-actions button.secondary:hover { /* Adicionado seletor para o botão de salvar perfil */
+            .button-group button.secondary:hover, .button-group input[type="submit"].secondary:hover {
                 background-color: #0056b3;
             }
 
-            /* Resultado Final - Mais Evidente */
             .result { 
-                margin-top: 25px; /* Reduzido espaço */
+                margin-top: 30px; 
                 padding: 20px; 
-                border: 2px solid #0056b3; /* Borda mais forte */
+                border: 1px solid #b8daff; 
                 border-radius: 10px; 
                 background-color: #e7f3ff; 
-                font-size: 1.3em; /* Font maior */
+                font-size: 1.2em; 
                 text-align: center; 
                 color: #004085; 
                 font-weight: bold;
-                box-shadow: 0 4px 10px rgba(0, 86, 179, 0.2); /* Sombra mais proeminente */
             }
             .result strong { 
                 color: #002752; 
-                font-size: 1.5em; /* Valor do salário ainda maior */
-                text-shadow: 1px 1px 2px rgba(0,0,0,0.1); /* Pequena sombra no texto */
+                font-size: 1.3em;
             }
 
-            /* Seções Colapsáveis (compactadas) */
             .collapsible-section { 
-                border: 1px dashed #c7dbe8; /* Borda mais clara */
-                padding: 15px; /* Reduzido padding */
-                margin-bottom: 15px; /* Reduzido espaço */
+                border: 1px dashed #a7c7e0; 
+                padding: 20px; 
+                margin-bottom: 25px; 
                 border-radius: 10px; 
-                background-color: #f5fafd; /* Fundo mais claro */
+                background-color: #eef7fc; 
             }
             .collapsible-header {
-                margin-bottom: 5px; /* Reduzido espaço */
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+                cursor: pointer; 
             }
             .collapsible-header h3 {
-                font-size: 1.2em; /* Título menor */
+                color: #334e68;
+                font-size: 1.3em;
+                margin: 0;
             }
             .collapsible-header button {
-                font-size: 0.9em; /* Botão menor */
+                background: none;
+                border: none;
+                color: #007bff;
+                cursor: pointer;
+                font-size: 1em;
+                font-weight: bold;
+                transition: color 0.3s ease;
+                display: flex; 
+                align-items: center;
+                gap: 5px;
             }
+            .collapsible-header button:hover {
+                color: #0056b3;
+                text-decoration: underline;
+            }
+
             .collapsible-content {
-                gap: 10px; /* Reduzido gap */
+                display: flex; 
+                flex-direction: column;
+                gap: 15px;
+                overflow: hidden; 
+                max-height: 0; 
+                opacity: 0; 
+                transition: max-height 0.5s ease-out, opacity 0.5s ease-out; 
             }
-            
+
+            .collapsible-content.expanded {
+                max-height: 500px; 
+                opacity: 1; 
+            }
+
+
+            .profile-load-group {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 10px;
+            }
+            .profile-load-group label {
+                margin-bottom: 0;
+                flex-shrink: 0;
+            }
+            .profile-load-group select {
+                flex-grow: 1; 
+                min-width: 180px; 
+            }
             .profile-actions { 
                 display: flex; 
                 flex-wrap: wrap; 
                 align-items: center;
                 gap: 10px; 
                 margin-top: 15px; 
-                justify-content: flex-end; /* Alinha o grupo de salvar à direita no desktop */
             }
             .profile-actions label { margin-bottom: 0; flex-shrink: 0; }
             .profile-actions input[type="text"] { flex-grow: 1; margin-bottom: 0; min-width: 150px; }
             .profile-actions button { flex-shrink: 0; }
 
             .flash-message { 
-                padding: 10px; /* Reduzido padding */
-                margin-bottom: 15px; 
+                padding: 12px; 
+                margin-bottom: 20px; 
                 border-radius: 8px; 
-                font-size: 0.9em; /* Font menor */
+                text-align: left; 
+                font-weight: bold;
+                font-size: 0.95em;
             }
+            .flash-message.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+            .flash-message.info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+            .flash-message.warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+            .flash-message.danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-            /* Media Queries para Responsividade */
             @media (min-width: 768px) {
                 form.main-form { 
-                    gap: 25px; /* Reduzido gap */
+                    display: flex; 
+                    flex-wrap: wrap;
+                    gap: 30px; 
                 }
                 .form-section {
-                    flex: 1 1 calc(50% - 12.5px); /* Ajuste com o novo gap */
+                    flex: 1 1 calc(50% - 15px); 
+                    margin-bottom: 0; 
+                }
+                .button-group {
+                    width: 100%; 
+                    justify-content: flex-end;
                 }
                 .profile-actions {
-                    justify-content: flex-end; /* Mantém alinhamento à direita no desktop */
+                    width: 100%;
+                    justify-content: flex-start;
                 }
             }
 
@@ -598,8 +642,8 @@ def index():
                     padding: 10px;
                 }
                 .container {
-                    padding: 15px; /* Menor padding geral */
-                    gap: 15px;
+                    padding: 20px 15px; 
+                    gap: 20px;
                 }
                 header {
                     flex-direction: column;
@@ -607,21 +651,20 @@ def index():
                     gap: 5px;
                 }
                 header h2 {
-                    font-size: 1.4em; /* Título menor no mobile */
+                    font-size: 1.6em;
                 }
                 header .user-info {
                     flex-direction: column;
                     align-items: flex-start;
                     width: 100%;
                     gap: 5px;
-                    font-size: 0.75em; /* Info de usuário ainda menor no mobile */
                 }
                 .form-section {
-                    padding: 12px;
-                    margin-bottom: 12px;
+                    padding: 15px;
+                    margin-bottom: 15px;
                 }
                 .form-section h4 {
-                    font-size: 1.05em;
+                    font-size: 1.1em;
                 }
                 .input-grid {
                     grid-template-columns: 1fr; 
@@ -632,254 +675,257 @@ def index():
                     align-items: stretch; 
                 }
                 .button-group button, .button-group input[type="submit"],
-                .profile-actions button, .profile-actions input[type="text"],
-                .profile-actions select,
-                .profile-load-group select { 
-                    width: 100%; 
-                    margin: 0; 
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <header>
-                <h2>Calculadora de Salário Líquido</h2>
-                <div class="user-info">
-                    Olá, <strong>{{ username }}</strong>!
-                    <a href="{{ url_for('logout') }}">Sair</a>
-                </div>
-            </header>
-
-            {% with messages = get_flashed_messages(with_categories=True) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="flash-message {{ category }}">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-            
-            <div class="collapsible-section" id="profileSection">
-                <div class="collapsible-header" id="profileHeader">
-                    <h3>Gerenciar Perfis</h3>
-                    <button type="button" id="toggleProfileContent">Expandir <span class="arrow-icon">&#9660;</span></button>
-                </div>
-                <div class="collapsible-content" id="profileContent">
-                    <div class="profile-load-group">
-                        <label for="profile_select">Carregar Perfil:</label>
-                        <select id="profile_select" onchange="window.location.href='/?load_profile=' + this.value">
-                            <option value="">-- Selecione um Perfil --</option>
-                            {% for profile in profiles %}
-                                <option value="{{ profile }}" {% if profile == profile_data.profile_name %}selected{% endif %}>{{ profile }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <p><small>Selecione um perfil para carregar os dados no formulário.</small></p>
-                    <div class="profile-actions">
-                        <label for="profile_name">Nome do Perfil para Salvar:</label>
-                        <input type="text" id="profile_name" name="profile_name" placeholder="Ex: Meu Salário" value="{{ profile_data.profile_name }}" form="main-calc-form">
-                        <button type="submit" name="action" value="save_profile" class="secondary" form="main-calc-form" onclick="document.getElementById('form_action').value='save_profile';">Salvar Perfil</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Seção de Aumento Salarial -->
-            <div class="collapsible-section" id="increaseSection">
-                <div class="collapsible-header" id="increaseHeader">
-                    <h3>Ajustar Salário por Aumento (%)</h3>
-                    <button type="button" id="toggleIncreaseContent">Expandir <span class="arrow-icon">&#9660;</span></button>
-                </div>
-                <div class="collapsible-content" id="increaseContent">
-                    <div class="input-grid">
-                        <div>
-                            <label for="increase_percentage">Percentual de Aumento (%):</label>
-                            <input type="text" id="increase_percentage" name="increase_percentage" placeholder="Ex: 5.5">
-                            <p><small>O aumento será aplicado sobre o <strong>Salário Base atual do formulário</strong>.</small></p>
-                        </div>
-                    </div>
-                    <div class="button-group">
-                        <button type="button" id="applyIncrease" class="secondary">Aplicar Aumento</button>
-                        <button type="button" id="saveIncreasedProfile" class="secondary">Salvar como novo perfil</button>
-                    </div>
-                </div>
-            </div>
-
-
-            <form method="POST" class="main-form" id="main-calc-form">
-                <input type="hidden" name="action" id="form_action" value="calculate">
-
-                <div class="form-section">
-                    <h4>Rendimentos</h4>
-                    <div class="input-grid">
-                        <div>
-                            <label for="salario">Salário Base:</label>
-                            <input type="text" id="salario" name="salario" value="{{ '%.2f'|format(profile_data.salario)|replace('.', ',') }}" required>
-                        </div>
-                        <div>
-                            <label for="quinquenio">Quinquênio:</label>
-                            <input type="text" id="quinquenio" name="quinquenio" value="{{ '%.2f'|format(profile_data.quinquenio)|replace('.', ',') }}">
-                        </div>
-                        <div>
-                            <label for="premiacao">Premiação (se houver):</label>
-                            <input type="text" id="premiacao" name="premiacao" value="{{ '%.2f'|format(profile_data.premiacao)|replace('.', ',') }}">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-section">
-                    <h4>Descontos</h4>
-                    <div class="input-grid">
-                        <div>
-                            <label for="vale_alimentacao">Vale Alimentação:</label>
-                            <input type="text" id="vale_alimentacao" name="vale_alimentacao" value="{{ '%.2f'|format(profile_data.vale_alimentacao)|replace('.', ',') }}">
-                        </div>
-                        <div>
-                            <label for="plano_saude">Plano de Saúde:</label>
-                            <input type="text" id="plano_saude" name="plano_saude" value="{{ '%.2f'|format(profile_data.plano_saude)|replace('.', ',') }}">
-                        </div>
-                        <div>
-                            <label for="previdencia_privada">Previdência (seu contracheque):</label>
-                            <input type="text" id="previdencia_privada" name="previdencia_privada" value="{{ '%.2f'|format(profile_data.previdencia_privada)|replace('.', ',') }}">
-                        </div>
-                        <div>
-                            <label for="odontologico">Odontológico:</label>
-                            <input type="text" id="odontologico" name="odontologico" value="{{ '%.2f'|format(profile_data.odontologico)|replace('.', ',') }}">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="button-group">
-                    <input type="submit" value="Calcular" onclick="document.getElementById('form_action').value='calculate';">
-                </div>
-            </form>
-            
-            {% if salario_liquido is not none %}
-            <div class="result">
-                <p>Seu Salário Líquido Estimado: <strong>R$ {{ "%.2f"|format(salario_liquido)|replace('.', ',') }}</strong></p>
-            </div>
-            {% endif %}
-        </div>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                function setupCollapsible(headerId, contentId, toggleButtonId) {
-                    const header = document.getElementById(headerId);
-                    const content = document.getElementById(contentId);
-                    const toggleButton = document.getElementById(toggleButtonId);
-                    const arrowIcon = toggleButton.querySelector('.arrow-icon');
-
-                    if (!header || !content || !toggleButton || !arrowIcon) {
-                        console.error('Elemento colapsível não encontrado:', {headerId, contentId, toggleButtonId});
-                        return;
+                    .profile-actions button, .profile-actions input[type="text"],
+                    .profile-actions select,
+                    .profile-load-group select { 
+                        width: 100%; 
+                        margin: 0; 
                     }
-
-                    function toggleSection() {
-                        const isExpanded = content.classList.toggle('expanded');
-                        arrowIcon.innerHTML = isExpanded ? '&#9650;' : '&#9660;';
-                        toggleButton.textContent = isExpanded ? 'Recolher ' : 'Expandir ';
-                        toggleButton.appendChild(arrowIcon);
-                    }
-
-                    header.addEventListener('click', toggleSection);
-                    toggleButton.addEventListener('click', function(event) {
-                        event.stopPropagation();
-                        toggleSection();
-                    });
-
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const loadProfileParam = urlParams.get('load_profile');
-                    
-                    if (contentId === 'profileContent' && loadProfileParam) { 
-                        content.classList.add('expanded');
-                        arrowIcon.innerHTML = '&#9650;';
-                        toggleButton.textContent = 'Recolher ';
-                        toggleButton.appendChild(arrowIcon);
-                    } else { 
-                        content.classList.remove('expanded');
-                        arrowIcon.innerHTML = '&#9660;';
-                        toggleButton.textContent = 'Expandir ';
-                        toggleButton.appendChild(arrowIcon);
+                    .profile-section p small {
+                        text-align: center;
+                        width: 100%;
                     }
                 }
-
-                setupCollapsible('profileHeader', 'profileContent', 'toggleProfileContent');
-                setupCollapsible('increaseHeader', 'increaseContent', 'toggleIncreaseContent');
-
-                const applyIncreaseButton = document.getElementById('applyIncrease');
-                const saveIncreasedProfileButton = document.getElementById('saveIncreasedProfile');
-                const increasePercentageInput = document.getElementById('increase_percentage');
-                const salarioBaseInput = document.getElementById('salario');
-                const profileNameInput = document.getElementById('profile_name'); 
-
-                if (applyIncreaseButton && salarioBaseInput && increasePercentageInput) {
-                    applyIncreaseButton.addEventListener('click', function() {
-                        let currentSalario = parseFloat(salarioBaseInput.value.replace(',', '.'));
-                        let increasePercentage = parseFloat(increasePercentageInput.value.replace(',', '.'));
-
-                        if (isNaN(currentSalario) || isNaN(increasePercentage)) {
-                            flashMessage('Por favor, insira valores numéricos válidos.', 'danger');
-                            return;
-                        }
-                        if (increasePercentage < 0) {
-                             flashMessage('O percentual de aumento não pode ser negativo.', 'danger');
-                             return;
-                        }
-
-                        let newSalario = currentSalario * (1 + (increasePercentage / 100));
-                        salarioBaseInput.value = newSalario.toFixed(2).replace('.', ',');
-                        
-                        flashMessage('Salário Base atualizado com o aumento! Lembre-se de salvar o perfil.', 'info');
-                    });
-                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <header>
+                    <h2>Calculadora de Salário Líquido</h2>
+                    <div class="user-info">
+                        Olá, <strong>{{ username }}</strong>!
+                        <a href="{{ url_for('logout') }}">Sair</a>
+                    </div>
+                </header>
+    
+                {% with messages = get_flashed_messages(with_categories=True) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="flash-message {{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
                 
-                if (saveIncreasedProfileButton && salarioBaseInput && profileNameInput) {
-                    saveIncreasedProfileButton.addEventListener('click', function() {
-                        const newProfileName = prompt("Digite um nome para o novo perfil com o salário ajustado:");
-                        if (newProfileName) {
-                            profileNameInput.value = newProfileName; 
-                            document.getElementById('form_action').value = 'save_profile'; 
-                            document.getElementById('main-calc-form').submit(); 
-                        } else if (newProfileName === "") {
-                            flashMessage("O nome do perfil não pode ser vazio.", 'danger');
-                        }
-                    });
-                }
-
-                function flashMessage(message, category = 'info') {
-                    let flashContainer = document.querySelector('.flash-messages-js-container');
-                    if (!flashContainer) { 
-                        const headerElement = document.querySelector('header');
-                        if (headerElement) {
-                            const newDiv = document.createElement('div');
-                            newDiv.className = 'flash-messages-js-container';
-                            headerElement.after(newDiv); 
-                            flashContainer = newDiv;
-                        } else {
-                            console.error('Não foi possível encontrar onde inserir a mensagem flash JS.');
+                <div class="collapsible-section" id="profileSection">
+                    <div class="collapsible-header" id="profileHeader">
+                        <h3>Gerenciar Perfis</h3>
+                        <button type="button" id="toggleProfileContent">Expandir <span class="arrow-icon">&#9660;</span></button>
+                    </div>
+                    <div class="collapsible-content" id="profileContent">
+                        <div class="profile-load-group">
+                            <label for="profile_select">Carregar Perfil:</label>
+                            <select id="profile_select" onchange="window.location.href='/?load_profile=' + this.value">
+                                <option value="">-- Selecione um Perfil --</option>
+                                {% for profile in profiles %}
+                                    <option value="{{ profile }}" {% if profile == profile_data.profile_name %}selected{% endif %}>{{ profile }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <p><small>Selecione um perfil para carregar os dados no formulário.</small></p>
+                        <div class="profile-actions">
+                            <label for="profile_name">Nome do Perfil para Salvar:</label>
+                            <input type="text" id="profile_name" name="profile_name" placeholder="Ex: Meu Salário" value="{{ profile_data.profile_name }}" form="main-calc-form">
+                            <button type="submit" name="action" value="save_profile" class="secondary" form="main-calc-form" onclick="document.getElementById('form_action').value='save_profile';">Salvar Perfil</button>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Seção de Aumento Salarial -->
+                <div class="collapsible-section" id="increaseSection">
+                    <div class="collapsible-header" id="increaseHeader">
+                        <h3>Ajustar Salário por Aumento (%)</h3>
+                        <button type="button" id="toggleIncreaseContent">Expandir <span class="arrow-icon">&#9660;</span></button>
+                    </div>
+                    <div class="collapsible-content" id="increaseContent">
+                        <div class="input-grid">
+                            <div>
+                                <label for="increase_percentage">Percentual de Aumento (%):</label>
+                                <input type="text" id="increase_percentage" name="increase_percentage" placeholder="Ex: 5.5">
+                                <p><small>O aumento será aplicado sobre o <strong>Salário Base atual do formulário</strong>.</small></p>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button type="button" id="applyIncrease" class="secondary">Aplicar Aumento</button>
+                            <button type="button" id="saveIncreasedProfile" class="secondary">Salvar como novo perfil</button>
+                        </div>
+                    </div>
+                </div>
+    
+    
+                <form method="POST" class="main-form" id="main-calc-form">
+                    <input type="hidden" name="action" id="form_action" value="calculate">
+    
+                    <div class="form-section">
+                        <h4>Rendimentos</h4>
+                        <div class="input-grid">
+                            <div>
+                                <label for="salario">Salário Base:</label>
+                                <input type="text" id="salario" name="salario" value="{{ '%.2f'|format(profile_data.salario)|replace('.', ',') }}" required>
+                            </div>
+                            <div>
+                                <label for="quinquenio">Quinquênio:</label>
+                                <input type="text" id="quinquenio" name="quinquenio" value="{{ '%.2f'|format(profile_data.quinquenio)|replace('.', ',') }}">
+                            </div>
+                            <div>
+                                <label for="premiacao">Premiação (se houver):</label>
+                                <input type="text" id="premiacao" name="premiacao" value="{{ '%.2f'|format(profile_data.premiacao)|replace('.', ',') }}">
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="form-section">
+                        <h4>Descontos</h4>
+                        <div class="input-grid">
+                            <div>
+                                <label for="vale_alimentacao">Vale Alimentação:</label>
+                                <input type="text" id="vale_alimentacao" name="vale_alimentacao" value="{{ '%.2f'|format(profile_data.vale_alimentacao)|replace('.', ',') }}">
+                            </div>
+                            <div>
+                                <label for="plano_saude">Plano de Saúde:</label>
+                                <input type="text" id="plano_saude" name="plano_saude" value="{{ '%.2f'|format(profile_data.plano_saude)|replace('.', ',') }}">
+                            </div>
+                            <div>
+                                <label for="previdencia_privada">Previdência (seu contracheque):</label>
+                                <input type="text" id="previdencia_privada" name="previdencia_privada" value="{{ '%.2f'|format(profile_data.previdencia_privada)|replace('.', ',') }}">
+                            </div>
+                            <div>
+                                <label for="odontologico">Odontológico:</label>
+                                <input type="text" id="odontologico" name="odontologico" value="{{ '%.2f'|format(profile_data.odontologico)|replace('.', ',') }}">
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="button-group">
+                        <input type="submit" value="Calcular" onclick="document.getElementById('form_action').value='calculate';">
+                    </div>
+                </form>
+                
+                {% if salario_liquido is not none %}
+                <div class="result">
+                    <p>Seu Salário Líquido Estimado: <strong>R$ {{ "%.2f"|format(salario_liquido)|replace('.', ',') }}</strong></p>
+                </div>
+                {% endif %}
+            </div>
+    
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    function setupCollapsible(headerId, contentId, toggleButtonId) {
+                        const header = document.getElementById(headerId);
+                        const content = document.getElementById(contentId);
+                        const toggleButton = document.getElementById(toggleButtonId);
+                        const arrowIcon = toggleButton.querySelector('.arrow-icon');
+    
+                        if (!header || !content || !toggleButton || !arrowIcon) {
+                            console.error('Elemento colapsível não encontrado:', {headerId, contentId, toggleButtonId});
                             return;
                         }
-                    } else { 
-                        flashContainer.innerHTML = '';
+    
+                        function toggleSection() {
+                            const isExpanded = content.classList.toggle('expanded');
+                            arrowIcon.innerHTML = isExpanded ? '&#9650;' : '&#9660;';
+                            toggleButton.textContent = isExpanded ? 'Recolher ' : 'Expandir ';
+                            toggleButton.appendChild(arrowIcon);
+                        }
+    
+                        header.addEventListener('click', toggleSection);
+                        toggleButton.addEventListener('click', function(event) {
+                            event.stopPropagation();
+                            toggleSection();
+                        });
+    
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const loadProfileParam = urlParams.get('load_profile');
+                        
+                        if (contentId === 'profileContent' && loadProfileParam) { 
+                            content.classList.add('expanded');
+                            arrowIcon.innerHTML = '&#9650;';
+                            toggleButton.textContent = 'Recolher ';
+                            toggleButton.appendChild(arrowIcon);
+                        } else { 
+                            content.classList.remove('expanded');
+                            arrowIcon.innerHTML = '&#9660;';
+                            toggleButton.textContent = 'Expandir ';
+                            toggleButton.appendChild(arrowIcon);
+                        }
                     }
-
-                    const msgDiv = document.createElement('div');
-                    msgDiv.className = `flash-message ${category}`;
-                    msgDiv.textContent = message;
-                    flashContainer.prepend(msgDiv); 
-
-                    setTimeout(() => {
-                        msgDiv.remove();
-                    }, 5000); 
-                }
-
-            });
-        </script>
-    </body>
-    </html>
-    """
+    
+                    setupCollapsible('profileHeader', 'profileContent', 'toggleProfileContent');
+                    setupCollapsible('increaseHeader', 'increaseContent', 'toggleIncreaseContent');
+    
+                    const applyIncreaseButton = document.getElementById('applyIncrease');
+                    const saveIncreasedProfileButton = document.getElementById('saveIncreasedProfile');
+                    const increasePercentageInput = document.getElementById('increase_percentage');
+                    const salarioBaseInput = document.getElementById('salario');
+                    const profileNameInput = document.getElementById('profile_name'); 
+    
+                    if (applyIncreaseButton && salarioBaseInput && increasePercentageInput) {
+                        applyIncreaseButton.addEventListener('click', function() {
+                            let currentSalario = parseFloat(salarioBaseInput.value.replace(',', '.'));
+                            let increasePercentage = parseFloat(increasePercentageInput.value.replace(',', '.'));
+    
+                            if (isNaN(currentSalario) || isNaN(increasePercentage)) {
+                                flashMessage('Por favor, insira valores numéricos válidos.', 'danger');
+                                return;
+                            }
+                            if (increasePercentage < 0) {
+                                 flashMessage('O percentual de aumento não pode ser negativo.', 'danger');
+                                 return;
+                            }
+    
+                            let newSalario = currentSalario * (1 + (increasePercentage / 100));
+                            salarioBaseInput.value = newSalario.toFixed(2).replace('.', ',');
+                            
+                            flashMessage('Salário Base atualizado com o aumento! Lembre-se de salvar o perfil.', 'info');
+                        });
+                    }
+                    
+                    if (saveIncreasedProfileButton && salarioBaseInput && profileNameInput) {
+                        saveIncreasedProfileButton.addEventListener('click', function() {
+                            const newProfileName = prompt("Digite um nome para o novo perfil com o salário ajustado:");
+                            if (newProfileName) {
+                                profileNameInput.value = newProfileName; 
+                                document.getElementById('form_action').value = 'save_profile'; 
+                                document.getElementById('main-calc-form').submit(); 
+                            } else if (newProfileName === "") {
+                                flashMessage("O nome do perfil não pode ser vazio.", 'danger');
+                            }
+                        });
+                    }
+    
+                    function flashMessage(message, category = 'info') {
+                        let flashContainer = document.querySelector('.flash-messages-js-container');
+                        if (!flashContainer) { 
+                            const headerElement = document.querySelector('header');
+                            if (headerElement) {
+                                const newDiv = document.createElement('div');
+                                newDiv.className = 'flash-messages-js-container';
+                                headerElement.after(newDiv); 
+                                flashContainer = newDiv;
+                            } else {
+                                console.error('Não foi possível encontrar onde inserir a mensagem flash JS.');
+                                return;
+                            }
+                        } else { 
+                            flashContainer.innerHTML = '';
+                        }
+    
+                        const msgDiv = document.createElement('div');
+                        msgDiv.className = `flash-message ${category}`;
+                        msgDiv.textContent = message;
+                        flashContainer.prepend(msgDiv); 
+    
+                        setTimeout(() => {
+                            msgDiv.remove();
+                        }, 5000); 
+                    }
+    
+                });
+            </script>
+        </body>
+        </html>
+        """
     return render_template_string(html_form, salario_liquido=salario_liquido, profile_data=profile_data, profiles=profiles, username=username)
 
-# Garante que o banco de dados seja inicializado quando o aplicativo Flask é iniciado.
 with app.app_context():
     init_db()
 
