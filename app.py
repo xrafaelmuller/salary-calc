@@ -7,23 +7,14 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 app = Flask(__name__)
-# A SECRET_KEY é essencial para a segurança das sessões do Flask.
-# Em produção, use uma forma mais segura de gerá-la (e.g., variável de ambiente).
 app.secret_key = os.urandom(24) 
 
 # --- Configuração do Banco de Dados PostgreSQL ---
-# O Render injeta a DATABASE_URL automaticamente na variável de ambiente.
-# Se estiver rodando localmente e a variável não estiver definida,
-# ele tentará usar uma URL PostgreSQL local padrão.
 DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://user:password@localhost:5432/my_local_db')
 
-# Para garantir que o SSL seja usado em produção no Render, que é um requisito comum.
-# O Render define a variável de ambiente 'RENDER'.
 if "RENDER" in os.environ: 
     DATABASE_URL = DATABASE_URL + "?sslmode=require"
 
-# Cria o engine do SQLAlchemy. 
-# Usamos psycopg2 como driver, por isso o replace na URL.
 engine = create_engine(DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://"))
 
 def get_db_connection():
@@ -32,14 +23,11 @@ def get_db_connection():
         return engine.connect()
     except OperationalError as e:
         print(f"Erro ao conectar ao banco de dados: {e}")
-        # Lançar uma exceção para que a rota possa tratar o erro de conexão
         raise ConnectionError("Não foi possível conectar ao banco de dados.") from e
-
 
 def init_db():
     """Inicializa o banco de dados, criando tabelas de usuários e perfis se não existirem."""
     with get_db_connection() as conn:
-        # Tabela de Usuários
         conn.execute(text('''
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
@@ -47,7 +35,6 @@ def init_db():
                 password_hash TEXT NOT NULL
             )
         '''))
-        # Tabela de Perfis, agora com user_id
         conn.execute(text('''
             CREATE TABLE IF NOT EXISTS profiles (
                 id SERIAL PRIMARY KEY,
@@ -60,11 +47,11 @@ def init_db():
                 previdencia_privada REAL,
                 odontologico REAL,
                 premiacao REAL,
-                UNIQUE(user_id, name), -- Garante que um usuário não tenha dois perfis com o mesmo nome
+                UNIQUE(user_id, name),
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
         '''))
-        conn.commit() # Commit é necessário ao usar conn.execute direto para persistir a criação
+        conn.commit()
 
 # --- Funções de Banco de Dados para Usuários ---
 def add_user(username, password):
@@ -76,8 +63,8 @@ def add_user(username, password):
                          {"username": username, "password_hash": hashed_password})
             conn.commit()
             return True
-        except IntegrityError: # Captura erro de chave única (usuário já existe)
-            conn.rollback() # Garante que a transação seja revertida em caso de erro
+        except IntegrityError:
+            conn.rollback()
             return False
 
 def get_user_by_username(username):
@@ -87,7 +74,7 @@ def get_user_by_username(username):
                               {"username": username})
         row = result.fetchone()
         if row:
-            return dict(row._mapping) # Converte o RowProxy para dicionário
+            return dict(row._mapping)
         return None
 
 # --- Funções de Banco de Dados para Perfis (Atualizadas com user_id) ---
@@ -142,9 +129,8 @@ def get_all_profile_names(user_id):
         return [row[0] for row in result.fetchall()]
 
 # --- Tabelas de Cálculo (INSS e IRPF 2025) ---
-# Os cálculos de IRPF e INSS estão corretos (confirmado em 2025-06-17).
 INSS_TETO_2025 = 8157.41
-INSS_MAX_DESCONTO_2025 = 951.62 # (8157.41 * 0.14) - 190.40
+INSS_MAX_DESCONTO_2025 = 951.62
 
 IRPF_TABELA_2025 = [
     {"limite": 2428.80, "aliquota": 0.0, "deducao": 0.0},
@@ -188,18 +174,40 @@ def login():
     <html>
     <head>
         <title>Login - Calculadora de Salário</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
-            body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; display: flex; justify-content: center; align-items: center; min-height: 90vh; }
-            .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 400px; width: 100%; text-align: center; }
-            h2 { color: #333; }
+            body { 
+                font-family: Arial, sans-serif; margin: 0; background-color: #f4f4f4; 
+                display: flex; justify-content: center; align-items: center; min-height: 100vh;
+                padding: 20px; box-sizing: border-box;
+            }
+            .container { 
+                background-color: white; padding: 30px; border-radius: 8px; 
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 400px; width: 100%; 
+                text-align: center;
+            }
+            h2 { color: #333; margin-bottom: 20px; }
             label { display: block; text-align: left; margin-bottom: 5px; font-weight: bold; }
-            input[type="text"], input[type="password"] { width: calc(100% - 22px); padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-            input[type="submit"] { background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; }
+            input[type="text"], input[type="password"] { 
+                width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; 
+                border-radius: 4px; box-sizing: border-box; 
+            }
+            input[type="submit"] { 
+                background-color: #4CAF50; color: white; padding: 10px 20px; border: none; 
+                border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; 
+            }
             input[type="submit"]:hover { background-color: #45a049; }
             .link-register { margin-top: 15px; font-size: 0.9em; }
             .flash-message { padding: 10px; margin-bottom: 15px; border-radius: 4px; text-align: left; }
             .flash-message.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
             .flash-message.danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+            /* Media Queries for responsiveness */
+            @media (max-width: 600px) {
+                .container {
+                    padding: 20px;
+                }
+            }
         </style>
     </head>
     <body>
@@ -244,18 +252,40 @@ def register():
     <html>
     <head>
         <title>Cadastro - Calculadora de Salário</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
-            body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; display: flex; justify-content: center; align-items: center; min-height: 90vh; }
-            .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 400px; width: 100%; text-align: center; }
-            h2 { color: #333; }
+            body { 
+                font-family: Arial, sans-serif; margin: 0; background-color: #f4f4f4; 
+                display: flex; justify-content: center; align-items: center; min-height: 100vh;
+                padding: 20px; box-sizing: border-box;
+            }
+            .container { 
+                background-color: white; padding: 30px; border-radius: 8px; 
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 400px; width: 100%; 
+                text-align: center;
+            }
+            h2 { color: #333; margin-bottom: 20px; }
             label { display: block; text-align: left; margin-bottom: 5px; font-weight: bold; }
-            input[type="text"], input[type="password"] { width: calc(100% - 22px); padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-            input[type="submit"] { background-color: #008CBA; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; }
+            input[type="text"], input[type="password"] { 
+                width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; 
+                border-radius: 4px; box-sizing: border-box; 
+            }
+            input[type="submit"] { 
+                background-color: #008CBA; color: white; padding: 10px 20px; border: none; 
+                border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; 
+            }
             input[type="submit"]:hover { background-color: #007bb5; }
             .link-login { margin-top: 15px; font-size: 0.9em; }
             .flash-message { padding: 10px; margin-bottom: 15px; border-radius: 4px; text-align: left; }
             .flash-message.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
             .flash-message.danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+            /* Media Queries for responsiveness */
+            @media (max-width: 600px) {
+                .container {
+                    padding: 20px;
+                }
+            }
         </style>
     </head>
     <body>
@@ -334,13 +364,13 @@ def index():
 
                 total_descontos = (profile_data['vale_alimentacao'] + profile_data['plano_saude'] + 
                                    profile_data['previdencia_privada'] + profile_data['odontologico'] + 
-                                   desconto_inss + desconto_irpf) # A premiação é rendimento, não desconto
+                                   desconto_inss + desconto_irpf)
                                    
                 salario_liquido = total_rendimentos_base - total_descontos
                 
         except ValueError:
             flash('Erro: Por favor, insira valores numéricos válidos.', 'danger')
-        except ConnectionError: # Captura o erro de conexão do get_db_connection
+        except ConnectionError:
             flash('Erro: Não foi possível conectar ao banco de dados. Tente novamente mais tarde.', 'danger')
             return redirect(url_for('login')) 
     
@@ -348,47 +378,172 @@ def index():
     if profile_to_load:
         loaded_data = load_profile_from_db(user_id, profile_to_load)
         if loaded_data:
-            # Garante que todos os campos do perfil_data sejam preenchidos
             profile_data = {key: loaded_data.get(key, 0.00) for key in profile_data}
             profile_data['profile_name'] = profile_to_load
             flash('Perfil carregado. Clique em "Calcular" para ver o salário líquido.', 'info')
         else:
             flash('Erro: Perfil não encontrado ou não pertence a você.', 'danger')
 
-    profiles = get_all_profile_names(user_id) # Pega apenas os perfis do usuário logado
+    profiles = get_all_profile_names(user_id)
 
     html_form = """
     <!DOCTYPE html>
     <html>
     <head>
         <title>Calculadora de Salário Líquido</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
-            body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
-            .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 600px; margin: auto; }
-            header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-            header h2 { margin: 0; }
-            header .user-info { font-size: 0.9em; }
+            body { 
+                font-family: Arial, sans-serif; margin: 0; background-color: #f4f4f4; 
+                display: flex; justify-content: center; align-items: flex-start; min-height: 100vh;
+                padding: 20px; box-sizing: border-box;
+            }
+            .container { 
+                background-color: white; padding: 30px; border-radius: 8px; 
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 900px; width: 100%; margin: auto;
+                display: flex; flex-direction: column; /* Default para mobile */
+            }
+            header { 
+                display: flex; justify-content: space-between; align-items: center; 
+                margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; 
+                flex-wrap: wrap; /* Permite quebrar linha em telas pequenas */
+            }
+            header h2 { margin: 0; font-size: 1.5em; }
+            header .user-info { font-size: 0.9em; text-align: right; }
             header .user-info a { margin-left: 10px; color: #dc3545; text-decoration: none; }
             label { display: block; margin-bottom: 5px; font-weight: bold; }
-            input[type="text"], select { width: calc(100% - 22px); padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-            .button-group { display: flex; justify-content: space-between; margin-top: 20px;}
-            .button-group button, .button-group input[type="submit"] { background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; flex-grow: 1; margin: 0 5px; }
+            input[type="text"], select { 
+                width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; 
+                border-radius: 4px; box-sizing: border-box; 
+            }
+            .form-group {
+                flex: 1; /* Faz os grupos de formulário ocuparem espaço igual */
+                padding: 0 10px; /* Espaçamento entre as colunas */
+                box-sizing: border-box;
+            }
+            .input-column {
+                display: flex;
+                flex-wrap: wrap; /* Permite que os campos quebrem linha */
+                gap: 15px; /* Espaçamento entre os inputs */
+            }
+            .input-column .form-field {
+                flex: 1 1 calc(50% - 7.5px); /* Dois campos por linha no desktop, com espaçamento */
+                min-width: 250px; /* Garante um tamanho mínimo para o campo */
+            }
+            .button-group { 
+                display: flex; justify-content: flex-end; margin-top: 20px; 
+                gap: 10px; /* Espaçamento entre os botões */
+                flex-wrap: wrap; /* Quebra linha em telas pequenas */
+            }
+            .button-group button, .button-group input[type="submit"] { 
+                background-color: #4CAF50; color: white; padding: 10px 20px; border: none; 
+                border-radius: 4px; cursor: pointer; font-size: 16px; 
+                flex-grow: 0; /* Não cresce por padrão */
+                flex-shrink: 0; /* Não encolhe por padrão */
+                min-width: 120px; /* Largura mínima para os botões */
+            }
             .button-group button.secondary, .button-group input[type="submit"].secondary { background-color: #008CBA; }
             .button-group button:hover, .button-group input[type="submit"]:hover { opacity: 0.9; }
-            .result { margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 4px; background-color: #e9e9e9; font-size: 1.1em; text-align: center; }
+            .result { 
+                margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 4px; 
+                background-color: #e9e9e9; font-size: 1.1em; text-align: center; 
+            }
             .result strong { color: #333; }
-            .profile-section { border: 1px dashed #ccc; padding: 15px; margin-bottom: 20px; border-radius: 8px; background-color: #f9f9f9;}
-            .profile-section label { display: inline-block; margin-right: 10px; }
-            .profile-section input[type="text"] { width: auto; margin-right: 10px; display: inline-block; }
-            .profile-section select { width: auto; display: inline-block; margin-right: 10px; }
-            .profile-actions { margin-top: 10px; display: flex; justify-content: flex-start; align-items: center;}
-            .profile-actions button { margin-right: 10px; flex-shrink: 0; }
-            .profile-actions input[type="text"] { flex-grow: 1; margin-bottom: 0; }
+            .profile-section { 
+                border: 1px dashed #ccc; padding: 15px; margin-bottom: 20px; border-radius: 8px; 
+                background-color: #f9f9f9; display: flex; align-items: center; flex-wrap: wrap;
+                gap: 10px; /* Espaçamento entre elementos do perfil */
+            }
+            .profile-section label { margin-bottom: 0; font-weight: bold; flex-shrink: 0; }
+            .profile-section select { flex-grow: 1; min-width: 150px; margin-bottom: 0; }
+            .profile-actions { 
+                margin-top: 10px; display: flex; justify-content: flex-start; align-items: center;
+                flex-wrap: wrap; gap: 10px; /* Espaçamento entre elementos */
+            }
+            .profile-actions label { margin-bottom: 0; }
+            .profile-actions input[type="text"] { flex-grow: 1; margin-bottom: 0; min-width: 150px; }
+            .profile-actions button { flex-shrink: 0; }
+
             .flash-message { padding: 10px; margin-bottom: 15px; border-radius: 4px; text-align: left; }
             .flash-message.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
             .flash-message.info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
             .flash-message.warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
             .flash-message.danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+            /* Desktop layout for inputs */
+            .form-layout {
+                display: flex;
+                flex-wrap: wrap; /* Permite quebra de linha para colunas em telas menores */
+                gap: 20px; /* Espaçamento entre as "colunas" */
+            }
+
+            /* Media Queries for responsiveness */
+            @media (min-width: 768px) {
+                .container {
+                    flex-direction: row; /* Layout horizontal em desktop */
+                    justify-content: space-between;
+                }
+                .form-layout {
+                    flex-direction: row; /* Mantém as colunas lado a lado */
+                    flex-grow: 1;
+                }
+                .form-group {
+                    min-width: 280px; /* Ajusta largura mínima para colunas no desktop */
+                    max-width: 50%;
+                }
+                .profile-actions, .button-group {
+                    justify-content: flex-end; /* Alinha botões à direita no desktop */
+                }
+            }
+
+            @media (max-width: 767px) {
+                body {
+                    align-items: flex-start; /* Alinha ao topo em mobile */
+                }
+                .container {
+                    padding: 20px;
+                    flex-direction: column; /* Colunas empilhadas em mobile */
+                }
+                header {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+                header .user-info {
+                    margin-top: 10px;
+                    text-align: left;
+                    width: 100%;
+                }
+                .form-layout {
+                    flex-direction: column; /* Colunas do formulário empilhadas */
+                    gap: 0;
+                }
+                .form-group {
+                    padding: 0;
+                    margin-bottom: 15px;
+                }
+                .input-column .form-field {
+                    flex: 1 1 100%; /* Um campo por linha em mobile */
+                    min-width: unset;
+                }
+                .button-group, .profile-actions {
+                    flex-direction: column; /* Botões empilhados em mobile */
+                    width: 100%;
+                }
+                .button-group button, .button-group input[type="submit"],
+                .profile-actions button, .profile-actions input[type="text"],
+                .profile-actions select {
+                    width: 100%;
+                    margin-left: 0;
+                    margin-right: 0;
+                }
+                .profile-section {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+                .profile-section select {
+                    width: 100%;
+                }
+            }
         </style>
     </head>
     <body>
@@ -421,35 +576,54 @@ def index():
                 <p><small>Selecione um perfil para carregar os dados no formulário.</small></p>
             </div>
 
-            <form method="POST">
+            <form method="POST" class="form-layout">
                 <input type="hidden" name="action" id="form_action" value="calculate">
 
-                <label for="salario">Salário Base:</label>
-                <input type="text" id="salario" name="salario" value="{{ '%.2f'|format(profile_data.salario)|replace('.', ',') }}" required>
+                <div class="form-group">
+                    <h4>Rendimentos</h4>
+                    <div class="input-column">
+                        <div class="form-field">
+                            <label for="salario">Salário Base:</label>
+                            <input type="text" id="salario" name="salario" value="{{ '%.2f'|format(profile_data.salario)|replace('.', ',') }}" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="quinquenio">Quinquênio:</label>
+                            <input type="text" id="quinquenio" name="quinquenio" value="{{ '%.2f'|format(profile_data.quinquenio)|replace('.', ',') }}">
+                        </div>
+                        <div class="form-field">
+                            <label for="premiacao">Premiação (se houver):</label>
+                            <input type="text" id="premiacao" name="premiacao" value="{{ '%.2f'|format(profile_data.premiacao)|replace('.', ',') }}">
+                        </div>
+                    </div>
+                </div>
 
-                <label for="quinquenio">Quinquênio:</label>
-                <input type="text" id="quinquenio" name="quinquenio" value="{{ '%.2f'|format(profile_data.quinquenio)|replace('.', ',') }}">
+                <div class="form-group">
+                    <h4>Descontos</h4>
+                    <div class="input-column">
+                        <div class="form-field">
+                            <label for="vale_alimentacao">Vale Alimentação:</label>
+                            <input type="text" id="vale_alimentacao" name="vale_alimentacao" value="{{ '%.2f'|format(profile_data.vale_alimentacao)|replace('.', ',') }}">
+                        </div>
+                        <div class="form-field">
+                            <label for="plano_saude">Plano de Saúde:</label>
+                            <input type="text" id="plano_saude" name="plano_saude" value="{{ '%.2f'|format(profile_data.plano_saude)|replace('.', ',') }}">
+                        </div>
+                        <div class="form-field">
+                            <label for="previdencia_privada">Previdência (seu contracheque):</label>
+                            <input type="text" id="previdencia_privada" name="previdencia_privada" value="{{ '%.2f'|format(profile_data.previdencia_privada)|replace('.', ',') }}">
+                        </div>
+                        <div class="form-field">
+                            <label for="odontologico">Odontológico:</label>
+                            <input type="text" id="odontologico" name="odontologico" value="{{ '%.2f'|format(profile_data.odontologico)|replace('.', ',') }}">
+                        </div>
+                    </div>
+                </div>
 
-                <label for="premiacao">Premiação (se houver, mesmo que seja descontada):</label>
-                <input type="text" id="premiacao" name="premiacao" value="{{ '%.2f'|format(profile_data.premiacao)|replace('.', ',') }}">
-
-                <label for="vale_alimentacao">Desconto Vale Alimentação:</label>
-                <input type="text" id="vale_alimentacao" name="vale_alimentacao" value="{{ '%.2f'|format(profile_data.vale_alimentacao)|replace('.', ',') }}">
-
-                <label for="plano_saude">Desconto Plano de Saúde:</label>
-                <input type="text" id="plano_saude" name="plano_saude" value="{{ '%.2f'|format(profile_data.plano_saude)|replace('.', ',') }}">
-                
-                <label for="previdencia_privada">Desconto Previdência (seu contracheque):</label>
-                <input type="text" id="previdencia_privada" name="previdencia_privada" value="{{ '%.2f'|format(profile_data.previdencia_privada)|replace('.', ',') }}">
-
-                <label for="odontologico">Desconto Odontológico:</label>
-                <input type="text" id="odontologico" name="odontologico" value="{{ '%.2f'|format(profile_data.odontologico)|replace('.', ',') }}">
-                
-                <div class="button-group">
+                <div class="button-group" style="width: 100%;">
                     <input type="submit" value="Calcular" onclick="document.getElementById('form_action').value='calculate';">
                 </div>
                 
-                <div class="profile-actions">
+                <div class="profile-actions" style="width: 100%;">
                     <label for="profile_name">Nome do Perfil para Salvar:</label>
                     <input type="text" id="profile_name" name="profile_name" placeholder="Ex: Meu Salário" value="{{ profile_data.profile_name }}">
                     <button type="submit" name="action" value="save_profile" class="secondary" onclick="document.getElementById('form_action').value='save_profile';">Salvar Perfil</button>
@@ -467,14 +641,9 @@ def index():
     """
     return render_template_string(html_form, salario_liquido=salario_liquido, profile_data=profile_data, profiles=profiles, username=username)
 
-# Garante que o banco de dados seja inicializado quando o aplicativo Flask é iniciado.
-# Isso vai criar as tabelas se elas não existirem no PostgreSQL.
 with app.app_context():
     init_db()
 
 if __name__ == '__main__':
-    # O Render define a variável de ambiente PORT.
-    # Usamos 0.0.0.0 para que o servidor Flask escute em todas as interfaces de rede.
-    # debug=False é crucial para produção.
     port = int(os.environ.get("PORT", 5000)) 
     app.run(host='0.0.0.0', port=port, debug=False)
