@@ -130,7 +130,6 @@ def get_all_profile_names(user_id):
         return [row[0] for row in result.fetchall()]
 
 # --- Tabelas de Cálculo (INSS e IRPF 2025) ---
-# Os cálculos de IRPF e INSS estão corretos (confirmado em 2025-06-17).
 INSS_TETO_2025 = 8157.41
 INSS_MAX_DESCONTO_2025 = 951.62
 
@@ -405,10 +404,10 @@ def index():
             body { 
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
                 margin: 0; 
-                background-color: #e9eff2; /* Um tom mais suave de cinza/azul */
+                background-color: #e9eff2; 
                 display: flex; 
                 justify-content: center; 
-                align-items: flex-start; /* Alinha ao topo inicialmente */
+                align-items: flex-start; 
                 min-height: 100vh;
                 padding: 20px; 
             }
@@ -416,13 +415,13 @@ def index():
             .container { 
                 background-color: white; 
                 padding: 30px; 
-                border-radius: 12px; /* Cantos mais arredondados */
-                box-shadow: 0 6px 20px rgba(0,0,0,0.1); /* Sombra mais suave */
-                max-width: 960px; /* Largura máxima para desktop */
+                border-radius: 12px; 
+                box-shadow: 0 6px 20px rgba(0,0,0,0.1); 
+                max-width: 960px; 
                 width: 100%; 
                 display: flex; 
-                flex-direction: column; /* Padrão para mobile: colunas empilhadas */
-                gap: 25px; /* Espaçamento entre seções */
+                flex-direction: column; 
+                gap: 25px; 
             }
 
             header { 
@@ -431,14 +430,14 @@ def index():
                 align-items: center; 
                 margin-bottom: 15px; 
                 padding-bottom: 15px; 
-                border-bottom: 1px solid #eceff1; /* Linha divisória mais sutil */
+                border-bottom: 1px solid #eceff1; 
                 flex-wrap: wrap; 
-                gap: 10px; /* Espaçamento entre título e info de usuário */
+                gap: 10px; 
             }
             header h2 { 
                 margin: 0; 
-                font-size: 1.8em; /* Título um pouco maior */
-                color: #334e68; /* Azul escuro para o título */
+                font-size: 1.8em; 
+                color: #334e68; 
             }
             header .user-info { 
                 font-size: 0.95em; 
@@ -451,7 +450,7 @@ def index():
                 color: #2b3a4a;
             }
             header .user-info a { 
-                color: #d9534f; /* Vermelho para "Sair" */
+                color: #d9534f; 
                 text-decoration: none; 
                 font-weight: bold;
                 transition: color 0.3s ease;
@@ -463,32 +462,31 @@ def index():
             label { 
                 display: block; 
                 margin-bottom: 6px; 
-                font-weight: 600; /* Um pouco mais encorpado */
-                color: #4a6572; /* Tom de cinza azulado */
+                font-weight: 600; 
+                color: #4a6572; 
             }
             input[type="text"], input[type="password"], select { 
                 width: 100%; 
                 padding: 12px; 
-                margin-bottom: 15px; /* Espaçamento padrão entre campos */
-                border: 1px solid #ccd6dd; /* Borda mais suave */
-                border-radius: 8px; /* Cantos mais arredondados para inputs */
+                margin-bottom: 15px; 
+                border: 1px solid #ccd6dd; 
+                border-radius: 8px; 
                 font-size: 1em;
                 color: #333;
                 transition: border-color 0.3s ease, box-shadow 0.3s ease;
             }
             input[type="text"]:focus, input[type="password"]:focus, select:focus {
-                border-color: #007bff; /* Borda azul ao focar */
-                box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* Sombra suave ao focar */
+                border-color: #007bff; 
+                box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); 
                 outline: none;
             }
 
-            /* Seções de formulário (Rendimentos, Descontos) */
             .form-section {
-                border: 1px solid #e0e6ea; /* Borda leve para agrupar */
+                border: 1px solid #e0e6ea; 
                 border-radius: 10px;
                 padding: 20px;
-                background-color: #fcfdfe; /* Fundo levemente diferente */
-                margin-bottom: 20px; /* Espaçamento entre as seções */
+                background-color: #fcfdfe; 
+                margin-bottom: 20px; 
             }
             .form-section h4 {
                 color: #334e68;
@@ -498,22 +496,21 @@ def index():
                 padding-bottom: 10px;
             }
 
-            /* Layout de colunas para inputs dentro das seções */
             .input-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Colunas auto-ajustáveis */
-                gap: 20px; /* Espaçamento entre os campos */
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+                gap: 20px; 
             }
 
             .button-group { 
                 display: flex; 
-                justify-content: flex-end; /* Alinha à direita no desktop */
+                justify-content: flex-end; 
                 gap: 15px; 
                 margin-top: 15px;
-                flex-wrap: wrap; /* Permite que os botões quebrem linha */
+                flex-wrap: wrap; 
             }
             .button-group button, .button-group input[type="submit"] { 
-                background-color: #28a745; /* Verde primário */
+                background-color: #28a745; 
                 color: white; 
                 padding: 12px 25px; 
                 border: none; 
@@ -522,70 +519,104 @@ def index():
                 font-size: 1em; 
                 font-weight: bold;
                 transition: background-color 0.3s ease, transform 0.2s ease;
-                flex-shrink: 0; /* Não encolhe */
+                flex-shrink: 0; 
             }
             .button-group button.secondary, .button-group input[type="submit"].secondary { 
-                background-color: #007bff; /* Azul secundário */
+                background-color: #007bff; 
             }
             .button-group button:hover, .button-group input[type="submit"]:hover { 
-                background-color: #218838; /* Escurece no hover */
-                transform: translateY(-2px); /* Pequeno efeito de elevação */
+                background-color: #218838; 
+                transform: translateY(-2px); 
             }
             .button-group button.secondary:hover, .button-group input[type="submit"].secondary:hover {
                 background-color: #0056b3;
             }
 
             .result { 
-                margin-top: 30px; /* Mais espaço acima */
+                margin-top: 30px; 
                 padding: 20px; 
-                border: 1px solid #b8daff; /* Borda azul clara */
+                border: 1px solid #b8daff; 
                 border-radius: 10px; 
-                background-color: #e7f3ff; /* Fundo azul claro */
+                background-color: #e7f3ff; 
                 font-size: 1.2em; 
                 text-align: center; 
-                color: #004085; /* Texto azul escuro */
+                color: #004085; 
                 font-weight: bold;
             }
             .result strong { 
-                color: #002752; /* Azul ainda mais escuro */
+                color: #002752; 
                 font-size: 1.3em;
             }
 
+            /* --- Seção de Perfis Ocultável --- */
             .profile-section { 
-                border: 1px dashed #a7c7e0; /* Borda pontilhada para perfis */
+                border: 1px dashed #a7c7e0; 
                 padding: 20px; 
                 margin-bottom: 25px; 
                 border-radius: 10px; 
-                background-color: #eef7fc; /* Fundo suave */
-                display: flex; 
-                flex-direction: column; /* Padrão mobile */
-                gap: 15px; 
+                background-color: #eef7fc; 
             }
-            .profile-section h3 {
-                color: #334e68;
+            .profile-section-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
                 margin-bottom: 10px;
-                font-size: 1.3em;
             }
-            .profile-section .profile-load-group {
+            .profile-section-header h3 {
+                color: #334e68;
+                font-size: 1.3em;
+                margin: 0;
+            }
+            .profile-section-header button {
+                background: none;
+                border: none;
+                color: #007bff;
+                cursor: pointer;
+                font-size: 1em;
+                font-weight: bold;
+                transition: color 0.3s ease;
+            }
+            .profile-section-header button:hover {
+                color: #0056b3;
+                text-decoration: underline;
+            }
+
+            .profile-content {
+                display: none; /* ESCONDIDO POR PADRÃO */
+                flex-direction: column;
+                gap: 15px;
+                overflow: hidden; /* Garante que o conteúdo não vaze durante a transição */
+                max-height: 0; /* Para transição de altura */
+                transition: max-height 0.5s ease-out; /* Suaviza a transição */
+            }
+
+            .profile-content.expanded {
+                display: flex; /* Mostrar quando expandido */
+                max-height: 500px; /* Um valor grande o suficiente para o conteúdo */
+                /* Remove overflow hidden se houver scrollbar desejada, ou ajuste. */
+            }
+
+
+            .profile-load-group {
                 display: flex;
                 flex-wrap: wrap;
                 align-items: center;
                 gap: 10px;
             }
-            .profile-section .profile-load-group label {
+            .profile-load-group label {
                 margin-bottom: 0;
                 flex-shrink: 0;
             }
-            .profile-section .profile-load-group select {
-                flex-grow: 1; /* Ocupa espaço disponível */
-                min-width: 180px; /* Garante tamanho mínimo */
+            .profile-load-group select {
+                flex-grow: 1; 
+                min-width: 180px; 
             }
             .profile-actions { 
                 display: flex; 
                 flex-wrap: wrap; 
                 align-items: center;
                 gap: 10px; 
-                margin-top: 15px; /* Espaço para salvar perfil */
+                margin-top: 15px; 
             }
             .profile-actions label { margin-bottom: 0; flex-shrink: 0; }
             .profile-actions input[type="text"] { flex-grow: 1; margin-bottom: 0; min-width: 150px; }
@@ -608,20 +639,17 @@ def index():
 
             /* Desktop e Telas Maiores */
             @media (min-width: 768px) {
-                .container {
-                    flex-direction: column; /* Mantém como coluna principal, mas o form dentro terá flex */
-                }
-                form.main-form { /* Novo seletor para o formulário principal */
-                    display: flex; /* Faz os grupos de rendimento/desconto ficarem lado a lado */
+                form.main-form { 
+                    display: flex; 
                     flex-wrap: wrap;
-                    gap: 30px; /* Espaçamento maior entre as duas colunas principais do form */
+                    gap: 30px; 
                 }
                 .form-section {
-                    flex: 1 1 calc(50% - 15px); /* Duas colunas quase iguais, com gap */
-                    margin-bottom: 0; /* Remove margem entre seções em desktop */
+                    flex: 1 1 calc(50% - 15px); 
+                    margin-bottom: 0; 
                 }
                 .button-group {
-                    width: 100%; /* Ocupa toda a largura para centralização/alinhamento */
+                    width: 100%; 
                     justify-content: flex-end;
                 }
                 .profile-actions {
@@ -636,7 +664,7 @@ def index():
                     padding: 10px;
                 }
                 .container {
-                    padding: 20px 15px; /* Menor padding horizontal em mobile */
+                    padding: 20px 15px; 
                     gap: 20px;
                 }
                 header {
@@ -661,19 +689,19 @@ def index():
                     font-size: 1.1em;
                 }
                 .input-grid {
-                    grid-template-columns: 1fr; /* Uma coluna por linha em mobile */
+                    grid-template-columns: 1fr; 
                     gap: 10px;
                 }
                 .button-group, .profile-actions, .profile-section .profile-load-group {
-                    flex-direction: column; /* Itens empilhados */
-                    align-items: stretch; /* Estica para preencher largura */
+                    flex-direction: column; 
+                    align-items: stretch; 
                 }
                 .button-group button, .button-group input[type="submit"],
                 .profile-actions button, .profile-actions input[type="text"],
                 .profile-actions select,
                 .profile-section select {
-                    width: 100%; /* Ocupa largura total */
-                    margin: 0; /* Remove margens extras */
+                    width: 100%; 
+                    margin: 0; 
                 }
                 .profile-section p small {
                     text-align: center;
@@ -701,21 +729,26 @@ def index():
             {% endwith %}
             
             <div class="profile-section">
-                <h3>Gerenciar Perfis</h3>
-                <div class="profile-load-group">
-                    <label for="profile_select">Carregar Perfil:</label>
-                    <select id="profile_select" onchange="window.location.href='/?load_profile=' + this.value">
-                        <option value="">-- Selecione um Perfil --</option>
-                        {% for profile in profiles %}
-                            <option value="{{ profile }}" {% if profile == request.args.get('load_profile') %}selected{% endif %}>{{ profile }}</option>
-                        {% endfor %}
-                    </select>
+                <div class="profile-section-header">
+                    <h3>Gerenciar Perfis</h3>
+                    <button type="button" id="toggleProfileContent">Expandir <span id="arrowIcon">&#9660;</span></button>
                 </div>
-                <p><small>Selecione um perfil para carregar os dados no formulário.</small></p>
-                <div class="profile-actions">
-                    <label for="profile_name">Nome do Perfil para Salvar:</label>
-                    <input type="text" id="profile_name" name="profile_name" placeholder="Ex: Meu Salário" value="{{ profile_data.profile_name }}">
-                    <button type="submit" name="action" value="save_profile" class="secondary" form="main-calc-form" onclick="document.getElementById('form_action').value='save_profile';">Salvar Perfil</button>
+                <div class="profile-content" id="profileContent">
+                    <div class="profile-load-group">
+                        <label for="profile_select">Carregar Perfil:</label>
+                        <select id="profile_select" onchange="window.location.href='/?load_profile=' + this.value">
+                            <option value="">-- Selecione um Perfil --</option>
+                            {% for profile in profiles %}
+                                <option value="{{ profile }}" {% if profile == request.args.get('load_profile') %}selected{% endif %}>{{ profile }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <p><small>Selecione um perfil para carregar os dados no formulário.</small></p>
+                    <div class="profile-actions">
+                        <label for="profile_name">Nome do Perfil para Salvar:</label>
+                        <input type="text" id="profile_name" name="profile_name" placeholder="Ex: Meu Salário" value="{{ profile_data.profile_name }}">
+                        <button type="submit" name="action" value="save_profile" class="secondary" form="main-calc-form" onclick="document.getElementById('form_action').value='save_profile';">Salvar Perfil</button>
+                    </div>
                 </div>
             </div>
 
@@ -773,6 +806,43 @@ def index():
             </div>
             {% endif %}
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const toggleButton = document.getElementById('toggleProfileContent');
+                const profileContent = document.getElementById('profileContent');
+                const arrowIcon = document.getElementById('arrowIcon');
+
+                // Verifica se há um perfil sendo carregado na URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const loadProfileParam = urlParams.get('load_profile');
+
+                // Se houver flash messages ou um perfil sendo carregado, expande a seção por padrão.
+                // Usamos um pequeno truque para verificar se há mensagens flash ativas.
+                // Embora 'get_flashed_messages' esteja no Python, o HTML renderizado não tem acesso a isso facilmente via JS.
+                // Uma solução mais robusta seria injetar uma variável JS via Flask, mas para simplicidade,
+                // vamos confiar no 'load_profile' ou assumir que se houver um post, pode haver flash.
+                const hasFlashedMessages = document.querySelector('.flash-message') !== null;
+                
+                if (loadProfileParam || hasFlashedMessages || request.method === 'POST') {
+                    profileContent.classList.add('expanded');
+                    toggleButton.innerHTML = 'Recolher <span id="arrowIcon">&#9650;</span>'; // Triângulo para cima
+                } else {
+                    profileContent.classList.remove('expanded');
+                    toggleButton.innerHTML = 'Expandir <span id="arrowIcon">&#9660;</span>'; // Triângulo para baixo
+                }
+
+
+                toggleButton.addEventListener('click', function() {
+                    profileContent.classList.toggle('expanded');
+                    if (profileContent.classList.contains('expanded')) {
+                        toggleButton.innerHTML = 'Recolher <span id="arrowIcon">&#9650;</span>'; // Triângulo para cima
+                    } else {
+                        toggleButton.innerHTML = 'Expandir <span id="arrowIcon">&#9660;</span>'; // Triângulo para baixo
+                    }
+                });
+            });
+        </script>
     </body>
     </html>
     """
