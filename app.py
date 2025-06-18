@@ -36,6 +36,7 @@ def init_db():
                 password_hash TEXT NOT NULL
             )
         '''))
+        # Adicione uma coluna 'updated_at' para saber o perfil mais recente
         conn.execute(text('''
             CREATE TABLE IF NOT EXISTS profiles (
                 id SERIAL PRIMARY KEY,
@@ -48,6 +49,7 @@ def init_db():
                 previdencia_privada REAL,
                 odontologico REAL,
                 premiacao REAL,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Nova coluna
                 UNIQUE(user_id, name),
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
@@ -78,7 +80,7 @@ def get_user_by_username(username):
             return dict(row._mapping)
         return None
 
-# --- Funções de Banco de Dados para Perfis (Atualizadas com user_id) ---
+# --- Funções de Banco de Dados para Perfis (Atualizadas com user_id e updated_at) ---
 def save_profile_to_db(user_id, profile_name, data):
     """Salva ou atualiza um perfil para um usuário específico."""
     with get_db_connection() as conn:
@@ -90,7 +92,8 @@ def save_profile_to_db(user_id, profile_name, data):
             conn.execute(text('''
                 UPDATE profiles SET
                     salario=:salario, quinquenio=:quinquenio, vale_alimentacao=:vale_alimentacao, plano_saude=:plano_saude,
-                    previdencia_privada=:previdencia_privada, odontologico=:odontologico, premiacao=:premiacao
+                    previdencia_privada=:previdencia_privada, odontologico=:odontologico, premiacao=:premiacao,
+                    updated_at=CURRENT_TIMESTAMP
                 WHERE id=:id
             '''), {
                 "salario": data['salario'], "quinquenio": data['quinquenio'], "vale_alimentacao": data['vale_alimentacao'],
@@ -101,9 +104,9 @@ def save_profile_to_db(user_id, profile_name, data):
         else:
             conn.execute(text('''
                 INSERT INTO profiles (user_id, name, salario, quinquenio, vale_alimentacao,
-                                      plano_saude, previdencia_privada, odontologico, premiacao)
+                                      plano_saude, previdencia_privada, odontologico, premiacao, updated_at)
                 VALUES (:user_id, :name, :salario, :quinquenio, :vale_alimentacao,
-                        :plano_saude, :previdencia_privada, :odontologico, :premiacao)
+                        :plano_saude, :previdencia_privada, :odontologico, :premiacao, CURRENT_TIMESTAMP)
             '''), {
                 "user_id": user_id, "name": profile_name, "salario": data['salario'], "quinquenio": data['quinquenio'],
                 "vale_alimentacao": data['vale_alimentacao'], "plano_saude": data['plano_saude'],
@@ -128,6 +131,16 @@ def get_all_profile_names(user_id):
         result = conn.execute(text('SELECT name FROM profiles WHERE user_id = :user_id ORDER BY name'),
                              {"user_id": user_id})
         return [row[0] for row in result.fetchall()]
+
+def get_last_profile_name(user_id):
+    """Retorna o nome do perfil mais recentemente atualizado para um usuário."""
+    with get_db_connection() as conn:
+        result = conn.execute(text('SELECT name FROM profiles WHERE user_id = :user_id ORDER BY updated_at DESC LIMIT 1'),
+                              {"user_id": user_id})
+        row = result.fetchone()
+        if row:
+            return row[0]
+    return None
 
 # --- Tabelas de Cálculo (INSS e IRPF 2025) ---
 INSS_TETO_2025 = 8157.41
@@ -337,10 +350,19 @@ def index():
         'premiacao': 0.00, 'profile_name': ''
     }
     
+    # Lógica de carregamento automático do último perfil
+    profile_to_load = request.args.get('load_profile')
+    if not profile_to_load: # Se nenhum perfil foi explicitamente solicitado via URL
+        last_profile_name = get_last_profile_name(user_id)
+        if last_profile_name:
+            profile_to_load = last_profile_name
+            flash(f'Último perfil "{last_profile_name}" carregado automaticamente.', 'info')
+
     if request.method == 'POST':
         action = request.form.get('action')
 
         try:
+            # Tenta carregar dados do perfil_data com base nos valores do formulário
             profile_data['salario'] = float(request.form.get('salario', '0').replace(',', '.'))
             profile_data['quinquenio'] = float(request.form.get('quinquenio', '0').replace(',', '.'))
             profile_data['vale_alimentacao'] = float(request.form.get('vale_alimentacao', '0').replace(',', '.'))
@@ -375,13 +397,15 @@ def index():
             flash('Erro: Não foi possível conectar ao banco de dados. Tente novamente mais tarde.', 'danger')
             return redirect(url_for('login')) 
     
-    profile_to_load = request.args.get('load_profile')
+    # Carrega os dados do perfil após o POST ou carregamento automático
     if profile_to_load:
         loaded_data = load_profile_from_db(user_id, profile_to_load)
         if loaded_data:
             profile_data = {key: loaded_data.get(key, 0.00) for key in profile_data}
             profile_data['profile_name'] = profile_to_load
-            flash('Perfil carregado. Clique em "Calcular" para ver o salário líquido.', 'info')
+            # Não flashea novamente se já flasheou pelo auto-carregamento
+            if not request.args.get('load_profile') and not request.method == 'POST':
+                 flash('Perfil carregado. Clique em "Calcular" para ver o salário líquido.', 'info')
         else:
             flash('Erro: Perfil não encontrado ou não pertence a você.', 'danger')
 
@@ -549,25 +573,26 @@ def index():
             }
 
             /* --- Seção de Perfis Ocultável --- */
-            .profile-section { 
+            .collapsible-section { 
                 border: 1px dashed #a7c7e0; 
                 padding: 20px; 
                 margin-bottom: 25px; 
                 border-radius: 10px; 
                 background-color: #eef7fc; 
             }
-            .profile-section-header {
+            .collapsible-header {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
                 margin-bottom: 10px;
+                cursor: pointer; /* Indica que o header é clicável */
             }
-            .profile-section-header h3 {
+            .collapsible-header h3 {
                 color: #334e68;
                 font-size: 1.3em;
                 margin: 0;
             }
-            .profile-section-header button {
+            .collapsible-header button {
                 background: none;
                 border: none;
                 color: #007bff;
@@ -575,25 +600,29 @@ def index():
                 font-size: 1em;
                 font-weight: bold;
                 transition: color 0.3s ease;
+                display: flex; /* Para alinhar seta e texto */
+                align-items: center;
+                gap: 5px;
             }
-            .profile-section-header button:hover {
+            .collapsible-header button:hover {
                 color: #0056b3;
                 text-decoration: underline;
             }
 
-            .profile-content {
-                display: none; /* ESCONDIDO POR PADRÃO */
+            .collapsible-content {
+                display: none; 
                 flex-direction: column;
                 gap: 15px;
-                overflow: hidden; /* Garante que o conteúdo não vaze durante a transição */
-                max-height: 0; /* Para transição de altura */
-                transition: max-height 0.5s ease-out; /* Suaviza a transição */
+                overflow: hidden; 
+                max-height: 0; 
+                transition: max-height 0.5s ease-out, opacity 0.5s ease-out; /* Adiciona opacidade */
+                opacity: 0;
             }
 
-            .profile-content.expanded {
-                display: flex; /* Mostrar quando expandido */
-                max-height: 500px; /* Um valor grande o suficiente para o conteúdo */
-                /* Remove overflow hidden se houver scrollbar desejada, ou ajuste. */
+            .collapsible-content.expanded {
+                display: flex; 
+                max-height: 500px; /* Valor grande o suficiente */
+                opacity: 1;
             }
 
 
@@ -692,14 +721,14 @@ def index():
                     grid-template-columns: 1fr; 
                     gap: 10px;
                 }
-                .button-group, .profile-actions, .profile-section .profile-load-group {
+                .button-group, .profile-actions, .profile-load-group { /* Adicionei profile-load-group aqui */
                     flex-direction: column; 
                     align-items: stretch; 
                 }
                 .button-group button, .button-group input[type="submit"],
                 .profile-actions button, .profile-actions input[type="text"],
                 .profile-actions select,
-                .profile-section select {
+                .profile-load-group select { /* Adicionei select aqui */
                     width: 100%; 
                     margin: 0; 
                 }
@@ -728,18 +757,18 @@ def index():
                 {% endif %}
             {% endwith %}
             
-            <div class="profile-section">
-                <div class="profile-section-header">
+            <div class="collapsible-section" id="profileSection">
+                <div class="collapsible-header" id="profileHeader">
                     <h3>Gerenciar Perfis</h3>
-                    <button type="button" id="toggleProfileContent">Expandir <span id="arrowIcon">&#9660;</span></button>
+                    <button type="button" id="toggleProfileContent">Expandir <span class="arrow-icon">&#9660;</span></button>
                 </div>
-                <div class="profile-content" id="profileContent">
+                <div class="collapsible-content" id="profileContent">
                     <div class="profile-load-group">
                         <label for="profile_select">Carregar Perfil:</label>
                         <select id="profile_select" onchange="window.location.href='/?load_profile=' + this.value">
                             <option value="">-- Selecione um Perfil --</option>
                             {% for profile in profiles %}
-                                <option value="{{ profile }}" {% if profile == request.args.get('load_profile') %}selected{% endif %}>{{ profile }}</option>
+                                <option value="{{ profile }}" {% if profile == profile_data.profile_name %}selected{% endif %}>{{ profile }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -751,6 +780,27 @@ def index():
                     </div>
                 </div>
             </div>
+
+            <div class="collapsible-section" id="increaseSection">
+                <div class="collapsible-header" id="increaseHeader">
+                    <h3>Ajustar Salário por Aumento (%)</h3>
+                    <button type="button" id="toggleIncreaseContent">Expandir <span class="arrow-icon">&#9660;</span></button>
+                </div>
+                <div class="collapsible-content" id="increaseContent">
+                    <div class="input-grid">
+                        <div>
+                            <label for="increase_percentage">Percentual de Aumento (%):</label>
+                            <input type="text" id="increase_percentage" name="increase_percentage" placeholder="Ex: 5.5">
+                            <p><small>O aumento será aplicado sobre o <strong>Salário Base atual do formulário</strong>.</small></p>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <button type="button" id="applyIncrease" class="secondary">Aplicar Aumento</button>
+                        <button type="button" id="saveIncreasedProfile" class="secondary">Salvar como novo perfil</button>
+                    </div>
+                </div>
+            </div>
+
 
             <form method="POST" class="main-form" id="main-calc-form">
                 <input type="hidden" name="action" id="form_action" value="calculate">
@@ -809,38 +859,128 @@ def index():
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const toggleButton = document.getElementById('toggleProfileContent');
-                const profileContent = document.getElementById('profileContent');
-                const arrowIcon = document.getElementById('arrowIcon');
+                // Função genérica para toggle de seções colapsáveis
+                function setupCollapsible(headerId, contentId, toggleButtonId) {
+                    const header = document.getElementById(headerId);
+                    const content = document.getElementById(contentId);
+                    const toggleButton = document.getElementById(toggleButtonId);
+                    const arrowIcon = toggleButton.querySelector('.arrow-icon');
 
-                // Verifica se há um perfil sendo carregado na URL
-                const urlParams = new URLSearchParams(window.location.search);
-                const loadProfileParam = urlParams.get('load_profile');
+                    if (!header || !content || !toggleButton || !arrowIcon) {
+                        console.error('Um dos elementos do colapsível não foi encontrado:', {headerId, contentId, toggleButtonId});
+                        return;
+                    }
 
-                // Se houver flash messages ou um perfil sendo carregado, expande a seção por padrão.
-                // Usamos um pequeno truque para verificar se há mensagens flash ativas.
-                // Embora 'get_flashed_messages' esteja no Python, o HTML renderizado não tem acesso a isso facilmente via JS.
-                // Uma solução mais robusta seria injetar uma variável JS via Flask, mas para simplicidade,
-                // vamos confiar no 'load_profile' ou assumir que se houver um post, pode haver flash.
-                const hasFlashedMessages = document.querySelector('.flash-message') !== null;
-                
-                if (loadProfileParam || hasFlashedMessages || request.method === 'POST') {
-                    profileContent.classList.add('expanded');
-                    toggleButton.innerHTML = 'Recolher <span id="arrowIcon">&#9650;</span>'; // Triângulo para cima
-                } else {
-                    profileContent.classList.remove('expanded');
-                    toggleButton.innerHTML = 'Expandir <span id="arrowIcon">&#9660;</span>'; // Triângulo para baixo
+                    // Função para alternar o estado
+                    function toggleSection() {
+                        const isExpanded = content.classList.toggle('expanded');
+                        arrowIcon.innerHTML = isExpanded ? '&#9650;' : '&#9660;'; // Triângulo para cima/baixo
+                        toggleButton.textContent = isExpanded ? 'Recolher ' : 'Expandir ';
+                        toggleButton.appendChild(arrowIcon); // Adiciona o ícone de volta
+                    }
+
+                    // Adiciona o evento de clique ao header e ao botão
+                    header.addEventListener('click', toggleSection);
+                    toggleButton.addEventListener('click', function(event) {
+                        event.stopPropagation(); // Impede que o clique no botão propague para o header
+                        toggleSection();
+                    });
+
+                    // Estado inicial:
+                    // Se houver "load_profile" na URL ou flash messages, expande a seção de perfis.
+                    // A seção de aumento inicia recolhida por padrão.
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const loadProfileParam = urlParams.get('load_profile');
+                    const hasFlashedMessages = document.querySelector('.flash-message') !== null;
+
+                    if (contentId === 'profileContent') { // Lógica específica para a seção de perfis
+                        if (loadProfileParam || hasFlashedMessages || request.method === 'POST') {
+                            content.classList.add('expanded');
+                            arrowIcon.innerHTML = '&#9650;';
+                            toggleButton.textContent = 'Recolher ';
+                            toggleButton.appendChild(arrowIcon);
+                        }
+                    } else { // Para outras seções colapsáveis (como aumento salarial), iniciar recolhida
+                        content.classList.remove('expanded');
+                        arrowIcon.innerHTML = '&#9660;';
+                        toggleButton.textContent = 'Expandir ';
+                        toggleButton.appendChild(arrowIcon);
+                    }
                 }
 
+                // Configura a seção de Perfis
+                setupCollapsible('profileHeader', 'profileContent', 'toggleProfileContent');
+                // Configura a seção de Aumento Salarial
+                setupCollapsible('increaseHeader', 'increaseContent', 'toggleIncreaseContent');
 
-                toggleButton.addEventListener('click', function() {
-                    profileContent.classList.toggle('expanded');
-                    if (profileContent.classList.contains('expanded')) {
-                        toggleButton.innerHTML = 'Recolher <span id="arrowIcon">&#9650;</span>'; // Triângulo para cima
-                    } else {
-                        toggleButton.innerHTML = 'Expandir <span id="arrowIcon">&#9660;</span>'; // Triângulo para baixo
+                // --- Lógica para Aumento Salarial ---
+                const applyIncreaseButton = document.getElementById('applyIncrease');
+                const saveIncreasedProfileButton = document.getElementById('saveIncreasedProfile');
+                const increasePercentageInput = document.getElementById('increase_percentage');
+                const salarioBaseInput = document.getElementById('salario');
+                const profileNameInput = document.getElementById('profile_name'); // O campo de nome do perfil existente
+
+                if (applyIncreaseButton && salarioBaseInput && increasePercentageInput) {
+                    applyIncreaseButton.addEventListener('click', function() {
+                        let currentSalario = parseFloat(salarioBaseInput.value.replace(',', '.'));
+                        let increasePercentage = parseFloat(increasePercentageInput.value.replace(',', '.'));
+
+                        if (isNaN(currentSalario) || isNaN(increasePercentage)) {
+                            alert('Por favor, insira valores numéricos válidos para o salário e o percentual de aumento.');
+                            return;
+                        }
+                        if (increasePercentage < 0) {
+                             alert('O percentual de aumento não pode ser negativo.');
+                             return;
+                        }
+
+                        let newSalario = currentSalario * (1 + (increasePercentage / 100));
+                        salarioBaseInput.value = newSalario.toFixed(2).replace('.', ',');
+                        
+                        flashMessage('Salário Base atualizado com o aumento!', 'info');
+                    });
+                }
+                
+                if (saveIncreasedProfileButton && salarioBaseInput && profileNameInput) {
+                    saveIncreasedProfileButton.addEventListener('click', function() {
+                        const newProfileName = prompt("Digite um nome para o novo perfil com o salário ajustado:");
+                        if (newProfileName) {
+                            profileNameInput.value = newProfileName; // Preenche o campo de nome do perfil
+                            document.getElementById('form_action').value = 'save_profile'; // Define a ação para salvar
+                            document.getElementById('main-calc-form').submit(); // Submete o formulário principal
+                        } else if (newProfileName === "") {
+                            alert("O nome do perfil não pode ser vazio.");
+                        }
+                    });
+                }
+
+                // Pequena função para exibir flash messages via JS, se necessário
+                function flashMessage(message, category = 'info') {
+                    const flashContainer = document.querySelector('.flash-messages-js-container');
+                    if (!flashContainer) { // Cria um container se não existir (para mensagens JS)
+                        const headerElement = document.querySelector('header');
+                        if (headerElement) {
+                            const newDiv = document.createElement('div');
+                            newDiv.className = 'flash-messages-js-container';
+                            headerElement.after(newDiv); // Adiciona após o header
+                            flashContainer = newDiv;
+                        } else {
+                            console.error('Não foi possível encontrar onde inserir a mensagem flash JS.');
+                            return;
+                        }
                     }
-                });
+
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = `flash-message ${category}`;
+                    msgDiv.textContent = message;
+                    flashContainer.prepend(msgDiv); // Adiciona no início
+
+                    // Remove a mensagem após alguns segundos
+                    setTimeout(() => {
+                        msgDiv.remove();
+                    }, 5000); // 5 segundos
+                }
+
             });
         </script>
     </body>
