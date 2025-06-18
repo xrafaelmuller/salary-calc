@@ -140,6 +140,7 @@ def login():
         if user and check_password_hash(user['password_hash'], password):
             session['user_id'] = user['id'] 
             session['username'] = user['username']
+            # flash('Login realizado com sucesso!', 'success') # Esta linha foi removida/comentada
             return redirect(url_for('index'))
         else:
             flash('Usuário ou senha inválidos.', 'danger')
@@ -360,6 +361,7 @@ def index():
             profile_data = {key: loaded_data.get(key, 0.00) for key in profile_data}
             profile_data['profile_name'] = profile_to_load
             if not request.args.get('load_profile') and not request.method == 'POST':
+                 flash('Perfil carregado. Clique em "Calcular" para ver o salário líquido.', 'info')
         else:
             flash('Erro: Perfil não encontrado ou não pertence a você.', 'danger')
 
