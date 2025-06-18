@@ -315,7 +315,7 @@ def index():
         last_profile_name = get_last_profile_name(user_id)
         if last_profile_name:
             profile_to_load = last_profile_name
-            flash(f'Último perfil "{last_profile_name}" carregado automaticamente.', 'info')
+            # flash(f'Último perfil "{last_profile_name}" carregado automaticamente.', 'info') # Esta linha foi removida/comentada
 
     if request.method == 'POST':
         action = request.form.get('action')
