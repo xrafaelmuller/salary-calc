@@ -2,144 +2,122 @@ from flask import Flask, render_template_string, request, redirect, url_for, ses
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 
-# --- Importações para PostgreSQL com SQLAlchemy ---
-from sqlalchemy import create_engine, text
-from sqlalchemy.exc import IntegrityError, OperationalError
+# --- Importação para MongoDB ---
+from pymongo import MongoClient
+from pymongo.errors import ConnectionFailure, DuplicateKeyError 
+from datetime import datetime # Para timestamp em MongoDB
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24) 
 
-# --- Configuração do Banco de Dados PostgreSQL ---
-DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://user:password@localhost:5432/my_local_db')
+# --- Configuração do Banco de Dados MongoDB Atlas ---
+# A MONGODB_URI será injetada pelo Render via variável de ambiente.
+# Em desenvolvimento local, você pode apontar para um MongoDB local.
+MONGODB_URI = os.environ.get('MONGODB_URI', 'mongodb://localhost:27017/') 
+DATABASE_NAME = 'calculadorasalarioliquidodb' # Nome do seu banco de dados no MongoDB Atlas
 
-if "RENDER" in os.environ: 
-    DATABASE_URL = DATABASE_URL + "?sslmode=require"
+# Conexão com o cliente MongoDB.
+# Esta conexão é global para a aplicação Flask.
+client = MongoClient(MONGODB_URI)
+db = client[DATABASE_NAME] 
 
-engine = create_engine(DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://"))
-
-def get_db_connection():
-    """Função auxiliar para obter uma conexão com o banco de dados."""
-    try:
-        return engine.connect()
-    except OperationalError as e:
-        print(f"Erro ao conectar ao banco de dados: {e}")
-        raise ConnectionError("Não foi possível conectar ao banco de dados.") from e
-
+# Coleções (equivalente a tabelas em DB relacional)
+users_collection = db['users']
+profiles_collection = db['profiles']
 
 def init_db():
-    """Inicializa o banco de dados, criando tabelas de usuários e perfis se não existirem."""
-    with get_db_connection() as conn:
-        conn.execute(text('''
-            CREATE TABLE IF NOT EXISTS users (
-                id SERIAL PRIMARY KEY,
-                username TEXT NOT NULL UNIQUE,
-                password_hash TEXT NOT NULL
-            )
-        '''))
-        # Adicione uma coluna 'updated_at' para saber o perfil mais recente
-        conn.execute(text('''
-            CREATE TABLE IF NOT EXISTS profiles (
-                id SERIAL PRIMARY KEY,
-                user_id INTEGER NOT NULL,
-                name TEXT NOT NULL,
-                salario REAL,
-                quinquenio REAL,
-                vale_alimentacao REAL,
-                plano_saude REAL,
-                previdencia_privada REAL,
-                odontologico REAL,
-                premiacao REAL,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Nova coluna
-                UNIQUE(user_id, name),
-                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-            )
-        '''))
-        conn.commit()
+    """
+    No MongoDB, a "inicialização" significa principalmente garantir a conexão
+    e a criação de índices para otimização e unicidade.
+    As coleções (equivalente a tabelas) são criadas automaticamente no primeiro insert.
+    """
+    try:
+        # Testa a conexão com o banco de dados
+        client.admin.command('ping') 
+        print("Conexão com MongoDB Atlas estabelecida com sucesso!")
 
-# --- Funções de Banco de Dados para Usuários ---
+        # Garante índices únicos para username e para a combinação user_id+name
+        users_collection.create_index('username', unique=True)
+        profiles_collection.create_index([('user_id', 1), ('name', 1)], unique=True)
+
+    except ConnectionFailure as e:
+        print(f"Erro ao conectar ao MongoDB Atlas: {e}")
+        raise ConnectionError("Não foi possível conectar ao banco de dados MongoDB.") from e
+    except Exception as e:
+        print(f"Erro ao inicializar MongoDB: {e}")
+        raise
+
+# --- Funções de Banco de Dados para Usuários (MongoDB) ---
 def add_user(username, password):
-    """Adiciona um novo usuário ao banco de dados."""
     hashed_password = generate_password_hash(password)
-    with get_db_connection() as conn:
-        try:
-            conn.execute(text("INSERT INTO users (username, password_hash) VALUES (:username, :password_hash)"),
-                         {"username": username, "password_hash": hashed_password})
-            conn.commit()
-            return True
-        except IntegrityError:
-            conn.rollback()
-            return False
+    try:
+        # MongoDB automaticamente gera um _id ao inserir
+        result = users_collection.insert_one({"username": username, "password_hash": hashed_password})
+        return result.inserted_id is not None
+    except DuplicateKeyError: # Para quando o username já existe (graças ao índice único)
+        return False
 
 def get_user_by_username(username):
-    """Obtém um usuário pelo nome de usuário."""
-    with get_db_connection() as conn:
-        result = conn.execute(text("SELECT id, username, password_hash FROM users WHERE username = :username"),
-                              {"username": username})
-        row = result.fetchone()
-        if row:
-            return dict(row._mapping)
-        return None
+    user_doc = users_collection.find_one({"username": username})
+    if user_doc:
+        # MongoDB usa '_id' por padrão, renomeamos para 'id' para compatibilidade com o Flask
+        user_doc['id'] = str(user_doc['_id']) 
+        return user_doc
+    return None
 
-# --- Funções de Banco de Dados para Perfis (Atualizadas com user_id e updated_at) ---
+# --- Funções de Banco de Dados para Perfis (MongoDB) ---
 def save_profile_to_db(user_id, profile_name, data):
-    """Salva ou atualiza um perfil para um usuário específico."""
-    with get_db_connection() as conn:
-        result = conn.execute(text('SELECT id FROM profiles WHERE user_id = :user_id AND name = :name'),
-                             {"user_id": user_id, "name": profile_name})
-        existing_profile = result.fetchone()
+    # Converte user_id para int, se vier como str da sessão.
+    # No MongoDB, user_id será um número, não um ObjectId.
+    user_id_int = int(user_id) 
 
-        if existing_profile:
-            conn.execute(text('''
-                UPDATE profiles SET
-                    salario=:salario, quinquenio=:quinquenio, vale_alimentacao=:vale_alimentacao, plano_saude=:plano_saude,
-                    previdencia_privada=:previdencia_privada, odontologico=:odontologico, premiacao=:premiacao,
-                    updated_at=CURRENT_TIMESTAMP
-                WHERE id=:id
-            '''), {
-                "salario": data['salario'], "quinquenio": data['quinquenio'], "vale_alimentacao": data['vale_alimentacao'],
-                "plano_saude": data['plano_saude'], "previdencia_privada": data['previdencia_privada'],
-                "odontologico": data['odontologico'], "premiacao": data['premiacao'],
-                "id": existing_profile[0]
-            })
-        else:
-            conn.execute(text('''
-                INSERT INTO profiles (user_id, name, salario, quinquenio, vale_alimentacao,
-                                      plano_saude, previdencia_privada, odontologico, premiacao, updated_at)
-                VALUES (:user_id, :name, :salario, :quinquenio, :vale_alimentacao,
-                        :plano_saude, :previdencia_privada, :odontologico, :premiacao, CURRENT_TIMESTAMP)
-            '''), {
-                "user_id": user_id, "name": profile_name, "salario": data['salario'], "quinquenio": data['quinquenio'],
-                "vale_alimentacao": data['vale_alimentacao'], "plano_saude": data['plano_saude'],
-                "previdencia_privada": data['previdencia_privada'], "odontologico": data['odontologico'],
-                "premiacao": data['premiacao']
-            })
-        conn.commit()
+    # Dados a serem salvos ou atualizados
+    profile_data_to_save = {
+        "user_id": user_id_int,
+        "name": profile_name,
+        "salario": data['salario'],
+        "quinquenio": data['quinquenio'],
+        "vale_alimentacao": data['vale_alimentacao'],
+        "plano_saude": data['plano_saude'],
+        "previdencia_privada": data['previdencia_privada'],
+        "odontologico": data['odontologico'],
+        "premiacao": data['premiacao'],
+        "updated_at": datetime.now() # Adiciona/atualiza o timestamp com data e hora atual
+    }
+
+    # Tenta atualizar um perfil existente ou inserir um novo
+    # O filtro {"user_id": user_id_int, "name": profile_name} garante unicidade pelo índice
+    result = profiles_collection.update_one(
+        {"user_id": user_id_int, "name": profile_name},
+        {"$set": profile_data_to_save},
+        upsert=True # Se não encontrar, insere um novo documento
+    )
+    return result.acknowledged # Retorna True se a operação foi bem-sucedida
 
 def load_profile_from_db(user_id, profile_name):
-    """Carrega os dados de um perfil específico de um usuário."""
-    with get_db_connection() as conn:
-        result = conn.execute(text('SELECT * FROM profiles WHERE user_id = :user_id AND name = :name'),
-                             {"user_id": user_id, "name": profile_name})
-        row = result.fetchone()
-        if row:
-            return dict(row._mapping)
+    user_id_int = int(user_id) # Garante que user_id seja int
+    profile_doc = profiles_collection.find_one({"user_id": user_id_int, "name": profile_name})
+    if profile_doc:
+        profile_doc['id'] = str(profile_doc['_id']) # Converte ObjectId para string, se necessário
+        return profile_doc
     return None
 
 def get_all_profile_names(user_id):
-    """Retorna uma lista de nomes de perfis para um usuário específico."""
-    with get_db_connection() as conn:
-        result = conn.execute(text('SELECT name FROM profiles WHERE user_id = :user_id ORDER BY name'),
-                             {"user_id": user_id})
-        return [row[0] for row in result.fetchall()]
+    user_id_int = int(user_id) # Garante que user_id seja int
+    names = []
+    # Projeta apenas o campo 'name' e ordena alfabeticamente
+    for doc in profiles_collection.find({"user_id": user_id_int}, {"name": 1}).sort("name", 1):
+        names.append(doc['name'])
+    return names
 
 def get_last_profile_name(user_id):
-    """Retorna o nome do perfil mais recentemente atualizado para um usuário."""
-    with get_db_connection() as conn:
-        result = conn.execute(text('SELECT name FROM profiles WHERE user_id = :user_id ORDER BY updated_at DESC LIMIT 1'),
-                              {"user_id": user_id})
-        row = result.fetchone()
-        if row:
-            return row[0]
+    user_id_int = int(user_id) # Garante que user_id seja int
+    # Encontra documentos para o usuário, ordena por updated_at (decrescente) e pega o primeiro
+    profile_doc = profiles_collection.find({"user_id": user_id_int}).sort("updated_at", -1).limit(1)
+
+    # Itera sobre o cursor (espera-se no máximo 1 resultado)
+    for doc in profile_doc:
+        return doc['name']
     return None
 
 # --- Tabelas de Cálculo (INSS e IRPF 2025) ---
@@ -157,7 +135,7 @@ IRPF_TABELA_2025 = [
 def calcular_inss(base_calculo):
     if base_calculo >= INSS_TETO_2025:
         return INSS_MAX_DESCONTO_2025
-    
+
     return min(base_calculo * 0.14, INSS_MAX_DESCONTO_2025) 
 
 def calcular_irpf(base_calculo):
@@ -176,13 +154,13 @@ def login():
         password = request.form['password']
         user = get_user_by_username(username)
         if user and check_password_hash(user['password_hash'], password):
-            session['user_id'] = user['id']
+            session['user_id'] = user['id'] # Armazena o ID como string (ObjectId convertido)
             session['username'] = user['username']
             flash('Login realizado com sucesso!', 'success')
             return redirect(url_for('index'))
         else:
             flash('Usuário ou senha inválidos.', 'danger')
-    
+
     html_login = """
     <!DOCTYPE html>
     <html>
@@ -260,7 +238,7 @@ def register():
             return redirect(url_for('login'))
         else:
             flash('Nome de usuário já existe. Escolha outro.', 'danger')
-    
+
     html_register = """
     <!DOCTYPE html>
     <html>
@@ -349,7 +327,7 @@ def index():
         'plano_saude': 0.00, 'previdencia_privada': 0.00, 'odontologico': 0.00,
         'premiacao': 0.00, 'profile_name': ''
     }
-    
+
     # Lógica de carregamento automático do último perfil
     profile_to_load = request.args.get('load_profile')
     if not profile_to_load: # Se nenhum perfil foi explicitamente solicitado via URL
@@ -362,7 +340,7 @@ def index():
         action = request.form.get('action')
 
         try:
-            # Tenta carregar dados do perfil_data com base nos valores do formulário
+            # Tenta carregar dados do profile_data com base nos valores do formulário
             profile_data['salario'] = float(request.form.get('salario', '0').replace(',', '.'))
             profile_data['quinquenio'] = float(request.form.get('quinquenio', '0').replace(',', '.'))
             profile_data['vale_alimentacao'] = float(request.form.get('vale_alimentacao', '0').replace(',', '.'))
@@ -388,15 +366,15 @@ def index():
                 total_descontos = (profile_data['vale_alimentacao'] + profile_data['plano_saude'] + 
                                    profile_data['previdencia_privada'] + profile_data['odontologico'] + 
                                    desconto_inss + desconto_irpf)
-                                   
+
                 salario_liquido = total_rendimentos_base - total_descontos
-                
+
         except ValueError:
             flash('Erro: Por favor, insira valores numéricos válidos.', 'danger')
         except ConnectionError:
             flash('Erro: Não foi possível conectar ao banco de dados. Tente novamente mais tarde.', 'danger')
             return redirect(url_for('login')) 
-    
+
     # Carrega os dados do perfil após o POST ou carregamento automático
     if profile_to_load:
         loaded_data = load_profile_from_db(user_id, profile_to_load)
@@ -572,7 +550,7 @@ def index():
                 font-size: 1.3em;
             }
 
-            /* --- Seção de Perfis Ocultável --- */
+            /* --- Seções Colapsáveis --- */
             .collapsible-section { 
                 border: 1px dashed #a7c7e0; 
                 padding: 20px; 
@@ -585,7 +563,7 @@ def index():
                 justify-content: space-between;
                 align-items: center;
                 margin-bottom: 10px;
-                cursor: pointer; /* Indica que o header é clicável */
+                cursor: pointer; 
             }
             .collapsible-header h3 {
                 color: #334e68;
@@ -600,7 +578,7 @@ def index():
                 font-size: 1em;
                 font-weight: bold;
                 transition: color 0.3s ease;
-                display: flex; /* Para alinhar seta e texto */
+                display: flex; 
                 align-items: center;
                 gap: 5px;
             }
@@ -610,19 +588,18 @@ def index():
             }
 
             .collapsible-content {
-                display: none; 
+                display: flex; /* Mantém flex para organização interna */
                 flex-direction: column;
                 gap: 15px;
                 overflow: hidden; 
-                max-height: 0; 
-                transition: max-height 0.5s ease-out, opacity 0.5s ease-out; /* Adiciona opacidade */
-                opacity: 0;
+                max-height: 0; /* Começa oculto */
+                opacity: 0; /* Começa invisível */
+                transition: max-height 0.5s ease-out, opacity 0.5s ease-out; 
             }
 
             .collapsible-content.expanded {
-                display: flex; 
-                max-height: 500px; /* Valor grande o suficiente */
-                opacity: 1;
+                max-height: 500px; /* Valor grande o suficiente para o conteúdo */
+                opacity: 1; /* Visível */
             }
 
 
@@ -721,14 +698,14 @@ def index():
                     grid-template-columns: 1fr; 
                     gap: 10px;
                 }
-                .button-group, .profile-actions, .profile-load-group { /* Adicionei profile-load-group aqui */
+                .button-group, .profile-actions, .profile-load-group { 
                     flex-direction: column; 
                     align-items: stretch; 
                 }
                 .button-group button, .button-group input[type="submit"],
                 .profile-actions button, .profile-actions input[type="text"],
                 .profile-actions select,
-                .profile-load-group select { /* Adicionei select aqui */
+                .profile-load-group select { 
                     width: 100%; 
                     margin: 0; 
                 }
@@ -756,7 +733,7 @@ def index():
                     {% endfor %}
                 {% endif %}
             {% endwith %}
-            
+
             <div class="collapsible-section" id="profileSection">
                 <div class="collapsible-header" id="profileHeader">
                     <h3>Gerenciar Perfis</h3>
@@ -849,7 +826,7 @@ def index():
                     <input type="submit" value="Calcular" onclick="document.getElementById('form_action').value='calculate';">
                 </div>
             </form>
-            
+
             {% if salario_liquido is not none %}
             <div class="result">
                 <p>Seu Salário Líquido Estimado: <strong>R$ {{ "%.2f"|format(salario_liquido)|replace('.', ',') }}</strong></p>
@@ -886,21 +863,18 @@ def index():
                         toggleSection();
                     });
 
-                    // Estado inicial:
-                    // Se houver "load_profile" na URL ou flash messages, expande a seção de perfis.
-                    // A seção de aumento inicia recolhida por padrão.
+                    // --- Lógica de estado inicial (SEMPRE RECOLHIDO, exceto load_profile explícito) ---
                     const urlParams = new URLSearchParams(window.location.search);
                     const loadProfileParam = urlParams.get('load_profile');
-                    const hasFlashedMessages = document.querySelector('.flash-message') !== null;
 
-                    if (contentId === 'profileContent') { // Lógica específica para a seção de perfis
-                        if (loadProfileParam || hasFlashedMessages || request.method === 'POST') {
-                            content.classList.add('expanded');
-                            arrowIcon.innerHTML = '&#9650;';
-                            toggleButton.textContent = 'Recolher ';
-                            toggleButton.appendChild(arrowIcon);
-                        }
-                    } else { // Para outras seções colapsáveis (como aumento salarial), iniciar recolhida
+                    if (contentId === 'profileContent' && loadProfileParam) { 
+                        // A seção de perfis SÓ expande se houver um 'load_profile' na URL
+                        content.classList.add('expanded');
+                        arrowIcon.innerHTML = '&#9650;';
+                        toggleButton.textContent = 'Recolher ';
+                        toggleButton.appendChild(arrowIcon);
+                    } else { 
+                        // Para TODAS as outras situações e seções, iniciar recolhida
                         content.classList.remove('expanded');
                         arrowIcon.innerHTML = '&#9660;';
                         toggleButton.textContent = 'Expandir ';
@@ -918,7 +892,7 @@ def index():
                 const saveIncreasedProfileButton = document.getElementById('saveIncreasedProfile');
                 const increasePercentageInput = document.getElementById('increase_percentage');
                 const salarioBaseInput = document.getElementById('salario');
-                const profileNameInput = document.getElementById('profile_name'); // O campo de nome do perfil existente
+                const profileNameInput = document.getElementById('profile_name'); 
 
                 if (applyIncreaseButton && salarioBaseInput && increasePercentageInput) {
                     applyIncreaseButton.addEventListener('click', function() {
@@ -926,59 +900,60 @@ def index():
                         let increasePercentage = parseFloat(increasePercentageInput.value.replace(',', '.'));
 
                         if (isNaN(currentSalario) || isNaN(increasePercentage)) {
-                            alert('Por favor, insira valores numéricos válidos para o salário e o percentual de aumento.');
+                            flashMessage('Por favor, insira valores numéricos válidos para o salário e o percentual de aumento.', 'danger');
                             return;
                         }
                         if (increasePercentage < 0) {
-                             alert('O percentual de aumento não pode ser negativo.');
+                             flashMessage('O percentual de aumento não pode ser negativo.', 'danger');
                              return;
                         }
 
                         let newSalario = currentSalario * (1 + (increasePercentage / 100));
                         salarioBaseInput.value = newSalario.toFixed(2).replace('.', ',');
-                        
-                        flashMessage('Salário Base atualizado com o aumento!', 'info');
+
+                        flashMessage('Salário Base atualizado com o aumento! Lembre-se de salvar o perfil se quiser manter a alteração.', 'info');
                     });
                 }
-                
+
                 if (saveIncreasedProfileButton && salarioBaseInput && profileNameInput) {
                     saveIncreasedProfileButton.addEventListener('click', function() {
                         const newProfileName = prompt("Digite um nome para o novo perfil com o salário ajustado:");
                         if (newProfileName) {
-                            profileNameInput.value = newProfileName; // Preenche o campo de nome do perfil
-                            document.getElementById('form_action').value = 'save_profile'; // Define a ação para salvar
-                            document.getElementById('main-calc-form').submit(); // Submete o formulário principal
+                            profileNameInput.value = newProfileName; 
+                            document.getElementById('form_action').value = 'save_profile'; 
+                            document.getElementById('main-calc-form').submit(); 
                         } else if (newProfileName === "") {
-                            alert("O nome do perfil não pode ser vazio.");
+                            flashMessage("O nome do perfil não pode ser vazio.", 'danger');
                         }
                     });
                 }
 
-                // Pequena função para exibir flash messages via JS, se necessário
+                // Função para exibir flash messages via JS
                 function flashMessage(message, category = 'info') {
-                    const flashContainer = document.querySelector('.flash-messages-js-container');
-                    if (!flashContainer) { // Cria um container se não existir (para mensagens JS)
+                    let flashContainer = document.querySelector('.flash-messages-js-container');
+                    if (!flashContainer) { 
                         const headerElement = document.querySelector('header');
                         if (headerElement) {
                             const newDiv = document.createElement('div');
                             newDiv.className = 'flash-messages-js-container';
-                            headerElement.after(newDiv); // Adiciona após o header
+                            headerElement.after(newDiv); 
                             flashContainer = newDiv;
                         } else {
                             console.error('Não foi possível encontrar onde inserir a mensagem flash JS.');
                             return;
                         }
+                    } else { 
+                        flashContainer.innerHTML = '';
                     }
 
                     const msgDiv = document.createElement('div');
                     msgDiv.className = `flash-message ${category}`;
                     msgDiv.textContent = message;
-                    flashContainer.prepend(msgDiv); // Adiciona no início
+                    flashContainer.prepend(msgDiv); 
 
-                    // Remove a mensagem após alguns segundos
                     setTimeout(() => {
                         msgDiv.remove();
-                    }, 5000); // 5 segundos
+                    }, 5000); 
                 }
 
             });
@@ -988,6 +963,8 @@ def index():
     """
     return render_template_string(html_form, salario_liquido=salario_liquido, profile_data=profile_data, profiles=profiles, username=username)
 
+# Garante que o banco de dados seja inicializado quando o aplicativo Flask é iniciado.
+# Esta chamada vai tentar conectar ao MongoDB e criar índices.
 with app.app_context():
     init_db()
 
