@@ -140,7 +140,7 @@ def login():
         if user and check_password_hash(user['password_hash'], password):
             session['user_id'] = user['id'] 
             session['username'] = user['username']
-            # REMOVIDO: flash('Login realizado com sucesso!', 'success')
+            # Flash message de login removida conforme solicitação
             return redirect(url_for('index'))
         else:
             flash('Usuário ou senha inválidos.', 'danger')
@@ -389,19 +389,19 @@ def index():
                 justify-content: center; 
                 align-items: flex-start; 
                 min-height: 100vh;
-                padding: 10px; /* Reduzido padding geral */
+                padding: 10px; 
             }
 
             .container { 
                 background-color: white; 
-                padding: 25px; /* Reduzido padding */
+                padding: 25px; 
                 border-radius: 12px; 
                 box-shadow: 0 6px 20px rgba(0,0,0,0.1); 
                 max-width: 960px; 
                 width: 100%; 
                 display: flex; 
                 flex-direction: column; 
-                gap: 20px; /* Reduzido gap */
+                gap: 20px; 
             }
 
             /* Header Minimalista */
@@ -409,18 +409,18 @@ def index():
                 display: flex; 
                 justify-content: space-between; 
                 align-items: center; 
-                padding-bottom: 10px; /* Reduzido padding */
+                padding-bottom: 10px; 
                 border-bottom: 1px solid #eceff1; 
                 flex-wrap: wrap; 
-                gap: 5px; /* Reduzido gap */
+                gap: 5px; 
             }
             header h2 { 
-                font-size: 1.2em; /* Título menor */
+                font-size: 1.2em; 
                 color: #334e68; 
                 margin: 0;
             }
             header .user-info { 
-                font-size: 0.8em; /* Info de usuário menor */
+                font-size: 0.8em; 
                 color: #5a778e;
                 display: flex;
                 align-items: center;
@@ -442,123 +442,123 @@ def index():
             /* Labels e Inputs - Mais Aparentes */
             label { 
                 display: block; 
-                margin-bottom: 4px; /* Espaço menor */
+                margin-bottom: 4px; 
                 font-weight: 600; 
                 color: #4a6572; 
-                font-size: 0.95em; /* Ligeiramente maior */
+                font-size: 0.95em; 
             }
             input[type="text"], input[type="password"], select { 
                 width: 100%; 
-                padding: 10px; /* Padding ajustado */
-                margin-bottom: 12px; /* Espaço ajustado */
-                border: 1px solid #a7c7e0; /* Borda mais evidente */
+                padding: 10px; 
+                margin-bottom: 12px; 
+                border: 1px solid #a7c7e0; 
                 border-radius: 8px; 
-                font-size: 1.05em; /* Font maior nos campos */
+                font-size: 1.05em; 
                 color: #333;
                 transition: border-color 0.3s ease, box-shadow 0.3s ease;
             }
             input[type="text"]:focus, input[type="password"]:focus, select:focus {
                 border-color: #007bff; 
-                box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.35); /* Sombra mais forte */
+                box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.35); 
                 outline: none;
             }
 
             /* Seções de Formulário */
             .form-section {
-                border: 1px solid #d4e2ea; /* Borda mais suave */
+                border: 1px solid #d4e2ea; 
                 border-radius: 10px;
-                padding: 18px; /* Padding ajustado */
+                padding: 18px; 
                 background-color: #fcfdfe; 
-                margin-bottom: 15px; /* Reduzido espaço */
+                margin-bottom: 15px; 
             }
             .form-section h4 {
                 color: #334e68;
-                margin-bottom: 12px; /* Reduzido espaço */
+                margin-bottom: 12px; 
                 font-size: 1.15em; 
                 border-bottom: 1px dashed #e0e6ea;
-                padding-bottom: 8px; /* Reduzido padding */
+                padding-bottom: 8px; 
             }
 
             .input-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Reduzido minwidth */
-                gap: 15px; /* Reduzido gap */
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+                gap: 15px; 
             }
 
             /* Botões */
             .button-group { 
                 display: flex; 
                 justify-content: flex-end; 
-                gap: 10px; /* Reduzido gap */
+                gap: 10px; 
                 margin-top: 15px;
                 flex-wrap: wrap; 
             }
             .button-group button, .button-group input[type="submit"] { 
-                background-color: #28a745; 
+                background-color: #28a745; /* Cor primária para Calcular */
                 color: white; 
-                padding: 10px 20px; /* Padding ajustado */
+                padding: 10px 20px; 
                 border: none; 
                 border-radius: 8px; 
                 cursor: pointer; 
-                font-size: 0.95em; /* Font ajustada */
+                font-size: 0.95em; 
                 font-weight: bold;
                 transition: background-color 0.3s ease, transform 0.2s ease;
                 flex-shrink: 0; 
             }
-            /* Consistência dos botões secondary (Salvar Perfil e Aplicar Aumento) */
+            /* Consistência dos botões secondary */
             .button-group button.secondary, 
             .button-group input[type="submit"].secondary,
-            .profile-actions button.secondary { /* Adicionado seletor para o botão de salvar perfil */
-                background-color: #007bff; 
+            .profile-actions button { /* AGORA AMBOS OS BOTÕES DE AÇÃO E O SALVAR PERFIL SÃO SECUNDÁRIOS */
+                background-color: #007bff; /* Azul secundário */
             }
             .button-group button:hover, .button-group input[type="submit"]:hover { 
                 background-color: #218838; 
-                transform: translateY(-1px); /* Menor elevação */
+                transform: translateY(-1px); 
             }
             .button-group button.secondary:hover, 
             .button-group input[type="submit"].secondary:hover,
-            .profile-actions button.secondary:hover { /* Adicionado seletor para o botão de salvar perfil */
+            .profile-actions button:hover { /* Hover para botões secundários */
                 background-color: #0056b3;
             }
 
             /* Resultado Final - Mais Evidente */
             .result { 
-                margin-top: 25px; /* Reduzido espaço */
+                margin-top: 25px; 
                 padding: 20px; 
-                border: 2px solid #0056b3; /* Borda mais forte */
+                border: 2px solid #0056b3; 
                 border-radius: 10px; 
                 background-color: #e7f3ff; 
-                font-size: 1.3em; /* Font maior */
+                font-size: 1.3em; 
                 text-align: center; 
                 color: #004085; 
                 font-weight: bold;
-                box-shadow: 0 4px 10px rgba(0, 86, 179, 0.2); /* Sombra mais proeminente */
+                box-shadow: 0 4px 10px rgba(0, 86, 179, 0.2); 
             }
             .result strong { 
                 color: #002752; 
-                font-size: 1.5em; /* Valor do salário ainda maior */
-                text-shadow: 1px 1px 2px rgba(0,0,0,0.1); /* Pequena sombra no texto */
+                font-size: 1.5em; 
+                text-shadow: 1px 1px 2px rgba(0,0,0,0.1); 
             }
 
             /* Seções Colapsáveis (compactadas) */
             .collapsible-section { 
-                border: 1px dashed #c7dbe8; /* Borda mais clara */
-                padding: 15px; /* Reduzido padding */
-                margin-bottom: 15px; /* Reduzido espaço */
+                border: 1px dashed #c7dbe8; 
+                padding: 15px; 
+                margin-bottom: 15px; 
                 border-radius: 10px; 
-                background-color: #f5fafd; /* Fundo mais claro */
+                background-color: #f5fafd; 
             }
             .collapsible-header {
-                margin-bottom: 5px; /* Reduzido espaço */
+                margin-bottom: 5px; 
             }
             .collapsible-header h3 {
-                font-size: 1.2em; /* Título menor */
+                font-size: 1.2em; 
             }
             .collapsible-header button {
-                font-size: 0.9em; /* Botão menor */
+                font-size: 0.9em; 
             }
             .collapsible-content {
-                gap: 10px; /* Reduzido gap */
+                gap: 10px; 
             }
             
             .profile-actions { 
@@ -567,29 +567,29 @@ def index():
                 align-items: center;
                 gap: 10px; 
                 margin-top: 15px; 
-                justify-content: flex-end; /* Alinha o grupo de salvar à direita no desktop */
+                justify-content: flex-end; 
             }
             .profile-actions label { margin-bottom: 0; flex-shrink: 0; }
             .profile-actions input[type="text"] { flex-grow: 1; margin-bottom: 0; min-width: 150px; }
-            .profile-actions button { flex-shrink: 0; }
+            /* Não precisamos de .profile-actions button.secondary porque já pegamos com .profile-actions button */
 
             .flash-message { 
-                padding: 10px; /* Reduzido padding */
+                padding: 10px; 
                 margin-bottom: 15px; 
                 border-radius: 8px; 
-                font-size: 0.9em; /* Font menor */
+                font-size: 0.9em; 
             }
 
             /* Media Queries para Responsividade */
             @media (min-width: 768px) {
                 form.main-form { 
-                    gap: 25px; /* Reduzido gap */
+                    gap: 25px; 
                 }
                 .form-section {
-                    flex: 1 1 calc(50% - 12.5px); /* Ajuste com o novo gap */
+                    flex: 1 1 calc(50% - 12.5px); 
                 }
                 .profile-actions {
-                    justify-content: flex-end; /* Mantém alinhamento à direita no desktop */
+                    justify-content: flex-end; 
                 }
             }
 
@@ -598,7 +598,7 @@ def index():
                     padding: 10px;
                 }
                 .container {
-                    padding: 15px; /* Menor padding geral */
+                    padding: 15px; 
                     gap: 15px;
                 }
                 header {
@@ -607,14 +607,14 @@ def index():
                     gap: 5px;
                 }
                 header h2 {
-                    font-size: 1.4em; /* Título menor no mobile */
+                    font-size: 1.4em; 
                 }
                 header .user-info {
                     flex-direction: column;
                     align-items: flex-start;
                     width: 100%;
                     gap: 5px;
-                    font-size: 0.75em; /* Info de usuário ainda menor no mobile */
+                    font-size: 0.75em; 
                 }
                 .form-section {
                     padding: 12px;
@@ -678,7 +678,7 @@ def index():
                     <div class="profile-actions">
                         <label for="profile_name">Nome do Perfil para Salvar:</label>
                         <input type="text" id="profile_name" name="profile_name" placeholder="Ex: Meu Salário" value="{{ profile_data.profile_name }}" form="main-calc-form">
-                        <button type="submit" name="action" value="save_profile" class="secondary" form="main-calc-form" onclick="document.getElementById('form_action').value='save_profile';">Salvar Perfil</button>
+                        <button type="submit" name="action" value="save_profile" form="main-calc-form" onclick="document.getElementById('form_action').value='save_profile';">Salvar Perfil</button>
                     </div>
                 </div>
             </div>
@@ -698,7 +698,7 @@ def index():
                         </div>
                     </div>
                     <div class="button-group">
-                        <button type="button" id="applyIncrease" class="secondary">Aplicar Aumento</button>
+                        <button type="button" id="applyIncrease">Aplicar Aumento</button>
                         <button type="button" id="saveIncreasedProfile" class="secondary">Salvar como novo perfil</button>
                     </div>
                 </div>
