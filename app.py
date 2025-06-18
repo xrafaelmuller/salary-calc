@@ -6,11 +6,12 @@ from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, DuplicateKeyError 
 from pymongo.server_api import ServerApi 
 from datetime import datetime
-from bson.objectid import ObjectId # Importar ObjectId
+from bson.objectid import ObjectId
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24) 
 
+# Configuração do Banco de Dados MongoDB Atlas
 MONGODB_URI = os.environ.get('MONGODB_URI') 
 DATABASE_NAME = 'calculadorasalarioliquidodb' 
 
@@ -21,13 +22,13 @@ users_collection = db['users']
 profiles_collection = db['profiles']
 
 def init_db():
+    """Inicializa o banco de dados MongoDB, garantindo conexão e índices."""
     try:
         client.admin.command('ping') 
         print("Conexão com MongoDB Atlas estabelecida com sucesso!")
         
         users_collection.create_index('username', unique=True)
-        # Índice composto para user_id e name. user_id aqui será o ObjectId.
-        profiles_collection.create_index([('user_id', 1), ('name', 1)], unique=True) 
+        profiles_collection.create_index([('user_id', 1), ('name', 1)], unique=True)
 
     except ConnectionFailure as e:
         print(f"Erro ao conectar ao MongoDB Atlas: {e}")
@@ -40,7 +41,6 @@ def add_user(username, password):
     """Adiciona um novo usuário ao banco de dados."""
     hashed_password = generate_password_hash(password)
     try:
-        # Quando inserimos, o MongoDB gera um _id ObjectId automaticamente.
         result = users_collection.insert_one({"username": username, "password_hash": hashed_password})
         return result.inserted_id is not None
     except DuplicateKeyError: 
@@ -50,19 +50,16 @@ def get_user_by_username(username):
     """Obtém um usuário pelo nome de usuário."""
     user_doc = users_collection.find_one({"username": username})
     if user_doc:
-        # Armazenamos o _id do MongoDB como string na sessão.
-        # Ele será usado como `user_id` em outras funções.
         user_doc['id'] = str(user_doc['_id']) 
         return user_doc
     return None
 
-def save_profile_to_db(user_id_str, profile_name, data): # Renomeado user_id para user_id_str para clareza
+def save_profile_to_db(user_id_str, profile_name, data):
     """Salva ou atualiza um perfil para um usuário específico."""
-    # Converte a string user_id da sessão (que é um ObjectId em string) de volta para ObjectId para consulta.
     user_id_obj = ObjectId(user_id_str) 
 
     profile_data_to_save = {
-        "user_id": user_id_obj, # Armazena o ObjectId real aqui
+        "user_id": user_id_obj, 
         "name": profile_name,
         "salario": data['salario'],
         "quinquenio": data['quinquenio'],
@@ -74,7 +71,6 @@ def save_profile_to_db(user_id_str, profile_name, data): # Renomeado user_id par
         "updated_at": datetime.now() 
     }
 
-    # Filtro para encontrar o perfil usa o user_id_obj e o nome.
     result = profiles_collection.update_one(
         {"user_id": user_id_obj, "name": profile_name},
         {"$set": profile_data_to_save},
@@ -82,30 +78,29 @@ def save_profile_to_db(user_id_str, profile_name, data): # Renomeado user_id par
     )
     return result.acknowledged 
 
-def load_profile_from_db(user_id_str, profile_name): # Renomeado user_id para user_id_str
+def load_profile_from_db(user_id_str, profile_name):
     """Carrega os dados de um perfil específico de um usuário."""
-    user_id_obj = ObjectId(user_id_str) # Converte para ObjectId
+    user_id_obj = ObjectId(user_id_str) 
     profile_doc = profiles_collection.find_one({"user_id": user_id_obj, "name": profile_name})
     if profile_doc:
         profile_doc['id'] = str(profile_doc['_id']) 
         return profile_doc
     return None
 
-def get_all_profile_names(user_id_str): # Renomeado user_id para user_id_str
+def get_all_profile_names(user_id_str):
     """Retorna uma lista de nomes de perfis para um usuário específico."""
-    user_id_obj = ObjectId(user_id_str) # Converte para ObjectId
+    user_id_obj = ObjectId(user_id_str) 
     names = []
-    # A consulta agora usa o ObjectId para o user_id.
     for doc in profiles_collection.find({"user_id": user_id_obj}, {"name": 1}).sort("name", 1):
         names.append(doc['name'])
     return names
 
-def get_last_profile_name(user_id_str): # Renomeado user_id para user_id_str
+def get_last_profile_name(user_id_str):
     """Retorna o nome do perfil mais recentemente atualizado para um usuário."""
-    user_id_obj = ObjectId(user_id_str) # Converte para ObjectId
+    user_id_obj = ObjectId(user_id_str) 
     profile_doc_cursor = profiles_collection.find({"user_id": user_id_obj}).sort("updated_at", -1).limit(1)
     
-    for doc in profile_doc_cursor: # Itera sobre o cursor para pegar o documento
+    for doc in profile_doc_cursor: 
         return doc['name']
     return None
 
@@ -141,9 +136,9 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user = get_user_by_username(username) # user['id'] aqui já é string do ObjectId
+        user = get_user_by_username(username)
         if user and check_password_hash(user['password_hash'], password):
-            session['user_id'] = user['id'] # Salva o ID como string (ObjectId)
+            session['user_id'] = user['id'] 
             session['username'] = user['username']
             flash('Login realizado com sucesso!', 'success')
             return redirect(url_for('index'))
@@ -305,7 +300,7 @@ def index():
         flash('Por favor, faça login para acessar a calculadora.', 'info')
         return redirect(url_for('login'))
 
-    user_id = session['user_id'] # user_id é uma string que representa o ObjectId
+    user_id = session['user_id'] 
     username = session['username']
 
     salario_liquido = None
@@ -317,7 +312,7 @@ def index():
     
     profile_to_load = request.args.get('load_profile')
     if not profile_to_load: 
-        last_profile_name = get_last_profile_name(user_id) # Passa user_id como string
+        last_profile_name = get_last_profile_name(user_id)
         if last_profile_name:
             profile_to_load = last_profile_name
             flash(f'Último perfil "{last_profile_name}" carregado automaticamente.', 'info')
@@ -337,7 +332,7 @@ def index():
 
             if action == 'save_profile':
                 if profile_data['profile_name']:
-                    save_profile_to_db(user_id, profile_data['profile_name'], profile_data) # Passa user_id como string
+                    save_profile_to_db(user_id, profile_data['profile_name'], profile_data)
                     flash('Perfil salvo com sucesso!', 'success')
                     return redirect(url_for('index', load_profile=profile_data['profile_name']))
                 else:
@@ -361,7 +356,7 @@ def index():
             return redirect(url_for('login')) 
     
     if profile_to_load:
-        loaded_data = load_profile_from_db(user_id, profile_to_load) # Passa user_id como string
+        loaded_data = load_profile_from_db(user_id, profile_to_load)
         if loaded_data:
             profile_data = {key: loaded_data.get(key, 0.00) for key in profile_data}
             profile_data['profile_name'] = profile_to_load
@@ -370,7 +365,7 @@ def index():
         else:
             flash('Erro: Perfil não encontrado ou não pertence a você.', 'danger')
 
-    profiles = get_all_profile_names(user_id) # Passa user_id como string
+    profiles = get_all_profile_names(user_id)
 
     html_form = """
     <!DOCTYPE html>
@@ -680,8 +675,8 @@ def index():
                     align-items: stretch; 
                 }
                 .button-group button, .button-group input[type="submit"],
-                    .profile-actions button, .profile_actions input[type="text"],
-                    .profile_actions select,
+                    .profile-actions button, .profile-actions input[type="text"],
+                    .profile-actions select,
                     .profile-load-group select { 
                         width: 100%; 
                         margin: 0; 
@@ -729,7 +724,7 @@ def index():
                         <p><small>Selecione um perfil para carregar os dados no formulário.</small></p>
                         <div class="profile-actions">
                             <label for="profile_name">Nome do Perfil para Salvar:</label>
-                            <input type="text" id="profile_name" name="profile_name" placeholder="Ex: Meu Salário" value="{{ profile_data.profile_name }}">
+                            <input type="text" id="profile_name" name="profile_name" placeholder="Ex: Meu Salário" value="{{ profile_data.profile_name }}" form="main-calc-form">
                             <button type="submit" name="action" value="save_profile" class="secondary" form="main-calc-form" onclick="document.getElementById('form_action').value='save_profile';">Salvar Perfil</button>
                         </div>
                     </div>
@@ -931,7 +926,6 @@ def index():
         """
     return render_template_string(html_form, salario_liquido=salario_liquido, profile_data=profile_data, profiles=profiles, username=username)
 
-# Garante que o banco de dados seja inicializado quando o aplicativo Flask é iniciado.
 with app.app_context():
     init_db()
 
