@@ -25,6 +25,7 @@ def get_db_connection():
         print(f"Erro ao conectar ao banco de dados: {e}")
         raise ConnectionError("Não foi possível conectar ao banco de dados.") from e
 
+
 def init_db():
     """Inicializa o banco de dados, criando tabelas de usuários e perfis se não existirem."""
     with get_db_connection() as conn:
@@ -129,6 +130,7 @@ def get_all_profile_names(user_id):
         return [row[0] for row in result.fetchall()]
 
 # --- Tabelas de Cálculo (INSS e IRPF 2025) ---
+# Os cálculos de IRPF e INSS estão corretos (confirmado em 2025-06-17).
 INSS_TETO_2025 = 8157.41
 INSS_MAX_DESCONTO_2025 = 951.62
 
@@ -393,154 +395,288 @@ def index():
         <title>Calculadora de Salário Líquido</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
-            body { 
-                font-family: Arial, sans-serif; margin: 0; background-color: #f4f4f4; 
-                display: flex; justify-content: center; align-items: flex-start; min-height: 100vh;
-                padding: 20px; box-sizing: border-box;
-            }
-            .container { 
-                background-color: white; padding: 30px; border-radius: 8px; 
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 900px; width: 100%; margin: auto;
-                display: flex; flex-direction: column; /* Default para mobile */
-            }
-            header { 
-                display: flex; justify-content: space-between; align-items: center; 
-                margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; 
-                flex-wrap: wrap; /* Permite quebrar linha em telas pequenas */
-            }
-            header h2 { margin: 0; font-size: 1.5em; }
-            header .user-info { font-size: 0.9em; text-align: right; }
-            header .user-info a { margin-left: 10px; color: #dc3545; text-decoration: none; }
-            label { display: block; margin-bottom: 5px; font-weight: bold; }
-            input[type="text"], select { 
-                width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; 
-                border-radius: 4px; box-sizing: border-box; 
-            }
-            .form-group {
-                flex: 1; /* Faz os grupos de formulário ocuparem espaço igual */
-                padding: 0 10px; /* Espaçamento entre as colunas */
+            /* Reset básico para melhor controle */
+            body, h1, h2, h3, p, form, div, input, select, button, label {
+                margin: 0;
+                padding: 0;
                 box-sizing: border-box;
             }
-            .input-column {
+
+            body { 
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                margin: 0; 
+                background-color: #e9eff2; /* Um tom mais suave de cinza/azul */
+                display: flex; 
+                justify-content: center; 
+                align-items: flex-start; /* Alinha ao topo inicialmente */
+                min-height: 100vh;
+                padding: 20px; 
+            }
+
+            .container { 
+                background-color: white; 
+                padding: 30px; 
+                border-radius: 12px; /* Cantos mais arredondados */
+                box-shadow: 0 6px 20px rgba(0,0,0,0.1); /* Sombra mais suave */
+                max-width: 960px; /* Largura máxima para desktop */
+                width: 100%; 
+                display: flex; 
+                flex-direction: column; /* Padrão para mobile: colunas empilhadas */
+                gap: 25px; /* Espaçamento entre seções */
+            }
+
+            header { 
+                display: flex; 
+                justify-content: space-between; 
+                align-items: center; 
+                margin-bottom: 15px; 
+                padding-bottom: 15px; 
+                border-bottom: 1px solid #eceff1; /* Linha divisória mais sutil */
+                flex-wrap: wrap; 
+                gap: 10px; /* Espaçamento entre título e info de usuário */
+            }
+            header h2 { 
+                margin: 0; 
+                font-size: 1.8em; /* Título um pouco maior */
+                color: #334e68; /* Azul escuro para o título */
+            }
+            header .user-info { 
+                font-size: 0.95em; 
+                color: #5a778e;
                 display: flex;
-                flex-wrap: wrap; /* Permite que os campos quebrem linha */
-                gap: 15px; /* Espaçamento entre os inputs */
+                align-items: center;
+                gap: 15px;
             }
-            .input-column .form-field {
-                flex: 1 1 calc(50% - 7.5px); /* Dois campos por linha no desktop, com espaçamento */
-                min-width: 250px; /* Garante um tamanho mínimo para o campo */
+            header .user-info strong {
+                color: #2b3a4a;
             }
+            header .user-info a { 
+                color: #d9534f; /* Vermelho para "Sair" */
+                text-decoration: none; 
+                font-weight: bold;
+                transition: color 0.3s ease;
+            }
+            header .user-info a:hover {
+                color: #c9302c;
+            }
+
+            label { 
+                display: block; 
+                margin-bottom: 6px; 
+                font-weight: 600; /* Um pouco mais encorpado */
+                color: #4a6572; /* Tom de cinza azulado */
+            }
+            input[type="text"], input[type="password"], select { 
+                width: 100%; 
+                padding: 12px; 
+                margin-bottom: 15px; /* Espaçamento padrão entre campos */
+                border: 1px solid #ccd6dd; /* Borda mais suave */
+                border-radius: 8px; /* Cantos mais arredondados para inputs */
+                font-size: 1em;
+                color: #333;
+                transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            }
+            input[type="text"]:focus, input[type="password"]:focus, select:focus {
+                border-color: #007bff; /* Borda azul ao focar */
+                box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* Sombra suave ao focar */
+                outline: none;
+            }
+
+            /* Seções de formulário (Rendimentos, Descontos) */
+            .form-section {
+                border: 1px solid #e0e6ea; /* Borda leve para agrupar */
+                border-radius: 10px;
+                padding: 20px;
+                background-color: #fcfdfe; /* Fundo levemente diferente */
+                margin-bottom: 20px; /* Espaçamento entre as seções */
+            }
+            .form-section h4 {
+                color: #334e68;
+                margin-bottom: 15px;
+                font-size: 1.2em;
+                border-bottom: 1px dashed #e0e6ea;
+                padding-bottom: 10px;
+            }
+
+            /* Layout de colunas para inputs dentro das seções */
+            .input-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Colunas auto-ajustáveis */
+                gap: 20px; /* Espaçamento entre os campos */
+            }
+
             .button-group { 
-                display: flex; justify-content: flex-end; margin-top: 20px; 
-                gap: 10px; /* Espaçamento entre os botões */
-                flex-wrap: wrap; /* Quebra linha em telas pequenas */
+                display: flex; 
+                justify-content: flex-end; /* Alinha à direita no desktop */
+                gap: 15px; 
+                margin-top: 15px;
+                flex-wrap: wrap; /* Permite que os botões quebrem linha */
             }
             .button-group button, .button-group input[type="submit"] { 
-                background-color: #4CAF50; color: white; padding: 10px 20px; border: none; 
-                border-radius: 4px; cursor: pointer; font-size: 16px; 
-                flex-grow: 0; /* Não cresce por padrão */
-                flex-shrink: 0; /* Não encolhe por padrão */
-                min-width: 120px; /* Largura mínima para os botões */
+                background-color: #28a745; /* Verde primário */
+                color: white; 
+                padding: 12px 25px; 
+                border: none; 
+                border-radius: 8px; 
+                cursor: pointer; 
+                font-size: 1em; 
+                font-weight: bold;
+                transition: background-color 0.3s ease, transform 0.2s ease;
+                flex-shrink: 0; /* Não encolhe */
             }
-            .button-group button.secondary, .button-group input[type="submit"].secondary { background-color: #008CBA; }
-            .button-group button:hover, .button-group input[type="submit"]:hover { opacity: 0.9; }
+            .button-group button.secondary, .button-group input[type="submit"].secondary { 
+                background-color: #007bff; /* Azul secundário */
+            }
+            .button-group button:hover, .button-group input[type="submit"]:hover { 
+                background-color: #218838; /* Escurece no hover */
+                transform: translateY(-2px); /* Pequeno efeito de elevação */
+            }
+            .button-group button.secondary:hover, .button-group input[type="submit"].secondary:hover {
+                background-color: #0056b3;
+            }
+
             .result { 
-                margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 4px; 
-                background-color: #e9e9e9; font-size: 1.1em; text-align: center; 
+                margin-top: 30px; /* Mais espaço acima */
+                padding: 20px; 
+                border: 1px solid #b8daff; /* Borda azul clara */
+                border-radius: 10px; 
+                background-color: #e7f3ff; /* Fundo azul claro */
+                font-size: 1.2em; 
+                text-align: center; 
+                color: #004085; /* Texto azul escuro */
+                font-weight: bold;
             }
-            .result strong { color: #333; }
+            .result strong { 
+                color: #002752; /* Azul ainda mais escuro */
+                font-size: 1.3em;
+            }
+
             .profile-section { 
-                border: 1px dashed #ccc; padding: 15px; margin-bottom: 20px; border-radius: 8px; 
-                background-color: #f9f9f9; display: flex; align-items: center; flex-wrap: wrap;
-                gap: 10px; /* Espaçamento entre elementos do perfil */
+                border: 1px dashed #a7c7e0; /* Borda pontilhada para perfis */
+                padding: 20px; 
+                margin-bottom: 25px; 
+                border-radius: 10px; 
+                background-color: #eef7fc; /* Fundo suave */
+                display: flex; 
+                flex-direction: column; /* Padrão mobile */
+                gap: 15px; 
             }
-            .profile-section label { margin-bottom: 0; font-weight: bold; flex-shrink: 0; }
-            .profile-section select { flex-grow: 1; min-width: 150px; margin-bottom: 0; }
+            .profile-section h3 {
+                color: #334e68;
+                margin-bottom: 10px;
+                font-size: 1.3em;
+            }
+            .profile-section .profile-load-group {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 10px;
+            }
+            .profile-section .profile-load-group label {
+                margin-bottom: 0;
+                flex-shrink: 0;
+            }
+            .profile-section .profile-load-group select {
+                flex-grow: 1; /* Ocupa espaço disponível */
+                min-width: 180px; /* Garante tamanho mínimo */
+            }
             .profile-actions { 
-                margin-top: 10px; display: flex; justify-content: flex-start; align-items: center;
-                flex-wrap: wrap; gap: 10px; /* Espaçamento entre elementos */
+                display: flex; 
+                flex-wrap: wrap; 
+                align-items: center;
+                gap: 10px; 
+                margin-top: 15px; /* Espaço para salvar perfil */
             }
-            .profile-actions label { margin-bottom: 0; }
+            .profile-actions label { margin-bottom: 0; flex-shrink: 0; }
             .profile-actions input[type="text"] { flex-grow: 1; margin-bottom: 0; min-width: 150px; }
             .profile-actions button { flex-shrink: 0; }
 
-            .flash-message { padding: 10px; margin-bottom: 15px; border-radius: 4px; text-align: left; }
+            .flash-message { 
+                padding: 12px; 
+                margin-bottom: 20px; 
+                border-radius: 8px; 
+                text-align: left; 
+                font-weight: bold;
+                font-size: 0.95em;
+            }
             .flash-message.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
             .flash-message.info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
             .flash-message.warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
             .flash-message.danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-            /* Desktop layout for inputs */
-            .form-layout {
-                display: flex;
-                flex-wrap: wrap; /* Permite quebra de linha para colunas em telas menores */
-                gap: 20px; /* Espaçamento entre as "colunas" */
-            }
+            /* Media Queries para Responsividade */
 
-            /* Media Queries for responsiveness */
+            /* Desktop e Telas Maiores */
             @media (min-width: 768px) {
                 .container {
-                    flex-direction: row; /* Layout horizontal em desktop */
-                    justify-content: space-between;
+                    flex-direction: column; /* Mantém como coluna principal, mas o form dentro terá flex */
                 }
-                .form-layout {
-                    flex-direction: row; /* Mantém as colunas lado a lado */
-                    flex-grow: 1;
+                form.main-form { /* Novo seletor para o formulário principal */
+                    display: flex; /* Faz os grupos de rendimento/desconto ficarem lado a lado */
+                    flex-wrap: wrap;
+                    gap: 30px; /* Espaçamento maior entre as duas colunas principais do form */
                 }
-                .form-group {
-                    min-width: 280px; /* Ajusta largura mínima para colunas no desktop */
-                    max-width: 50%;
+                .form-section {
+                    flex: 1 1 calc(50% - 15px); /* Duas colunas quase iguais, com gap */
+                    margin-bottom: 0; /* Remove margem entre seções em desktop */
                 }
-                .profile-actions, .button-group {
-                    justify-content: flex-end; /* Alinha botões à direita no desktop */
+                .button-group {
+                    width: 100%; /* Ocupa toda a largura para centralização/alinhamento */
+                    justify-content: flex-end;
+                }
+                .profile-actions {
+                    width: 100%;
+                    justify-content: flex-start;
                 }
             }
 
+            /* Mobile e Telas Menores */
             @media (max-width: 767px) {
                 body {
-                    align-items: flex-start; /* Alinha ao topo em mobile */
+                    padding: 10px;
                 }
                 .container {
-                    padding: 20px;
-                    flex-direction: column; /* Colunas empilhadas em mobile */
+                    padding: 20px 15px; /* Menor padding horizontal em mobile */
+                    gap: 20px;
                 }
                 header {
                     flex-direction: column;
                     align-items: flex-start;
+                    gap: 5px;
+                }
+                header h2 {
+                    font-size: 1.6em;
                 }
                 header .user-info {
-                    margin-top: 10px;
-                    text-align: left;
+                    flex-direction: column;
+                    align-items: flex-start;
                     width: 100%;
+                    gap: 5px;
                 }
-                .form-layout {
-                    flex-direction: column; /* Colunas do formulário empilhadas */
-                    gap: 0;
-                }
-                .form-group {
-                    padding: 0;
+                .form-section {
+                    padding: 15px;
                     margin-bottom: 15px;
                 }
-                .input-column .form-field {
-                    flex: 1 1 100%; /* Um campo por linha em mobile */
-                    min-width: unset;
+                .form-section h4 {
+                    font-size: 1.1em;
                 }
-                .button-group, .profile-actions {
-                    flex-direction: column; /* Botões empilhados em mobile */
-                    width: 100%;
+                .input-grid {
+                    grid-template-columns: 1fr; /* Uma coluna por linha em mobile */
+                    gap: 10px;
+                }
+                .button-group, .profile-actions, .profile-section .profile-load-group {
+                    flex-direction: column; /* Itens empilhados */
+                    align-items: stretch; /* Estica para preencher largura */
                 }
                 .button-group button, .button-group input[type="submit"],
                 .profile-actions button, .profile-actions input[type="text"],
-                .profile-actions select {
-                    width: 100%;
-                    margin-left: 0;
-                    margin-right: 0;
-                }
-                .profile-section {
-                    flex-direction: column;
-                    align-items: flex-start;
-                }
+                .profile-actions select,
                 .profile-section select {
+                    width: 100%; /* Ocupa largura total */
+                    margin: 0; /* Remove margens extras */
+                }
+                .profile-section p small {
+                    text-align: center;
                     width: 100%;
                 }
             }
@@ -566,67 +702,68 @@ def index():
             
             <div class="profile-section">
                 <h3>Gerenciar Perfis</h3>
-                <label for="profile_select">Carregar Perfil:</label>
-                <select id="profile_select" onchange="window.location.href='/?load_profile=' + this.value">
-                    <option value="">-- Selecione um Perfil --</option>
-                    {% for profile in profiles %}
-                        <option value="{{ profile }}" {% if profile == request.args.get('load_profile') %}selected{% endif %}>{{ profile }}</option>
-                    {% endfor %}
-                </select>
+                <div class="profile-load-group">
+                    <label for="profile_select">Carregar Perfil:</label>
+                    <select id="profile_select" onchange="window.location.href='/?load_profile=' + this.value">
+                        <option value="">-- Selecione um Perfil --</option>
+                        {% for profile in profiles %}
+                            <option value="{{ profile }}" {% if profile == request.args.get('load_profile') %}selected{% endif %}>{{ profile }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
                 <p><small>Selecione um perfil para carregar os dados no formulário.</small></p>
+                <div class="profile-actions">
+                    <label for="profile_name">Nome do Perfil para Salvar:</label>
+                    <input type="text" id="profile_name" name="profile_name" placeholder="Ex: Meu Salário" value="{{ profile_data.profile_name }}">
+                    <button type="submit" name="action" value="save_profile" class="secondary" form="main-calc-form" onclick="document.getElementById('form_action').value='save_profile';">Salvar Perfil</button>
+                </div>
             </div>
 
-            <form method="POST" class="form-layout">
+            <form method="POST" class="main-form" id="main-calc-form">
                 <input type="hidden" name="action" id="form_action" value="calculate">
 
-                <div class="form-group">
+                <div class="form-section">
                     <h4>Rendimentos</h4>
-                    <div class="input-column">
-                        <div class="form-field">
+                    <div class="input-grid">
+                        <div>
                             <label for="salario">Salário Base:</label>
                             <input type="text" id="salario" name="salario" value="{{ '%.2f'|format(profile_data.salario)|replace('.', ',') }}" required>
                         </div>
-                        <div class="form-field">
+                        <div>
                             <label for="quinquenio">Quinquênio:</label>
                             <input type="text" id="quinquenio" name="quinquenio" value="{{ '%.2f'|format(profile_data.quinquenio)|replace('.', ',') }}">
                         </div>
-                        <div class="form-field">
+                        <div>
                             <label for="premiacao">Premiação (se houver):</label>
                             <input type="text" id="premiacao" name="premiacao" value="{{ '%.2f'|format(profile_data.premiacao)|replace('.', ',') }}">
                         </div>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="form-section">
                     <h4>Descontos</h4>
-                    <div class="input-column">
-                        <div class="form-field">
+                    <div class="input-grid">
+                        <div>
                             <label for="vale_alimentacao">Vale Alimentação:</label>
                             <input type="text" id="vale_alimentacao" name="vale_alimentacao" value="{{ '%.2f'|format(profile_data.vale_alimentacao)|replace('.', ',') }}">
                         </div>
-                        <div class="form-field">
+                        <div>
                             <label for="plano_saude">Plano de Saúde:</label>
                             <input type="text" id="plano_saude" name="plano_saude" value="{{ '%.2f'|format(profile_data.plano_saude)|replace('.', ',') }}">
                         </div>
-                        <div class="form-field">
+                        <div>
                             <label for="previdencia_privada">Previdência (seu contracheque):</label>
                             <input type="text" id="previdencia_privada" name="previdencia_privada" value="{{ '%.2f'|format(profile_data.previdencia_privada)|replace('.', ',') }}">
                         </div>
-                        <div class="form-field">
+                        <div>
                             <label for="odontologico">Odontológico:</label>
                             <input type="text" id="odontologico" name="odontologico" value="{{ '%.2f'|format(profile_data.odontologico)|replace('.', ',') }}">
                         </div>
                     </div>
                 </div>
 
-                <div class="button-group" style="width: 100%;">
+                <div class="button-group">
                     <input type="submit" value="Calcular" onclick="document.getElementById('form_action').value='calculate';">
-                </div>
-                
-                <div class="profile-actions" style="width: 100%;">
-                    <label for="profile_name">Nome do Perfil para Salvar:</label>
-                    <input type="text" id="profile_name" name="profile_name" placeholder="Ex: Meu Salário" value="{{ profile_data.profile_name }}">
-                    <button type="submit" name="action" value="save_profile" class="secondary" onclick="document.getElementById('form_action').value='save_profile';">Salvar Perfil</button>
                 </div>
             </form>
             
