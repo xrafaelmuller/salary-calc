@@ -297,7 +297,7 @@ def logout():
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if 'user_id' not in session:
-        flash('Por favor, faça login para acessar a calculadora.', 'info')
+        flash('Por favor, faça login para acessar o perfil da sua calculadora .', 'info')
         return redirect(url_for('login'))
 
     user_id = session['user_id'] 
