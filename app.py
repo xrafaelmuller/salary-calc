@@ -725,9 +725,9 @@ def index():
                         <div class="profile-actions">
                             <label for="profile_name">Nome do Perfil para Salvar:</label>
                             <input type="text" id="profile_name" name="profile_name" placeholder="Ex: Meu Salário" value="{{ profile_data.profile_name }}" form="main-calc-form">
-                            <button type="submit" name="action" value="save_profile" class="secondary" form="main-calc-form" onclick="document.getElementById('form_action').value='save_profile';">Salvar Perfil</button>
+                        <button type="submit" name="action" value="save_profile" class="secondary" form="main-calc-form" onclick="document.getElementById('form_action').value='save_profile';">Salvar Perfil</button>
                         </div>
-                    </div>
+                </div>
                 </div>
     
                 <!-- Seção de Aumento Salarial -->
