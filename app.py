@@ -745,6 +745,7 @@ def index():
                             </div>
                         </div>
                         <div class="button-group">
+                            <button type="button" id="resetSalario" class="secondary">Resetar Salário Base</button> </div>
                             <button type="button" id="applyIncrease" class="secondary">Aplicar Aumento</button>
                             <button type="button" id="saveIncreasedProfile" class="secondary">Salvar como novo perfil</button>
                         </div>
@@ -857,7 +858,10 @@ def index():
                     const increasePercentageInput = document.getElementById('increase_percentage');
                     const salarioBaseInput = document.getElementById('salario');
                     const profileNameInput = document.getElementById('profile_name'); 
-    
+                    const resetSalarioButton = document.getElementById('resetSalario');
+                    
+                    let originalSalarioBase = parseFloat(salarioBaseInput.value.replace(',', '.'));
+                    
                     if (applyIncreaseButton && salarioBaseInput && increasePercentageInput) {
                         applyIncreaseButton.addEventListener('click', function() {
                             let currentSalario = parseFloat(salarioBaseInput.value.replace(',', '.'));
@@ -879,6 +883,14 @@ def index():
                         });
                     }
                     
+                    if (resetSalarioButton && salarioBaseInput && increasePercentageInput) {
+                        resetSalarioButton.addEventListener('click', function() {
+                            salarioBaseInput.value = originalSalarioBase.toFixed(2).replace('.', ',');
+                            increasePercentageInput.value = ''; // Limpa o campo de aumento
+                            flashMessage('Salário Base resetado para o valor original do perfil.', 'info');
+                        });
+                    }
+
                     if (saveIncreasedProfileButton && salarioBaseInput && profileNameInput) {
                         saveIncreasedProfileButton.addEventListener('click', function() {
                             const newProfileName = prompt("Digite um nome para o novo perfil com o salário ajustado:");
