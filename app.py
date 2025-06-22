@@ -745,7 +745,7 @@ def index():
                             </div>
                         </div>
                         <div class="button-group">
-                            <button type="button" id="resetSalario" class="secondary">Resetar Salário Base</button> </div>
+                            <button type="button" id="resetSalario" class="secondary">Resetar Salário Base</button>
                             <button type="button" id="applyIncrease" class="secondary">Aplicar Aumento</button>
                             <button type="button" id="saveIncreasedProfile" class="secondary">Salvar como novo perfil</button>
                         </div>
