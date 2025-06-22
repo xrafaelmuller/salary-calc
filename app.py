@@ -721,7 +721,6 @@ def index():
                                 {% endfor %}
                             </select>
                         </div>
-                        <p><small>Selecione um perfil para carregar os dados no formulário.</small></p>
                         <div class="profile-actions">
                             <label for="profile_name">Nome do Perfil para Salvar:</label>
                             <input type="text" id="profile_name" name="profile_name" placeholder="Ex: Meu Salário" value="{{ profile_data.profile_name }}" form="main-calc-form">
