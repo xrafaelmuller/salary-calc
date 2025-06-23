@@ -1,112 +1,107 @@
+# 📊 Net Salary Calculator
 
-# 📊 Calculadora de Salário Líquido
+This project is a **Net Salary Calculator** built with Flask, Python, and MongoDB Atlas. It allows authenticated users to calculate their net salary, considering various earnings and deductions, and offers features to manage and save different calculation profiles.
 
-Este projeto é uma **Calculadora de Salário Líquido** baseada em Flask, Python e MongoDB Atlas. Ele permite que os usuários autenticados calculem seu salário líquido, considerando rendimentos e descontos diversos, além de oferecer funcionalidades para gerenciar e salvar diferentes perfis de cálculo.
+## ✨ Main Features
 
-## ✨ Funcionalidades Principais
+- **User Authentication**: Full registration, login, and logout system to protect user data.
+- **Accurate Calculation**: Calculates INSS and IRPF based on 2025 tax tables, and also considers other earnings (e.g., bonuses) and deductions (e.g., food vouchers, health plans, private pension, dental).
+- **Profile Management**: Allows saving and loading multiple calculation profiles, making it easier to compare and monitor different financial scenarios.
+- **Salary Raise Simulation**: Interactive tool to apply a percentage raise to the base salary and visualize the impact on net salary, with the option to save the new scenario as a profile.
+- **Responsive Interface**: Modern and adaptable design for a great experience on both mobile and desktop devices.
+- **Data Persistence**: Uses MongoDB Atlas to securely store user and profile information.
 
-- **Autenticação de Usuários**: Sistema completo de registro, login e logout para proteger os dados dos usuários.
-- **Cálculo Preciso**: Calcula o INSS e o IRPF com base nas tabelas de 2025, além de considerar outros rendimentos (quinquênio, premiação) e descontos (vale alimentação, plano de saúde, previdência privada, odontológico).
-- **Gerenciamento de Perfis**: Permite salvar e carregar múltiplos perfis de cálculo, facilitando a comparação e o acompanhamento de diferentes cenários financeiros.
-- **Simulação de Aumento Salarial**: Ferramenta interativa para aplicar um percentual de aumento ao salário base e visualizar o impacto no salário líquido, com a opção de salvar o novo cenário como um perfil.
-- **Interface Responsiva**: Design moderno e adaptável para garantir uma boa experiência em dispositivos móveis e desktops.
-- **Persistência de Dados**: Utiliza MongoDB Atlas para armazenar de forma segura as informações de usuários e perfis.
-
-## 🚀 Tecnologias Utilizadas
+## 🚀 Technologies Used
 
 - **Backend**: Python 🐍
-  - **Framework Web**: Flask
-  - **Segurança**: `werkzeug.security` para hash de senhas.
-  - **Banco de Dados**: `pymongo` (Driver MongoDB)
-- **Banco de Dados**: MongoDB Atlas
-- **Frontend**: HTML, CSS e JavaScript
-  - **Estilização**: CSS puro para um design limpo e responsivo.
-  - **Interatividade**: JavaScript para funcionalidades como seções colapsíveis e aplicação de aumentos percentuais.
+  - **Web Framework**: Flask
+  - **Security**: `werkzeug.security` for password hashing.
+  - **Database Driver**: `pymongo` (MongoDB Driver)
+- **Database**: MongoDB Atlas
+- **Frontend**: HTML, CSS, and JavaScript
+  - **Styling**: Pure CSS for a clean and responsive design.
+  - **Interactivity**: JavaScript for features like collapsible sections and percentage raise application.
 
-## ⚙️ Configuração do Ambiente
+## ⚙️ Environment Setup
 
-Siga os passos abaixo para configurar e rodar o projeto localmente.
+Follow the steps below to set up and run the project locally.
 
-### Pré-requisitos
+### Prerequisites
 
 - Python 3.x
-- Conta no MongoDB Atlas e um cluster configurado.
-- `pip` (gerenciador de pacotes do Python)
+- MongoDB Atlas account with a configured cluster
+- `pip` (Python package manager)
 
-### 1. Clonar o Repositório
+### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/seu-usuario/seu-projeto.git
-cd seu-projeto
+git clone https://github.com/your-username/your-project.git
+cd your-project
 ```
 
-### 2. Configurar Variáveis de Ambiente
+### 2. Configure Environment Variables
 
-Crie um arquivo `.env` na raiz do projeto (o mesmo diretório de `app.py`) e adicione a URI de conexão do seu MongoDB Atlas:
+Create a `.env` file at the project root (same directory as `app.py`) and add your MongoDB Atlas connection URI:
 
 ```env
-MONGODB_URI="mongodb+srv://<seu-usuario>:<sua-senha>@<seu-cluster>.mongodb.net/?retryWrites=true&w=majority"
+MONGODB_URI="mongodb+srv://<your-username>:<your-password>@<your-cluster>.mongodb.net/?retryWrites=true&w=majority"
 ```
 
-**Importante**: Substitua `<seu-usuario>`, `<sua-senha>` e `<seu-cluster>` pelas suas credenciais do MongoDB Atlas.
+**Important**: Replace `<your-username>`, `<your-password>`, and `<your-cluster>` with your MongoDB Atlas credentials.
 
-### 3. Instalar Dependências
+### 3. Install Dependencies
 
-Crie um ambiente virtual (recomendado) e instale as bibliotecas necessárias:
+Create a virtual environment (recommended) and install the required libraries:
 
 ```bash
 python -m venv venv
-source venv/bin/activate  # No Windows: venv\Scripts\activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install Flask pymongo python-dotenv werkzeug
 ```
 
-### 4. Inicializar o Banco de Dados
+### 4. Initialize the Database
 
-O aplicativo tentará inicializar a conexão com o banco de dados e criar os índices necessários ao iniciar. Certifique-se de que sua `MONGODB_URI` esteja correta e que o IP de onde você está rodando o aplicativo esteja na lista de IPs permitidos do seu cluster MongoDB Atlas.
+The application will attempt to connect to the database and create the required indexes on startup. Ensure your `MONGODB_URI` is correct and that your IP is added to the allowed list in your MongoDB Atlas cluster.
 
-### 5. Executar a Aplicação
+### 5. Run the Application
 
 ```bash
 flask run
 ```
 
-Ou, se preferir rodar diretamente o script:
+Or, to run the script directly:
 
 ```bash
 python app.py
 ```
 
-A aplicação estará disponível em `http://127.0.0.1:5000` (ou a porta configurada, geralmente 5000).
+The app will be available at `http://127.0.0.1:5000` (or the configured port, usually 5000).
 
-## 💡 Como Usar
+## 💡 How to Use
 
-1. **Acesse a Aplicação**: Abra seu navegador e navegue para `http://127.0.0.1:5000`.
-2. **Registro/Login**:
-   - Se for seu primeiro acesso, clique em "Cadastre-se aqui" para criar uma nova conta.
-   - Após o registro, faça login com suas credenciais.
-3. **Calcular Salário Líquido**:
-   - Preencha os campos nos painéis "Rendimentos" e "Descontos".
-   - Utilize o botão "Calcular" para ver o salário líquido estimado.
-4. **Gerenciar Perfis**:
-   - Expanda a seção "Gerenciar Perfis".
-   - **Salvar**: Digite um nome no campo "Nome do Perfil para Salvar" e clique em "Salvar Perfil".
-   - **Carregar**: Selecione um perfil salvo na lista suspensa "Carregar Perfil".
-5. **Simular Aumento Salarial**:
-   - Expanda a seção "Ajustar Salário por Aumento (%)".
-   - Insira o percentual de aumento e clique em "Aplicar Aumento" para atualizar o "Salário Base" no formulário.
-   - Clique em "Salvar como novo perfil" para criar um novo perfil com o salário ajustado.
+1. **Access the App**: Open your browser and go to `http://127.0.0.1:5000`.
+2. **Register/Login**:
+   - If it's your first time, click "Register here" to create an account.
+   - After registering, log in with your credentials.
+3. **Calculate Net Salary**:
+   - Fill in the fields under the "Earnings" and "Deductions" panels.
+   - Click the "Calculate" button to see the estimated net salary.
+4. **Manage Profiles**:
+   - Expand the "Manage Profiles" section.
+   - **Save**: Enter a name in the "Profile Name to Save" field and click "Save Profile".
+   - **Load**: Select a saved profile from the "Load Profile" dropdown list.
+5. **Simulate Salary Raise**:
+   - Expand the "Adjust Salary by Raise (%)" section.
+   - Enter the raise percentage and click "Apply Raise" to update the "Base Salary" field.
+   - Click "Save as New Profile" to create a new profile with the updated salary.
 
-## 🤝 Contribuição
+## 🤝 Contributing
 
-Contribuições são bem-vindas! Se você tiver sugestões de melhorias, detecção de bugs ou novas funcionalidades, sinta-se à vontade para:
+Contributions are welcome! If you have suggestions for improvements, bug fixes, or new features, feel free to:
 
-1. Abrir uma `issue` para discutir a mudança proposta.
-2. Criar um `fork` do projeto.
-3. Criar uma `branch` para sua feature (`git checkout -b feature/MinhaNovaFeature`).
-4. Realizar suas alterações e fazer `commit` (`git commit -m 'feat: Minha nova feature'`).
-5. Fazer `push` para a `branch` (`git push origin feature/MinhaNovaFeature`).
-6. Abrir um `Pull Request`.
-
-## 📄 Licença
-
-Este projeto está licenciado sob a licença MIT. Consulte o arquivo [LICENSE](LICENSE) para mais detalhes.
+1. Open an `issue` to discuss the proposed change.
+2. Fork the project.
+3. Create a `branch` for your feature (`git checkout -b feature/MyNewFeature`).
+4. Make your changes and commit (`git commit -m 'feat: My new feature'`).
+5. Push to the branch (`git push origin feature/MyNewFeature`).
+6. Open a `Pull Request`.
