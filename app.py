@@ -786,7 +786,14 @@ def index():
                             </div>
                             <div>
                                 <label for="previdencia_privada">Previdência (seu contracheque):</label>
+                                <select id="previdencia_percentual_selector">
+                                    <option value="">-- Escolha % do salário --</option>
+                                        {% for i in range(1, 9) %}
+                                            <option value="{{ i * 0.5 }}">{{ i * 0.5 }}%</option>
+                                        {% endfor %}
+                                </select>
                                 <input type="text" id="previdencia_privada" name="previdencia_privada" value="{{ '%.2f'|format(profile_data.previdencia_privada)|replace('.', ',') }}">
+
                             </div>
                             <div>
                                 <label for="odontologico">Odontológico:</label>
@@ -929,7 +936,22 @@ def index():
                             msgDiv.remove();
                         }, 5000); 
                     }
-    
+                    const previdenciaSelector = document.getElementById('previdencia_percentual_selector');
+                    const salarioInput = document.getElementById('salario');
+                    const previdenciaInput = document.getElementById('previdencia_privada');
+
+                    if (previdenciaSelector && salarioInput && previdenciaInput) {
+                        previdenciaSelector.addEventListener('change', function () {
+                            const percentual = parseFloat(this.value);
+                            const salario = parseFloat(salarioInput.value.replace(',', '.'));
+                            
+                            if (!isNaN(percentual) && !isNaN(salario)) {
+                                const valor = salario * (percentual / 100);
+                                previdenciaInput.value = valor.toFixed(2).replace('.', ',');
+                                flashMessage(`Valor de previdência atualizado: ${percentual}% do salário.`, 'info');
+                            }
+                        });
+                    }
                 });
             </script>
         </body>
