@@ -146,67 +146,133 @@ def login():
             flash('Usuário ou senha inválidos.', 'danger')
     
     html_login = """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Login - Calculadora de Salário</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <style>
-            body { 
-                font-family: Arial, sans-serif; margin: 0; background-color: #f4f4f4; 
-                display: flex; justify-content: center; align-items: center; min-height: 100vh;
-                padding: 20px; box-sizing: border-box;
-            }
-            .container { 
-                background-color: white; padding: 30px; border-radius: 8px; 
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 400px; width: 100%; 
-                text-align: center;
-            }
-            h2 { color: #333; margin-bottom: 20px; }
-            label { display: block; text-align: left; margin-bottom: 5px; font-weight: bold; }
-            input[type="text"], input[type="password"] { 
-                width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; 
-                border-radius: 4px; box-sizing: border-box; 
-            }
-            input[type="submit"] { 
-                background-color: #4CAF50; color: white; padding: 10px 20px; border: none; 
-                border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; 
-            }
-            input[type="submit"]:hover { background-color: #45a049; }
-            .link-register { margin-top: 15px; font-size: 0.9em; }
-            .flash-message { padding: 10px; margin-bottom: 15px; border-radius: 4px; text-align: left; }
-            .flash-message.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-            .flash-message.danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Calculadora de Salário</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(120deg, #4e54c8, #8f94fb);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-            @media (max-width: 600px) {
-                .container {
-                    padding: 20px;
-                }
+        .login-container {
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 40px;
+            width: 100%;
+            max-width: 380px;
+            color: #fff;
+        }
+
+        .login-container h2 {
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 1em;
+        }
+
+        input[type="text"]::placeholder,
+        input[type="password"]::placeholder {
+            color: #ddd;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #00c6ff;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1em;
+            cursor: pointer;
+            color: #fff;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0072ff;
+        }
+
+        .link-register {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .link-register a {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+
+        .flash-message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.95em;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 1px solid #ffffff33;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 25px;
             }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h2>Login</h2>
-            {% with messages = get_flashed_messages(with_categories=True) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="flash-message {{ category }}">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-            <form method="POST">
-                <label for="username">Usuário:</label>
-                <input type="text" id="username" name="username" required>
-                <label for="password">Senha:</label>
-                <input type="password" id="password" name="password" required>
-                <input type="submit" value="Entrar">
-            </form>
-            <p class="link-register">Não tem uma conta? <a href="{{ url_for('register') }}">Cadastre-se aqui</a></p>
-        </div>
-    </body>
-    </html>
-    """
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Entrar</h2>
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="POST">
+            <label for="username">Usuário:</label>
+            <input type="text" name="username" id="username" placeholder="Seu usuário" required>
+
+            <label for="password">Senha:</label>
+            <input type="password" name="password" id="password" placeholder="Sua senha" required>
+
+            <input type="submit" value="Entrar">
+        </form>
+        <p class="link-register">Não tem conta? <a href="{{ url_for('register') }}">Cadastre-se aqui</a></p>
+    </div>
+</body>
+</html>
+"""
     return render_template_string(html_login)
 
 @app.route('/register', methods=['GET', 'POST'])
