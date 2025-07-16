@@ -146,133 +146,147 @@ def login():
             flash('Usuário ou senha inválidos.', 'danger')
     
     html_login = """
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <title>Login - Calculadora de Salário</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(120deg, #4e54c8, #8f94fb);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .login-container {
-            background: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            padding: 40px;
-            width: 100%;
-            max-width: 380px;
-            color: #fff;
-        }
-
-        .login-container h2 {
-            margin-bottom: 25px;
-            font-size: 1.8em;
-            text-align: center;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        input[type="text"], input[type="password"] {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border: none;
-            border-radius: 8px;
-            background-color: rgba(255, 255, 255, 0.2);
-            color: #fff;
-            font-size: 1em;
-        }
-
-        input[type="text"]::placeholder,
-        input[type="password"]::placeholder {
-            color: #ddd;
-        }
-
-        input[type="submit"] {
-            width: 100%;
-            padding: 12px;
-            background-color: #00c6ff;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 1em;
-            cursor: pointer;
-            color: #fff;
-            transition: background-color 0.3s ease;
-        }
-
-        input[type="submit"]:hover {
-            background-color: #0072ff;
-        }
-
-        .link-register {
-            margin-top: 15px;
-            text-align: center;
-            font-size: 0.9em;
-        }
-
-        .link-register a {
-            color: #ffffff;
-            text-decoration: underline;
-        }
-
-        .flash-message {
-            margin-bottom: 15px;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 0.95em;
-            background-color: rgba(255, 255, 255, 0.2);
-            border: 1px solid #ffffff33;
-        }
-
-        @media (max-width: 480px) {
-            .login-container {
-                padding: 25px;
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <title>Login - Calculadora de Salário</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            :root {
+                --bg-color: #121212;
+                --container-color: #1e1e1e;
+                --input-bg: #2c2c2c;
+                --text-color: #ffffff;
+                --accent-color: #00bcd4;
+                --accent-hover: #008c9e;
+                --border-color: #333;
             }
-        }
-    </style>
-</head>
-<body>
-    <div class="login-container">
-        <h2>Entrar</h2>
-        {% with messages = get_flashed_messages(with_categories=True) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash-message">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        <form method="POST">
-            <label for="username">Usuário:</label>
-            <input type="text" name="username" id="username" placeholder="Seu usuário" required>
 
-            <label for="password">Senha:</label>
-            <input type="password" name="password" id="password" placeholder="Sua senha" required>
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: var(--bg-color);
+                color: var(--text-color);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
 
-            <input type="submit" value="Entrar">
-        </form>
-        <p class="link-register">Não tem conta? <a href="{{ url_for('register') }}">Cadastre-se aqui</a></p>
-    </div>
-</body>
-</html>
-"""
+            .container {
+                background-color: var(--container-color);
+                padding: 40px;
+                border-radius: 12px;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+                width: 100%;
+                max-width: 380px;
+            }
+
+            h2 {
+                text-align: center;
+                margin-bottom: 30px;
+                font-size: 1.8em;
+                color: var(--text-color);
+            }
+
+            label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 600;
+            }
+
+            input[type="text"],
+            input[type="password"] {
+                width: 100%;
+                padding: 12px;
+                margin-bottom: 20px;
+                background-color: var(--input-bg);
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                color: var(--text-color);
+                font-size: 1em;
+            }
+
+            input::placeholder {
+                color: #aaa;
+            }
+
+            input[type="submit"] {
+                width: 100%;
+                padding: 12px;
+                background-color: var(--accent-color);
+                border: none;
+                border-radius: 8px;
+                font-weight: bold;
+                font-size: 1em;
+                cursor: pointer;
+                color: #fff;
+                transition: background-color 0.3s ease;
+            }
+
+            input[type="submit"]:hover {
+                background-color: var(--accent-hover);
+            }
+
+            .link-register {
+                margin-top: 20px;
+                text-align: center;
+                font-size: 0.9em;
+            }
+
+            .link-register a {
+                color: var(--accent-color);
+                text-decoration: none;
+            }
+
+            .link-register a:hover {
+                text-decoration: underline;
+            }
+
+            .flash-message {
+                padding: 10px;
+                margin-bottom: 20px;
+                background-color: #2a2a2a;
+                color: #ff6b6b;
+                border-radius: 6px;
+                font-size: 0.95em;
+                border: 1px solid #ff6b6b33;
+            }
+
+            @media (max-width: 480px) {
+                .container {
+                    padding: 25px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Entrar</h2>
+            {% with messages = get_flashed_messages(with_categories=True) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            <form method="POST">
+                <label for="username">Usuário:</label>
+                <input type="text" name="username" id="username" placeholder="Seu usuário" required>
+
+                <label for="password">Senha:</label>
+                <input type="password" name="password" id="password" placeholder="Sua senha" required>
+
+                <input type="submit" value="Entrar">
+            </form>
+            <p class="link-register">Não tem conta? <a href="{{ url_for('register') }}">Cadastre-se aqui</a></p>
+        </div>
+    </body>
+    </html>
+    """
+
     return render_template_string(html_login)
 
 @app.route('/register', methods=['GET', 'POST'])
