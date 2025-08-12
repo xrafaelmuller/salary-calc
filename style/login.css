@@ -1,0 +1,107 @@
+:root {
+    --bg-color: #121212;
+    --container-color: #1e1e1e;
+    --input-bg: #2c2c2c;
+    --text-color: #ffffff;
+    --accent-color: #00bcd4;
+    --accent-hover: #008c9e;
+    --border-color: #333;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    background-color: var(--container-color);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+    width: 100%;
+    max-width: 380px;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 1.8em;
+    color: var(--text-color);
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-color);
+    font-size: 1em;
+}
+
+input::placeholder {
+    color: #aaa;
+}
+
+input[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--accent-color);
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1em;
+    cursor: pointer;
+    color: #fff;
+    transition: background-color 0.3s ease;
+}
+
+input[type="submit"]:hover {
+    background-color: var(--accent-hover);
+}
+
+.link-register {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+.link-register a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+.link-register a:hover {
+    text-decoration: underline;
+}
+
+.flash-message {
+    padding: 10px;
+    margin-bottom: 20px;
+    background-color: #2a2a2a;
+    color: #ff6b6b;
+    border-radius: 6px;
+    font-size: 0.95em;
+    border: 1px solid #ff6b6b33;
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 25px;
+    }
+}

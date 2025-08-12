@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Calculadora de Salário</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Entrar</h2>
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="POST">
+            <label for="username">Usuário:</label>
+            <input type="text" name="username" id="username" placeholder="Seu usuário" required>
+
+            <label for="password">Senha:</label>
+            <input type="password" name="password" id="password" placeholder="Sua senha" required>
+
+            <input type="submit" value="Entrar">
+        </form>
+        <p class="link-register">Não tem conta? <a href="{{ url_for('register') }}">Cadastre-se aqui</a></p>
+    </div>
+</body>
+</html>
