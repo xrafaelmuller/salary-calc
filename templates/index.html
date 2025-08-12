@@ -37,7 +37,8 @@
         <div class="collapsible-section" id="profileSection">
             <div class="collapsible-header" id="profileHeader">
                 <h3>Gerenciar Perfis</h3>
-                <button type="button" id="toggleProfileContent">Expandir <span class="arrow-icon">&#9660;</span></button>
+                <!-- --- MUDANÇA AQUI: Removido o texto do botão --- -->
+                <button type="button" id="toggleProfileContent"><span class="arrow-icon">&#9660;</span></button>
             </div>
             <div class="collapsible-content" id="profileContent">
                 <div class="profile-load-group" style="margin-bottom: 1.5rem;">
@@ -62,7 +63,8 @@
         <div class="collapsible-section" id="increaseSection">
             <div class="collapsible-header" id="increaseHeader">
                 <h3>Ajustar Salário por Aumento (%)</h3>
-                <button type="button" id="toggleIncreaseContent">Expandir <span class="arrow-icon">&#9660;</span></button>
+                <!-- --- MUDANÇA AQUI: Removido o texto do botão --- -->
+                <button type="button" id="toggleIncreaseContent"><span class="arrow-icon">&#9660;</span></button>
             </div>
             <div class="collapsible-content" id="increaseContent">
                 <div class="input-grid">
@@ -152,15 +154,14 @@
                 
                 const arrowIcon = toggleButton.querySelector('.arrow-icon');
                 
-                function updateToggleText(isExpanded, button, icon) {
-                    icon.innerHTML = isExpanded ? '&#9650;' : '&#9660;';
-                    const textNode = button.childNodes[0];
-                    textNode.nodeValue = isExpanded ? 'Recolher ' : 'Expandir ';
+                // --- MUDANÇA AQUI: Simplificada a função para apenas trocar o ícone ---
+                function updateToggleIcon(isExpanded) {
+                    arrowIcon.innerHTML = isExpanded ? '&#9650;' : '&#9660;';
                 }
 
                 function toggleSection() {
                     const isExpanded = content.classList.toggle('expanded');
-                    updateToggleText(isExpanded, toggleButton, arrowIcon);
+                    updateToggleIcon(isExpanded);
                 }
 
                 header.addEventListener('click', toggleSection);
@@ -169,7 +170,7 @@
                 const loadProfileParam = urlParams.get('load_profile');
                 if (contentId === 'profileContent' && loadProfileParam) {
                     content.classList.add('expanded');
-                    updateToggleText(true, toggleButton, arrowIcon);
+                    updateToggleIcon(true);
                 }
             }
 
@@ -189,7 +190,6 @@
                 msgDiv.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
                 flashContainer.prepend(msgDiv);
                 
-                // For animation
                 setTimeout(() => {
                     msgDiv.style.opacity = '1';
                     msgDiv.style.transform = 'translateY(0)';

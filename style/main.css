@@ -175,7 +175,30 @@ button.secondary:hover {
     cursor: pointer;
 }
 .collapsible-header h3 { margin: 0; font-size: 1rem; font-weight: 600; }
-.collapsible-header button { background: none; border: none; color: var(--text-secondary-color); font-size: 0.9rem; padding: 0; width: auto; }
+
+/* --- MUDANÇA AQUI --- */
+.collapsible-header button {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary-color);
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    flex-shrink: 0; /* Impede que o botão encolha */
+}
+
+.collapsible-header button:hover {
+    background-color: var(--input-bg);
+    color: var(--text-color);
+}
+
 
 .collapsible-content {
     max-height: 0;
