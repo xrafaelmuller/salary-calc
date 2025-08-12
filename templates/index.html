@@ -37,7 +37,6 @@
         <div class="collapsible-section" id="profileSection">
             <div class="collapsible-header" id="profileHeader">
                 <h3>Gerenciar Perfis</h3>
-                <!-- --- MUDANÇA AQUI: Removido o texto do botão --- -->
                 <button type="button" id="toggleProfileContent"><span class="arrow-icon">&#9660;</span></button>
             </div>
             <div class="collapsible-content" id="profileContent">
@@ -63,7 +62,6 @@
         <div class="collapsible-section" id="increaseSection">
             <div class="collapsible-header" id="increaseHeader">
                 <h3>Ajustar Salário por Aumento (%)</h3>
-                <!-- --- MUDANÇA AQUI: Removido o texto do botão --- -->
                 <button type="button" id="toggleIncreaseContent"><span class="arrow-icon">&#9660;</span></button>
             </div>
             <div class="collapsible-content" id="increaseContent">
@@ -90,15 +88,21 @@
                 <div class="input-grid">
                     <div>
                         <label for="salario">Salário Base:</label>
-                        <input type="text" id="salario" name="salario" value="{{ '%.2f'|format(profile_data.salario)|replace('.', ',') }}" required>
+                        <div class="input-group-currency">
+                            <input type="text" id="salario" name="salario" value="{{ '%.2f'|format(profile_data.salario)|replace('.', ',') }}" required>
+                        </div>
                     </div>
                     <div>
                         <label for="quinquenio">Quinquênio:</label>
-                        <input type="text" id="quinquenio" name="quinquenio" value="{{ '%.2f'|format(profile_data.quinquenio)|replace('.', ',') }}">
+                        <div class="input-group-currency">
+                            <input type="text" id="quinquenio" name="quinquenio" value="{{ '%.2f'|format(profile_data.quinquenio)|replace('.', ',') }}">
+                        </div>
                     </div>
                     <div>
                         <label for="premiacao">Premiação (se houver):</label>
-                        <input type="text" id="premiacao" name="premiacao" value="{{ '%.2f'|format(profile_data.premiacao)|replace('.', ',') }}">
+                        <div class="input-group-currency">
+                            <input type="text" id="premiacao" name="premiacao" value="{{ '%.2f'|format(profile_data.premiacao)|replace('.', ',') }}">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -108,11 +112,15 @@
                 <div class="input-grid">
                     <div>
                         <label for="vale_alimentacao">Vale Alimentação:</label>
-                        <input type="text" id="vale_alimentacao" name="vale_alimentacao" value="{{ '%.2f'|format(profile_data.vale_alimentacao)|replace('.', ',') }}">
+                        <div class="input-group-currency">
+                            <input type="text" id="vale_alimentacao" name="vale_alimentacao" value="{{ '%.2f'|format(profile_data.vale_alimentacao)|replace('.', ',') }}">
+                        </div>
                     </div>
                     <div>
                         <label for="plano_saude">Plano de Saúde:</label>
-                        <input type="text" id="plano_saude" name="plano_saude" value="{{ '%.2f'|format(profile_data.plano_saude)|replace('.', ',') }}">
+                        <div class="input-group-currency">
+                            <input type="text" id="plano_saude" name="plano_saude" value="{{ '%.2f'|format(profile_data.plano_saude)|replace('.', ',') }}">
+                        </div>
                     </div>
                     <div>
                         <label for="previdencia_privada">Previdência (seu contracheque):</label>
@@ -122,12 +130,15 @@
                                     <option value="{{ i * 0.5 }}">{{ i * 0.5 }}%</option>
                                 {% endfor %}
                         </select>
-                        <input type="text" id="previdencia_privada" name="previdencia_privada" value="{{ '%.2f'|format(profile_data.previdencia_privada)|replace('.', ',') }}">
-
+                        <div class="input-group-currency">
+                            <input type="text" id="previdencia_privada" name="previdencia_privada" value="{{ '%.2f'|format(profile_data.previdencia_privada)|replace('.', ',') }}">
+                        </div>
                     </div>
                     <div>
                         <label for="odontologico">Odontológico:</label>
-                        <input type="text" id="odontologico" name="odontologico" value="{{ '%.2f'|format(profile_data.odontologico)|replace('.', ',') }}">
+                        <div class="input-group-currency">
+                            <input type="text" id="odontologico" name="odontologico" value="{{ '%.2f'|format(profile_data.odontologico)|replace('.', ',') }}">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -154,7 +165,6 @@
                 
                 const arrowIcon = toggleButton.querySelector('.arrow-icon');
                 
-                // --- MUDANÇA AQUI: Simplificada a função para apenas trocar o ícone ---
                 function updateToggleIcon(isExpanded) {
                     arrowIcon.innerHTML = isExpanded ? '&#9650;' : '&#9660;';
                 }
