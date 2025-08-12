@@ -34,52 +34,6 @@
         {% endwith %}
         </div>
         
-        <div class="collapsible-section" id="profileSection">
-            <div class="collapsible-header" id="profileHeader">
-                <h3>Gerenciar Perfis</h3>
-                <button type="button" id="toggleProfileContent"><span class="arrow-icon">&#9660;</span></button>
-            </div>
-            <div class="collapsible-content" id="profileContent">
-                <div class="profile-load-group" style="margin-bottom: 1.5rem;">
-                    <label for="profile_select">Carregar Perfil:</label>
-                    <select id="profile_select" onchange="window.location.href='/?load_profile=' + this.value">
-                        <option value="">-- Selecione um Perfil --</option>
-                        {% for profile in profiles %}
-                            <option value="{{ profile }}" {% if profile == profile_data.profile_name %}selected{% endif %}>{{ profile }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="profile-actions">
-                    <label for="profile_name">Nome do Perfil para Salvar/Atualizar:</label>
-                    <input type="text" id="profile_name" name="profile_name" placeholder="Ex: Meu Salário" value="{{ profile_data.profile_name }}" form="main-calc-form">
-                </div>
-                <div class="button-group">
-                    <button type="submit" name="action" value="save_profile" class="secondary" form="main-calc-form" onclick="document.getElementById('form_action').value='save_profile';">Salvar Perfil</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="collapsible-section" id="increaseSection">
-            <div class="collapsible-header" id="increaseHeader">
-                <h3>Ajustar Salário por Aumento (%)</h3>
-                <button type="button" id="toggleIncreaseContent"><span class="arrow-icon">&#9660;</span></button>
-            </div>
-            <div class="collapsible-content" id="increaseContent">
-                <div class="input-grid">
-                    <div>
-                        <label for="increase_percentage">Percentual de Aumento (%):</label>
-                        <input type="text" id="increase_percentage" name="increase_percentage" placeholder="Ex: 5.5">
-                        <p style="font-size: 0.8rem; color: var(--text-secondary-color); margin-top: 0.5rem;"><small>O aumento será aplicado sobre o <strong>Salário Base atual do formulário</strong>.</small></p>
-                    </div>
-                </div>
-                <div class="button-group">
-                    <button type="button" id="resetSalario" class="secondary">Resetar Salário Base</button>
-                    <button type="button" id="applyIncrease" class="secondary">Aplicar Aumento</button>
-                    <button type="button" id="saveIncreasedProfile" class="secondary">Salvar como novo perfil</button>
-                </div>
-            </div>
-        </div>
-
         <form method="POST" class="main-form" id="main-calc-form">
             <input type="hidden" name="action" id="form_action" value="calculate">
 
@@ -124,10 +78,9 @@
                     </div>
                     <div>
                         <label for="previdencia_privada">Previdência (seu contracheque):</label>
-                        <!-- --- MUDANÇA AQUI: Adicionado o container .input-group-split --- -->
                         <div class="input-group-split">
                             <select id="previdencia_percentual_selector">
-                                <option value="">%</option>
+                                <option value="">-- Escolha % do salário --</option>
                                     {% for i in range(1, 9) %}
                                         <option value="{{ i * 0.5 }}">{{ i * 0.5 }}%</option>
                                     {% endfor %}
@@ -158,37 +111,77 @@
         {% endif %}
     </div>
 
+    <!-- --- NOVOS ELEMENTOS FLUTUANTES --- -->
+    <div class="floating-actions">
+        <div class="floating-action-group" id="profile-action-group">
+            <button class="floating-btn" id="profile-btn" title="Gerenciar Perfis">👥</button>
+            <div class="side-panel" id="profile-panel">
+                <h3>Gerenciar Perfis</h3>
+                <div class="profile-load-group" style="margin-bottom: 1.5rem;">
+                    <label for="profile_select">Carregar Perfil:</label>
+                    <select id="profile_select" onchange="window.location.href='/?load_profile=' + this.value">
+                        <option value="">-- Selecione um Perfil --</option>
+                        {% for profile in profiles %}
+                            <option value="{{ profile }}" {% if profile == profile_data.profile_name %}selected{% endif %}>{{ profile }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="profile-actions">
+                    <label for="profile_name">Nome do Perfil para Salvar/Atualizar:</label>
+                    <input type="text" id="profile_name" name="profile_name" placeholder="Ex: Meu Salário" value="{{ profile_data.profile_name }}" form="main-calc-form">
+                </div>
+                <div class="button-group">
+                    <button type="submit" name="action" value="save_profile" class="secondary" form="main-calc-form" onclick="document.getElementById('form_action').value='save_profile';">Salvar Perfil</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="floating-action-group" id="raise-action-group">
+            <button class="floating-btn" id="raise-btn" title="Ajustar Salário">📈</button>
+            <div class="side-panel" id="raise-panel">
+                <h3>Ajustar Salário por Aumento (%)</h3>
+                <div class="input-grid">
+                    <div>
+                        <label for="increase_percentage">Percentual de Aumento (%):</label>
+                        <input type="text" id="increase_percentage" name="increase_percentage" placeholder="Ex: 5.5">
+                        <p style="font-size: 0.8rem; color: var(--text-secondary-color); margin-top: 0.5rem;"><small>O aumento será aplicado sobre o <strong>Salário Base atual do formulário</strong>.</small></p>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button type="button" id="resetSalario" class="secondary">Resetar Salário Base</button>
+                    <button type="button" id="applyIncrease" class="secondary">Aplicar Aumento</button>
+                    <button type="button" id="saveIncreasedProfile" class="secondary">Salvar como novo perfil</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            function setupCollapsible(headerId, contentId, toggleButtonId) {
-                const header = document.getElementById(headerId);
-                const content = document.getElementById(contentId);
-                const toggleButton = document.getElementById(toggleButtonId);
-                if (!header || !content || !toggleButton) return;
-                
-                const arrowIcon = toggleButton.querySelector('.arrow-icon');
-                
-                function updateToggleIcon(isExpanded) {
-                    arrowIcon.innerHTML = isExpanded ? '&#9650;' : '&#9660;';
-                }
+            
+            // --- NOVA LÓGICA PARA AÇÕES FLUTUANTES ---
+            document.querySelectorAll('.floating-action-group').forEach(group => {
+                let hideTimeout;
 
-                function toggleSection() {
-                    const isExpanded = content.classList.toggle('expanded');
-                    updateToggleIcon(isExpanded);
-                }
+                group.addEventListener('mouseenter', () => {
+                    clearTimeout(hideTimeout);
+                    // Fecha outros painéis antes de abrir um novo
+                    document.querySelectorAll('.floating-action-group').forEach(otherGroup => {
+                        if (otherGroup !== group) {
+                            otherGroup.classList.remove('active');
+                        }
+                    });
+                    group.classList.add('active');
+                });
 
-                header.addEventListener('click', toggleSection);
-                
-                const urlParams = new URLSearchParams(window.location.search);
-                const loadProfileParam = urlParams.get('load_profile');
-                if (contentId === 'profileContent' && loadProfileParam) {
-                    content.classList.add('expanded');
-                    updateToggleIcon(true);
-                }
-            }
+                group.addEventListener('mouseleave', () => {
+                    hideTimeout = setTimeout(() => {
+                        group.classList.remove('active');
+                    }, 300); // Um pequeno delay para permitir mover o cursor para dentro do painel
+                });
+            });
 
-            setupCollapsible('profileHeader', 'profileContent', 'toggleProfileContent');
-            setupCollapsible('increaseHeader', 'increaseContent', 'toggleIncreaseContent');
 
             function flashMessage(message, category = 'info') {
                 let flashContainer = document.querySelector('.flash-messages-js-container');
