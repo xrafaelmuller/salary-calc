@@ -26,7 +26,8 @@ except Exception as e:
 
 def init_db():
     """Inicializa o banco de dados MongoDB, garantindo conexão e índices."""
-    if not client:
+    # CORREÇÃO: Usando 'is None' para a verificação.
+    if client is None:
         raise ConnectionError("A conexão com o MongoDB não foi estabelecida.")
     try:
         client.admin.command('ping')
@@ -44,7 +45,8 @@ def init_db():
 
 def add_user(username, password):
     """Adiciona um novo usuário ao banco de dados."""
-    if not users_collection:
+    # CORREÇÃO: Usando 'is None' para a verificação.
+    if users_collection is None:
         raise ConnectionError("Coleção de usuários não está disponível.")
     hashed_password = generate_password_hash(password)
     try:
@@ -55,7 +57,8 @@ def add_user(username, password):
 
 def get_user_by_username(username):
     """Obtém um usuário pelo nome de usuário."""
-    if not users_collection:
+    # CORREÇÃO: Usando 'is None' para a verificação.
+    if users_collection is None:
         raise ConnectionError("Coleção de usuários não está disponível.")
     user_doc = users_collection.find_one({"username": username})
     if user_doc:
@@ -65,7 +68,8 @@ def get_user_by_username(username):
 
 def save_profile_to_db(user_id_str, profile_name, data):
     """Salva ou atualiza um perfil para um usuário específico."""
-    if not profiles_collection:
+    # CORREÇÃO: Usando 'is None' para a verificação.
+    if profiles_collection is None:
         raise ConnectionError("Coleção de perfis não está disponível.")
     user_id_obj = ObjectId(user_id_str) 
 
@@ -91,7 +95,8 @@ def save_profile_to_db(user_id_str, profile_name, data):
 
 def load_profile_from_db(user_id_str, profile_name):
     """Carrega os dados de um perfil específico de um usuário."""
-    if not profiles_collection:
+    # CORREÇÃO: Usando 'is None' para a verificação.
+    if profiles_collection is None:
         raise ConnectionError("Coleção de perfis não está disponível.")
     user_id_obj = ObjectId(user_id_str) 
     profile_doc = profiles_collection.find_one({"user_id": user_id_obj, "name": profile_name})
@@ -102,7 +107,8 @@ def load_profile_from_db(user_id_str, profile_name):
 
 def get_all_profile_names(user_id_str):
     """Retorna uma lista de nomes de perfis para um usuário específico."""
-    if not profiles_collection:
+    # CORREÇÃO: Usando 'is None' para a verificação.
+    if profiles_collection is None:
         raise ConnectionError("Coleção de perfis não está disponível.")
     user_id_obj = ObjectId(user_id_str) 
     names = []
@@ -112,7 +118,8 @@ def get_all_profile_names(user_id_str):
 
 def get_last_profile_name(user_id_str):
     """Retorna o nome do perfil mais recentemente atualizado para um usuário."""
-    if not profiles_collection:
+    # CORREÇÃO: Usando 'is None' para a verificação.
+    if profiles_collection is None:
         raise ConnectionError("Coleção de perfis não está disponível.")
     user_id_obj = ObjectId(user_id_str) 
     profile_doc_cursor = profiles_collection.find({"user_id": user_id_obj}).sort("updated_at", -1).limit(1)
