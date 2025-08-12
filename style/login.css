@@ -8,9 +8,6 @@
     --border-color: #333;
 }
 
-/* Dica de boa prática: 
-  Aplicar box-sizing a todos os elementos garante um layout mais previsível.
-*/
 *, *::before, *::after {
   box-sizing: border-box;
 }
