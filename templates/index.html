@@ -10,7 +10,7 @@
         <header>
             <h2>Calculadora de Salário Líquido</h2>
             <div class="user-info">
-                Olá, <strong>{{ username }}</strong>!
+                Olá, <strong>{{ username|capitalize }}</strong>!
                 <a href="{{ url_for('logout') }}">Sair</a>
             </div>
         </header>
