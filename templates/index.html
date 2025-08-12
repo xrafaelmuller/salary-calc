@@ -1,9 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
     <title>Calculadora de Salário Líquido</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Link para seu arquivo CSS externo -->
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+
 </head>
 <body>
     <div class="container">
@@ -31,7 +40,7 @@
                 <button type="button" id="toggleProfileContent">Expandir <span class="arrow-icon">&#9660;</span></button>
             </div>
             <div class="collapsible-content" id="profileContent">
-                <div class="profile-load-group">
+                <div class="profile-load-group" style="margin-bottom: 1.5rem;">
                     <label for="profile_select">Carregar Perfil:</label>
                     <select id="profile_select" onchange="window.location.href='/?load_profile=' + this.value">
                         <option value="">-- Selecione um Perfil --</option>
@@ -41,7 +50,7 @@
                     </select>
                 </div>
                 <div class="profile-actions">
-                    <label for="profile_name">Nome do Perfil para Salvar:</label>
+                    <label for="profile_name">Nome do Perfil para Salvar/Atualizar:</label>
                     <input type="text" id="profile_name" name="profile_name" placeholder="Ex: Meu Salário" value="{{ profile_data.profile_name }}" form="main-calc-form">
                 </div>
                 <div class="button-group">
@@ -60,7 +69,7 @@
                     <div>
                         <label for="increase_percentage">Percentual de Aumento (%):</label>
                         <input type="text" id="increase_percentage" name="increase_percentage" placeholder="Ex: 5.5">
-                        <p><small>O aumento será aplicado sobre o <strong>Salário Base atual do formulário</strong>.</small></p>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary-color); margin-top: 0.5rem;"><small>O aumento será aplicado sobre o <strong>Salário Base atual do formulário</strong>.</small></p>
                     </div>
                 </div>
                 <div class="button-group">
@@ -105,7 +114,7 @@
                     </div>
                     <div>
                         <label for="previdencia_privada">Previdência (seu contracheque):</label>
-                        <select id="previdencia_percentual_selector">
+                        <select id="previdencia_percentual_selector" style="margin-bottom: 1rem;">
                             <option value="">-- Escolha % do salário --</option>
                                 {% for i in range(1, 9) %}
                                     <option value="{{ i * 0.5 }}">{{ i * 0.5 }}%</option>
@@ -149,23 +158,13 @@
                     textNode.nodeValue = isExpanded ? 'Recolher ' : 'Expandir ';
                 }
 
-                function toggleSection(event) {
-                    // Evita que o clique no botão ative o toggle do header também
-                    if (event.target === toggleButton || toggleButton.contains(event.target)) {
-                        return;
-                    }
+                function toggleSection() {
                     const isExpanded = content.classList.toggle('expanded');
                     updateToggleText(isExpanded, toggleButton, arrowIcon);
                 }
 
                 header.addEventListener('click', toggleSection);
                 
-                toggleButton.addEventListener('click', function(event) {
-                    event.stopPropagation();
-                    const isExpanded = content.classList.toggle('expanded');
-                    updateToggleText(isExpanded, toggleButton, arrowIcon);
-                });
-
                 const urlParams = new URLSearchParams(window.location.search);
                 const loadProfileParam = urlParams.get('load_profile');
                 if (contentId === 'profileContent' && loadProfileParam) {
@@ -181,18 +180,25 @@
                 let flashContainer = document.querySelector('.flash-messages-js-container');
                 if (!flashContainer) { return; }
                 
-                // Limpa mensagens JS antigas para evitar acúmulo
                 const existingJsMessages = flashContainer.querySelectorAll('.js-flash');
                 existingJsMessages.forEach(msg => msg.remove());
 
                 const msgDiv = document.createElement('div');
-                msgDiv.className = `flash-message ${category} js-flash`; // Adiciona classe para identificar
+                msgDiv.className = `flash-message ${category} js-flash`;
                 msgDiv.textContent = message;
-                msgDiv.style.transition = 'opacity 0.5s ease';
+                msgDiv.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
                 flashContainer.prepend(msgDiv);
+                
+                // For animation
+                setTimeout(() => {
+                    msgDiv.style.opacity = '1';
+                    msgDiv.style.transform = 'translateY(0)';
+                }, 10);
+
 
                 setTimeout(() => {
                     msgDiv.style.opacity = '0';
+                    msgDiv.style.transform = 'translateY(-20px)';
                     msgDiv.addEventListener('transitionend', () => msgDiv.remove());
                 }, 5000);
             }
@@ -204,31 +210,28 @@
             const profileNameInput = document.getElementById('profile_name'); 
             const resetSalarioButton = document.getElementById('resetSalario');
             
-            let originalSalarioBase = parseFloat(salarioBaseInput.value.replace(',', '.')) || 0;
+            let originalSalarioBase = parseFloat(salarioBaseInput.value.replace(/\./g, '').replace(',', '.')) || 0;
             
             if (applyIncreaseButton) {
                 applyIncreaseButton.addEventListener('click', function() {
-                    let currentSalario = parseFloat(salarioBaseInput.value.replace(',', '.')) || 0;
+                    let currentSalario = parseFloat(salarioBaseInput.value.replace(/\./g, '').replace(',', '.')) || 0;
                     let increasePercentage = parseFloat(increasePercentageInput.value.replace(',', '.')) || 0;
 
-                    if (isNaN(increasePercentage)) {
-                        flashMessage('Por favor, insira um percentual de aumento válido.', 'danger'); return;
-                    }
-                    if (increasePercentage < 0) {
-                         flashMessage('O percentual de aumento não pode ser negativo.', 'danger'); return;
+                    if (isNaN(increasePercentage) || increasePercentage < 0) {
+                        flashMessage('Por favor, insira um percentual de aumento válido e não negativo.', 'danger'); return;
                     }
 
                     let newSalario = currentSalario * (1 + (increasePercentage / 100));
-                    salarioBaseInput.value = newSalario.toFixed(2).replace('.', ',');
-                    flashMessage(`Salário Base atualizado para R$ ${salarioBaseInput.value}. Clique em 'Calcular' ou salve o perfil.`, 'info');
+                    salarioBaseInput.value = newSalario.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    flashMessage(`Salário Base atualizado para R$ ${salarioBaseInput.value}.`, 'success');
                 });
             }
             
             if (resetSalarioButton) {
                 resetSalarioButton.addEventListener('click', function() {
-                    salarioBaseInput.value = originalSalarioBase.toFixed(2).replace('.', ',');
+                    salarioBaseInput.value = originalSalarioBase.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                     increasePercentageInput.value = '';
-                    flashMessage('Salário Base resetado para o valor original do perfil.', 'info');
+                    flashMessage('Salário Base restaurado para o valor original.', 'info');
                 });
             }
 
@@ -239,7 +242,7 @@
                         profileNameInput.value = newProfileName.trim();
                         document.getElementById('form_action').value = 'save_profile'; 
                         document.getElementById('main-calc-form').submit();
-                    } else if (newProfileName !== null) { // User clicked OK but field was empty
+                    } else if (newProfileName !== null) {
                         flashMessage("O nome do perfil não pode ser vazio.", 'danger');
                     }
                 });
@@ -251,11 +254,11 @@
             if (previdenciaSelector && salarioBaseInput && previdenciaInput) {
                 previdenciaSelector.addEventListener('change', function () {
                     const percentual = parseFloat(this.value);
-                    const salario = parseFloat(salarioBaseInput.value.replace(',', '.')) || 0;
+                    const salario = parseFloat(salarioBaseInput.value.replace(/\./g, '').replace(',', '.')) || 0;
                     
                     if (!isNaN(percentual) && !isNaN(salario) && this.value) {
                         const valor = salario * (percentual / 100);
-                        previdenciaInput.value = valor.toFixed(2).replace('.', ',');
+                        previdenciaInput.value = valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                         flashMessage(`Valor de previdência atualizado para ${previdenciaInput.value}.`, 'info');
                     }
                 });
