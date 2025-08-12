@@ -8,6 +8,13 @@
     --border-color: #333;
 }
 
+/* Dica de boa prática: 
+  Aplicar box-sizing a todos os elementos garante um layout mais previsível.
+*/
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -52,6 +59,7 @@ input[type="password"] {
     border-radius: 8px;
     color: var(--text-color);
     font-size: 1em;
+    /* A propriedade box-sizing: border-box; foi movida para o seletor universal (*) no topo */
 }
 
 input::placeholder {
@@ -69,6 +77,7 @@ input[type="submit"] {
     cursor: pointer;
     color: #fff;
     transition: background-color 0.3s ease;
+    /* A propriedade box-sizing: border-box; foi movida para o seletor universal (*) no topo */
 }
 
 input[type="submit"]:hover {
