@@ -18,7 +18,6 @@ try:
     profiles_collection = db['profiles']
 except Exception as e:
     print(f"ERRO CRÍTICO: Não foi possível inicializar a conexão com o MongoDB. {e}")
-    # Em uma aplicação real, você poderia usar um logger ou um sistema de alerta aqui.
     client = None
     db = None
     users_collection = None
@@ -83,4 +82,41 @@ def save_profile_to_db(user_id_str, profile_name, data):
         "updated_at": datetime.now() 
     }
 
-    result = profiles_collection.update
+    result = profiles_collection.update_one(
+        {"user_id": user_id_obj, "name": profile_name},
+        {"$set": profile_data_to_save},
+        upsert=True 
+    )
+    return result.acknowledged 
+
+def load_profile_from_db(user_id_str, profile_name):
+    """Carrega os dados de um perfil específico de um usuário."""
+    if not profiles_collection:
+        raise ConnectionError("Coleção de perfis não está disponível.")
+    user_id_obj = ObjectId(user_id_str) 
+    profile_doc = profiles_collection.find_one({"user_id": user_id_obj, "name": profile_name})
+    if profile_doc:
+        profile_doc['id'] = str(profile_doc['_id']) 
+        return profile_doc
+    return None
+
+def get_all_profile_names(user_id_str):
+    """Retorna uma lista de nomes de perfis para um usuário específico."""
+    if not profiles_collection:
+        raise ConnectionError("Coleção de perfis não está disponível.")
+    user_id_obj = ObjectId(user_id_str) 
+    names = []
+    for doc in profiles_collection.find({"user_id": user_id_obj}, {"name": 1}).sort("name", 1):
+        names.append(doc['name'])
+    return names
+
+def get_last_profile_name(user_id_str):
+    """Retorna o nome do perfil mais recentemente atualizado para um usuário."""
+    if not profiles_collection:
+        raise ConnectionError("Coleção de perfis não está disponível.")
+    user_id_obj = ObjectId(user_id_str) 
+    profile_doc_cursor = profiles_collection.find({"user_id": user_id_obj}).sort("updated_at", -1).limit(1)
+    
+    for doc in profile_doc_cursor: 
+        return doc['name']
+    return None
