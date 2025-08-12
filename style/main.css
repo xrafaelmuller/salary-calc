@@ -97,7 +97,6 @@ select:focus {
     box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
 }
 
-/* --- NOVOS ESTILOS AQUI --- */
 .input-group-currency {
     position: relative;
 }
@@ -110,11 +109,18 @@ select:focus {
     transform: translateY(-50%);
     color: var(--text-secondary-color);
     font-weight: 500;
-    pointer-events: none; /* Permite que o clique passe para o input */
+    pointer-events: none;
 }
 
 .input-group-currency input[type="text"] {
-    padding-left: 50px; /* Aumenta o padding para dar espaço ao "R$" */
+    padding-left: 50px;
+}
+
+/* --- NOVOS ESTILOS AQUI --- */
+.input-group-split {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 /* --- FIM DOS NOVOS ESTILOS --- */
 
