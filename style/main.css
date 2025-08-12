@@ -124,9 +124,9 @@ select:focus {
     margin-top: 1.5rem;
 }
 
+/* --- MUDANÇA AQUI: Removido flex-grow do seletor geral --- */
 input[type="submit"],
 button {
-    flex-grow: 1;
     padding: 14px;
     border: none;
     border-radius: 8px;
@@ -137,6 +137,13 @@ button {
     transition: all 0.2s ease;
     text-align: center;
 }
+
+/* --- MUDANÇA AQUI: Adicionado seletor específico para botões que devem crescer --- */
+.button-group input[type="submit"],
+.button-group button {
+    flex-grow: 1;
+}
+
 
 input[type="submit"] {
     background-color: var(--accent-color);
@@ -176,7 +183,6 @@ button.secondary:hover {
 }
 .collapsible-header h3 { margin: 0; font-size: 1rem; font-weight: 600; }
 
-/* --- MUDANÇA AQUI --- */
 .collapsible-header button {
     background: transparent;
     border: 1px solid var(--border-color);
@@ -191,7 +197,7 @@ button.secondary:hover {
     cursor: pointer;
     transition: all 0.2s ease;
     padding: 0;
-    flex-shrink: 0; /* Impede que o botão encolha */
+    flex-shrink: 0;
 }
 
 .collapsible-header button:hover {
