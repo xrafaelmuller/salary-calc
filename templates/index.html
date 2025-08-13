@@ -80,7 +80,7 @@
                         <label for="previdencia_privada">Previdência (seu contracheque):</label>
                         <div class="input-group-split">
                             <select id="previdencia_percentual_selector">
-                                <option value="">-- Escolha % do salário --</option>
+                                <option value="">% do salário </option>
                                     {% for i in range(1, 9) %}
                                         <option value="{{ i * 0.5 }}">{{ i * 0.5 }}%</option>
                                     {% endfor %}
