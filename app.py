@@ -8,12 +8,12 @@ from pymongo.errors import ConnectionFailure, PyMongoError
 from features.salarycalc.database import (
     init_db, add_user, get_user_by_username, save_profile_to_db, 
     load_profile_from_db, get_all_profile_names, get_last_profile_name,
-    delete_profile_from_db # <-- IMPORTAR NOVA FUNÇÃO
+    delete_profile_from_db 
 )
 from features.salarycalc.calculations import calcular_inss, calcular_irpf
 
-# Configuração do Flask
-app = Flask(__name__, static_folder='style', static_url_path='/style', template_folder='templates')
+# --- ALTERAÇÃO 1: Atualizando a pasta de templates para 'frontend' ---
+app = Flask(__name__, static_folder='style', static_url_path='/style', template_folder='frontend')
 app.secret_key = os.urandom(24) 
 
 # --- ROTAS PÚBLICAS ---
@@ -21,7 +21,7 @@ app.secret_key = os.urandom(24)
 @app.route('/')
 def landing():
     """ Rota da página inicial (landing page). """
-    # CAMINHO CORRIGIDO para apontar para a subpasta
+    # --- ALTERAÇÃO 2: Corrigindo o caminho para ser relativo à nova pasta 'frontend' ---
     return render_template('salarycalc/landing.html')
 
 # --- ROTAS DE AUTENTICAÇÃO ---
@@ -35,7 +35,6 @@ def login():
         
         if not username or not password:
             flash('Usuário e senha são obrigatórios.', 'warning')
-            # CAMINHO CORRIGIDO para apontar para a subpasta
             return render_template('salarycalc/login.html')
 
         try:
@@ -50,7 +49,6 @@ def login():
         except PyMongoError as e:
             flash(f'Erro de banco de dados ao tentar fazer login: {e}', 'danger')
 
-    # CAMINHO CORRIGIDO para apontar para a subpasta
     return render_template('salarycalc/login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -72,13 +70,12 @@ def register():
             except PyMongoError as e:
                 flash(f'Erro de banco de dados ao registrar: {e}', 'danger')
 
-    # CAMINHO CORRIGIDO para apontar para a subpasta
     return render_template('salarycalc/register.html')
 
 @app.route('/logout')
 def logout():
     """ Rota de logout do usuário. """
-    session.clear() # Limpa toda a sessão para mais segurança
+    session.clear()
     flash('Você saiu da sua conta.', 'info')
     return redirect(url_for('login'))
 
@@ -93,23 +90,19 @@ def calculator():
 
     user_id = session['user_id']
     salario_liquido = None
-    # Obtém o nome do perfil ativo da URL, se existir
     active_profile_name = request.args.get('load_profile')
 
-    # Define a estrutura de dados padrão
     profile_data = {
         'salario': 0.00, 'quinquenio': 0.00, 'vale_alimentacao': 0.00,
         'plano_saude': 0.00, 'previdencia_privada': 0.00, 'odontologico': 0.00,
         'premiacao': 0.00, 'profile_name': active_profile_name or ''
     }
 
-    # Se nenhum perfil foi carregado pela URL, tenta carregar o último usado
     if not active_profile_name:
         last_profile_name = get_last_profile_name(user_id)
         if last_profile_name:
             return redirect(url_for('calculator', load_profile=last_profile_name))
 
-    # Carrega os dados do perfil ativo se o método for GET
     if request.method == 'GET' and active_profile_name:
         loaded_data = load_profile_from_db(user_id, active_profile_name)
         if loaded_data:
@@ -122,7 +115,6 @@ def calculator():
         action = request.form.get('action')
 
         try:
-            # Coleta e converte os dados do formulário
             form_data = {
                 'salario': float(request.form.get('salario', '0').replace(',', '.')),
                 'quinquenio': float(request.form.get('quinquenio', '0').replace(',', '.')),
@@ -133,7 +125,7 @@ def calculator():
                 'premiacao': float(request.form.get('premiacao', '0').replace(',', '.')),
                 'profile_name': request.form.get('profile_name', '').strip()
             }
-            profile_data.update(form_data) # Atualiza os dados com o que veio do form
+            profile_data.update(form_data)
 
             if action == 'save_profile':
                 if form_data['profile_name']:
@@ -143,7 +135,6 @@ def calculator():
                 else:
                     flash('Nome do perfil é obrigatório para salvar.', 'warning')
             
-            # Ação padrão (calcular)
             else:
                 total_rendimentos_base = form_data['salario'] + form_data['quinquenio'] + form_data['premiacao']
                 desconto_inss = calcular_inss(total_rendimentos_base)
@@ -167,7 +158,6 @@ def calculator():
         flash(f'Não foi possível carregar a lista de perfis: {e}', 'danger')
         profiles = []
 
-    # CAMINHO CORRIGIDO para apontar para a subpasta
     return render_template('salarycalc/index.html', 
                            salario_liquido=salario_liquido, 
                            profile_data=profile_data, 
@@ -201,13 +191,10 @@ def initialize_app(app_instance):
         with app_instance.app_context():
             init_db()
     except ConnectionFailure as e:
-        # Em um app real, aqui você usaria um logger.
         print(f"FALHA CRÍTICA AO CONECTAR COM O BANCO DE DADOS: {e}")
-        # A aplicação não deve subir se não conectar ao DB.
         raise
 
 if __name__ == '__main__':
     initialize_app(app)
     port = int(os.environ.get("PORT", 5000)) 
-    # debug=False é crucial para produção.
     app.run(host='0.0.0.0', port=port, debug=False)
