@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[Nome Dele] & [Nome Dela] | Portfólio de Tecnologia</title>
+    <style>
+        /* CSS - Estilos da Página */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --dark-color: #1a1a2e;
+            --light-color: #f4f4f9;
+            --gray-color: #e0e0e0;
+            --text-color: #dcdcdc;
+            --card-bg: #1f1f3a;
+            --border-radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--dark-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 0 2rem;
+            overflow: hidden;
+        }
+
+        h1, h2, h3 {
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        h1 { font-size: 3rem; }
+        h2 { font-size: 2.5rem; color: var(--light-color); }
+        h3 { font-size: 1.5rem; color: var(--light-color); }
+
+        p { margin-bottom: 1rem; }
+
+        a {
+            text-decoration: none;
+            color: var(--secondary-color);
+        }
+
+        section {
+            padding: 6rem 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.8rem;
+            border: 2px solid transparent;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Header */
+        #main-header {
+            background: rgba(26, 26, 46, 0.85);
+            backdrop-filter: blur(10px);
+            color: #fff;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        #main-header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #main-header .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        
+        #main-header .logo span {
+            color: var(--secondary-color);
+        }
+
+        #main-header nav ul {
+            list-style: none;
+            display: flex;
+        }
+
+        #main-header nav ul li a {
+            color: #fff;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        #main-header nav ul li a:hover {
+            color: var(--secondary-color);
+        }
+
+        /* Hero Section */
+        #hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(rgba(26, 26, 46, 0.9), rgba(26, 26, 46, 0.9)), url('https://images.unsplash.com/photo-1555066931-4365d1469c9b?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=3600') no-repeat center center/cover;
+            color: #fff;
+        }
+
+        #hero h1 {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        #hero .subtitle {
+            font-size: 1.5rem;
+            max-width: 800px;
+            margin: 1rem auto 2rem auto;
+            color: var(--text-color);
+        }
+
+        /* About Us Section */
+        #about .about-content {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3rem;
+            align-items: center;
+        }
+        
+        #about .about-intro {
+            grid-column: 1 / -1;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 3rem auto;
+        }
+        
+        #about .bio-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+            border: 1px solid #2a2a4a;
+        }
+        
+        #about .bio-card img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1rem;
+            border: 4px solid var(--secondary-color);
+        }
+        
+        #about .bio-card .role {
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-top: -0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Projects Section */
+        #projects {
+            background: var(--card-bg);
+        }
+
+        #projects .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .filter-buttons {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .filter-btn {
+            background: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--gray-color);
+            padding: 0.5rem 1rem;
+            margin: 0 0.5rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--secondary-color);
+            color: #fff;
+            border-color: var(--secondary-color);
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .project-card {
+            background: var(--dark-color);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: var(--transition);
+            display: none; /* Hidden by default for JS filtering */
+        }
+        
+        .project-card.show {
+            display: block;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        }
+
+        .project-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .project-content {
+            padding: 1.5rem;
+        }
+
+        .project-tags {
+            margin-bottom: 1rem;
+        }
+        
+        .project-tags .tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            margin-right: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .tag.collab { background: #6a11cb; color: #fff; }
+        .tag.ele { background: #2575fc; color: #fff; }
+        .tag.ela { background: #ff4e88; color: #fff; }
+
+        /* Skills Section */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3rem;
+        }
+
+        .skills-column h3 {
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .skills-column ul {
+            list-style: none;
+        }
+
+        .skills-column li {
+            background: var(--card-bg);
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        
+        .skills-column li:hover {
+            background: var(--secondary-color);
+            color: #fff;
+            transform: translateX(5px);
+        }
+
+        /* Contact Section */
+        #contact {
+            text-align: center;
+        }
+        
+        #contact .container {
+            max-width: 800px;
+        }
+
+        .social-links a {
+            font-size: 2rem;
+            margin: 0 1rem;
+            color: var(--light-color);
+            transition: var(--transition);
+        }
+        
+        .social-links a:hover {
+            color: var(--secondary-color);
+            transform: translateY(-3px);
+        }
+        
+        #contact p {
+            margin: 2rem 0;
+        }
+
+        /* Footer */
+        #main-footer {
+            background: var(--card-bg);
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--text-color);
+        }
+        
+        /* Responsive Design */
+        @media(max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            h2 { font-size: 2rem; }
+
+            #main-header nav { display: none; } /* Simplificação para mobile */
+            
+            #about .about-content,
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+
+    <header id="main-header">
+        <div class="container">
+            <a href="#" class="logo">[Nome Dele] <span>&</span> [Nome Dela]</a>
+            <nav>
+                <ul>
+                    <li><a href="#hero">Início</a></li>
+                    <li><a href="#about">Sobre Nós</a></li>
+                    <li><a href="#projects">Projetos</a></li>
+                    <li><a href="#skills">Habilidades</a></li>
+                    <li><a href="#contact">Contato</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section id="hero">
+        <div class="container">
+            <h1>Criando o Futuro da Web, Juntos.</h1>
+            <p class="subtitle">
+                Ele, um especialista em Back-End e Arquitetura de Sistemas. Ela, uma expert em Front-End e Experiência do Usuário. Juntos, construímos produtos digitais completos e robustos.
+            </p>
+            <a href="#projects" class="btn btn-primary">Conheça Nossos Projetos</a>
+        </div>
+    </section>
+
+    <section id="about">
+        <div class="container">
+            <div class="about-intro">
+                <h2>Sobre Nós</h2>
+                <p>Olá! Nós somos [Nome Dele] e [Nome Dela], um casal apaixonado por tecnologia. Acreditamos que nossa colaboração nos permite ter uma visão 360º dos projetos, unindo lógica de sistemas com interfaces intuitivas para criar experiências digitais memoráveis.</p>
+            </div>
+            <div class="about-content">
+                <div class="bio-card">
+                    <img src="https://via.placeholder.com/150" alt="Foto do [Nome Dele]">
+                    <h3>[Nome Dele]</h3>
+                    <p class="role">Desenvolvedor Back-End Sênior</p>
+                    <p>Com mais de 8 anos de experiência, sou especialista em construir a espinha dorsal de aplicações web, garantindo performance, segurança e escalabilidade com tecnologias como Node.js, Python e AWS.</p>
+                </div>
+                <div class="bio-card">
+                    <img src="https://via.placeholder.com/150" alt="Foto da [Nome Dela]">
+                    <h3>[Nome Dela]</h3>
+                    <p class="role">Engenheira de Software & UI Designer</p>
+                    <p>Minha paixão é criar interfaces que as pessoas amam usar. Combino minha expertise em React e Figma para transformar ideias complexas em produtos digitais bonitos, intuitivos e acessíveis.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="projects">
+        <div class="container">
+            <div class="section-header">
+                <h2>Nossos Projetos</h2>
+                <p>Aqui estão alguns dos trabalhos que mais nos orgulhamos.</p>
+            </div>
+            
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="collab">Colaboração</button>
+                <button class="filter-btn" data-filter="ele">[Nome Dele]</button>
+                <button class="filter-btn" data-filter="ela">[Nome Dela]</button>
+            </div>
+            
+            <div class="project-grid">
+                <div class="project-card" data-category="collab">
+                    <img src="https://via.placeholder.com/400x250" alt="Preview do Projeto 1">
+                    <div class="project-content">
+                        <div class="project-tags">
+                            <span class="tag collab">Colaboração</span>
+                        </div>
+                        <h3>Plataforma de Gestão "Connect"</h3>
+                        <p>Desenvolvimento completo de um sistema SaaS para gestão de equipes remotas, focando em performance e usabilidade.</p>
+                        <a href="#">Ver Estudo de Caso &rarr;</a>
+                    </div>
+                </div>
+
+                <div class="project-card" data-category="ele">
+                    <img src="https://via.placeholder.com/400x250" alt="Preview do Projeto 2">
+                    <div class="project-content">
+                        <div class="project-tags">
+                            <span class="tag ele">[Nome Dele]</span>
+                        </div>
+                        <h3>API de Pagamentos Segura</h3>
+                        <p>Arquitetura e desenvolvimento de uma API RESTful para processamento de pagamentos com alta disponibilidade.</p>
+                        <a href="#">Ver no GitHub &rarr;</a>
+                    </div>
+                </div>
+
+                <div class="project-card" data-category="ela">
+                    <img src="https://via.placeholder.com/400x250" alt="Preview do Projeto 3">
+                    <div class="project-content">
+                        <div class="project-tags">
+                            <span class="tag ela">[Nome Dela]</span>
+                        </div>
+                        <h3>Redesign do App "HealthFit"</h3>
+                        <p>Redesenho completo da interface e experiência do usuário de um aplicativo de saúde, resultando em um aumento de 40% no engajamento.</p>
+                        <a href="#">Ver no Behance &rarr;</a>
+                    </div>
+                </div>
+                 </div>
+        </div>
+    </section>
+
+    <section id="skills">
+        <div class="container">
+            <div class="section-header" style="text-align: center; margin-bottom: 3rem;">
+                <h2>Nosso Arsenal Combinado</h2>
+            </div>
+            <div class="skills-grid">
+                <div class="skills-column">
+                    <h3>Habilidades de [Nome Dele]</h3>
+                    <ul>
+                        <li>Python (Django, Flask)</li>
+                        <li>Node.js (Express)</li>
+                        <li>AWS (EC2, S3, Lambda)</li>
+                        <li>Docker & Kubernetes</li>
+                        <li>PostgreSQL & MongoDB</li>
+                        <li>Arquitetura de Microserviços</li>
+                    </ul>
+                </div>
+                <div class="skills-column">
+                    <h3>Habilidades de [Nome Dela]</h3>
+                    <ul>
+                        <li>JavaScript & TypeScript</li>
+                        <li>React & Next.js</li>
+                        <li>CSS3 & Sass (Styled Components)</li>
+                        <li>Figma & Sketch</li>
+                        <li>Design Systems</li>
+                        <li>Testes com Jest & Cypress</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact">
+        <div class="container">
+            <h2>Vamos Construir Algo Incrível Juntos?</h2>
+            <p>Estamos disponíveis para projetos como uma equipe integrada ou para oportunidades individuais. Se você tem um desafio para nós, adoraríamos ouvir sobre ele.</p>
+            <div class="social-links">
+                <a href="#" target="_blank" title="LinkedIn [Nome Dele]"><i class="fab fa-linkedin"></i></a>
+                <a href="#" target="_blank" title="GitHub [Nome Dele]"><i class="fab fa-github"></i></a>
+                <a href="#" target="_blank" title="E-mail"><i class="fas fa-envelope"></i></a>
+                <a href="#" target="_blank" title="LinkedIn [Nome Dela]"><i class="fab fa-linkedin"></i></a>
+                <a href="#" target="_blank" title="Behance [Nome Dela]"><i class="fab fa-behance"></i></a>
+            </div>
+            <p style="margin-top: 3rem;">
+                <a href="mailto:seuemail@dominio.com" class="btn btn-primary">Enviar uma Mensagem</a>
+            </p>
+        </div>
+    </section>
+
+    <footer id="main-footer">
+        <p>© 2025 [Nome Dele] & [Nome Dela] | Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        // JavaScript para o Filtro de Projetos
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const projectCards = document.querySelectorAll('.project-card');
+
+            // Função para exibir todos os projetos inicialmente
+            function showAllProjects() {
+                projectCards.forEach(card => {
+                    card.classList.add('show');
+                });
+            }
+
+            // Exibir todos os projetos ao carregar a página
+            showAllProjects();
+            
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Gerencia o botão ativo
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const filter = this.getAttribute('data-filter');
+                    
+                    projectCards.forEach(card => {
+                        card.classList.remove('show');
+                        if (filter === 'all' || card.getAttribute('data-category') === filter) {
+                            card.classList.add('show');
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
