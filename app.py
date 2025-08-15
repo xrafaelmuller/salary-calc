@@ -22,7 +22,7 @@ app.secret_key = os.urandom(24)
 def landing():
     """ Rota da página inicial (landing page). """
     # CAMINHO CORRIGIDO para apontar para a subpasta
-    return render_template('salarycalc/landing.html')
+    return render_template('templates/landing.html')
 
 # --- ROTAS DE AUTENTICAÇÃO ---
 
