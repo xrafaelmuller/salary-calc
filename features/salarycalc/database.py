@@ -127,3 +127,17 @@ def get_last_profile_name(user_id_str):
     for doc in profile_doc_cursor: 
         return doc['name']
     return None
+
+def delete_profile_from_db(user_id, profile_name):
+    """Deleta um perfil específico do documento de um usuário."""
+    db = get_db()
+    users_collection = db.users
+
+    # A operação $unset remove a chave do sub-documento 'profiles'
+    result = users_collection.update_one(
+        {'id': user_id},
+        {'$unset': {f'profiles.{profile_name}': ""}}
+    )
+
+    # Retorna True se um documento foi modificado, False caso contrário
+    return result.modified_count > 0
