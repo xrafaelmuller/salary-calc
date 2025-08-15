@@ -5,15 +5,23 @@ from werkzeug.security import check_password_hash
 from pymongo.errors import ConnectionFailure
 
 # Importando as funcionalidades dos módulos separados
-from features.database import (
+from features.salarycalc.database import (
     init_db, add_user, get_user_by_username, save_profile_to_db, 
     load_profile_from_db, get_all_profile_names, get_last_profile_name
 )
-from features.calculations import calcular_inss, calcular_irpf
+from features.salarycalc.calculations import calcular_inss, calcular_irpf
 
 # Configuração do Flask para usar a pasta 'style' para CSS e 'templates' para HTML
 app = Flask(__name__, static_folder='style', static_url_path='/style', template_folder='templates')
 app.secret_key = os.urandom(24) 
+
+
+# NOVA ROTA: Página de entrada pública
+@app.route('/')
+def landing():
+    # Esta rota simplesmente renderiza sua página inicial estática.
+    # Não precisa de nenhuma lógica ou verificação de login.
+    return render_template('landing.html')
 
 
 # Rotas de Autenticação
@@ -26,7 +34,8 @@ def login():
         if user and check_password_hash(user['password_hash'], password):
             session['user_id'] = user['id'] 
             session['username'] = user['username']
-            return redirect(url_for('index'))
+            # ALTERADO: Redireciona para a nova rota da calculadora
+            return redirect(url_for('calculator'))
         else:
             flash('Usuário ou senha inválidos.', 'danger')
     
@@ -54,9 +63,9 @@ def logout():
     flash('Você saiu da sua conta.', 'info')
     return redirect(url_for('login'))
 
-# Rota Principal (Protegida)
-@app.route('/', methods=['GET', 'POST'])
-def index():
+# ROTA PRINCIPAL ALTERADA: Agora é a calculadora
+@app.route('/calculator', methods=['GET', 'POST']) # ROTA ALTERADA DE '/' para '/calculator'
+def calculator(): # NOME DA FUNÇÃO ALTERADO DE 'index' para 'calculator'
     if 'user_id' not in session:
         flash('Por favor, faça login para acessar o perfil da sua calculadora .', 'info')
         return redirect(url_for('login'))
@@ -95,7 +104,8 @@ def index():
                 if profile_data['profile_name']:
                     save_profile_to_db(user_id, profile_data['profile_name'], profile_data)
                     flash('Perfil salvo com sucesso!', 'success')
-                    return redirect(url_for('index', load_profile=profile_data['profile_name']))
+                    # ALTERADO: Redireciona para 'calculator' em vez de 'index'
+                    return redirect(url_for('calculator', load_profile=profile_data['profile_name']))
                 else:
                     flash('Erro: Nome do perfil é obrigatório para salvar.', 'danger')
             else: # Ação padrão é calcular
@@ -127,11 +137,14 @@ def index():
 
     profiles = get_all_profile_names(user_id)
 
+    # Note que o template renderizado ainda é o 'index.html' da sua calculadora
     return render_template('index.html', 
                            salario_liquido=salario_liquido, 
                            profile_data=profile_data, 
                            profiles=profiles, 
                            username=username)
+
+# ... (o resto do seu código, 'init_db' e 'if __name__', permanece o mesmo) ...
 
 # Inicialização do Banco de Dados no contexto da aplicação
 try:
