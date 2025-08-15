@@ -1,158 +1,208 @@
 import os
 from flask import (Flask, render_template, request, redirect, url_for, 
-                   session, flash, get_flashed_messages)
+                   session, flash)
 from werkzeug.security import check_password_hash
-from pymongo.errors import ConnectionFailure
+from pymongo.errors import ConnectionFailure, PyMongoError
 
 # Importando as funcionalidades dos módulos separados
 from features.salarycalc.database import (
     init_db, add_user, get_user_by_username, save_profile_to_db, 
-    load_profile_from_db, get_all_profile_names, get_last_profile_name
+    load_profile_from_db, get_all_profile_names, get_last_profile_name,
+    delete_profile_from_db # <-- IMPORTAR NOVA FUNÇÃO
 )
 from features.salarycalc.calculations import calcular_inss, calcular_irpf
 
-# Configuração do Flask para usar a pasta 'style' para CSS e 'templates' para HTML
+# Configuração do Flask
 app = Flask(__name__, static_folder='style', static_url_path='/style', template_folder='templates')
 app.secret_key = os.urandom(24) 
 
+# --- ROTAS PÚBLICAS ---
 
-# NOVA ROTA: Página de entrada pública
 @app.route('/')
 def landing():
-    # Esta rota simplesmente renderiza sua página inicial estática.
-    # Não precisa de nenhuma lógica ou verificação de login.
+    """ Rota da página inicial (landing page). """
     return render_template('landing.html')
 
+# --- ROTAS DE AUTENTICAÇÃO ---
 
-# Rotas de Autenticação
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    """ Rota de login do usuário. """
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user = get_user_by_username(username)
-        if user and check_password_hash(user['password_hash'], password):
-            session['user_id'] = user['id'] 
-            session['username'] = user['username']
-            # ALTERADO: Redireciona para a nova rota da calculadora
-            return redirect(url_for('calculator'))
-        else:
-            flash('Usuário ou senha inválidos.', 'danger')
-    
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        if not username or not password:
+            flash('Usuário e senha são obrigatórios.', 'warning')
+            return render_template('login.html')
+
+        try:
+            user = get_user_by_username(username)
+            if user and check_password_hash(user['password_hash'], password):
+                session['user_id'] = user['id'] 
+                session['username'] = user['username']
+                flash(f'Bem-vindo de volta, {user["username"]}!', 'success')
+                return redirect(url_for('calculator'))
+            else:
+                flash('Usuário ou senha inválidos.', 'danger')
+        except PyMongoError as e:
+            flash(f'Erro de banco de dados ao tentar fazer login: {e}', 'danger')
+
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    """ Rota de cadastro de novo usuário. """
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        username = request.form.get('username')
+        password = request.form.get('password')
+
         if not username or not password:
-            flash('Usuário e senha são obrigatórios.', 'danger')
-        elif add_user(username, password):
-            flash('Cadastro realizado com sucesso! Faça login.', 'success')
-            return redirect(url_for('login'))
+            flash('Usuário e senha são obrigatórios.', 'warning')
         else:
-            flash('Nome de usuário já existe. Escolha outro.', 'danger')
-    
+            try:
+                if add_user(username, password):
+                    flash('Cadastro realizado com sucesso! Faça login.', 'success')
+                    return redirect(url_for('login'))
+                else:
+                    flash('Nome de usuário já existe. Escolha outro.', 'danger')
+            except PyMongoError as e:
+                flash(f'Erro de banco de dados ao registrar: {e}', 'danger')
+
     return render_template('register.html')
 
 @app.route('/logout')
 def logout():
-    session.pop('user_id', None)
-    session.pop('username', None)
+    """ Rota de logout do usuário. """
+    session.clear() # Limpa toda a sessão para mais segurança
     flash('Você saiu da sua conta.', 'info')
     return redirect(url_for('login'))
 
-# ROTA PRINCIPAL ALTERADA: Agora é a calculadora
-@app.route('/calculator', methods=['GET', 'POST']) # ROTA ALTERADA DE '/' para '/calculator'
-def calculator(): # NOME DA FUNÇÃO ALTERADO DE 'index' para 'calculator'
+# --- ROTAS DO APLICATIVO ---
+
+@app.route('/calculator', methods=['GET', 'POST'])
+def calculator():
+    """ Rota principal da calculadora, protegida por login. """
     if 'user_id' not in session:
-        flash('Por favor, faça login para acessar o perfil da sua calculadora .', 'info')
+        flash('Por favor, faça login para acessar a calculadora.', 'info')
         return redirect(url_for('login'))
 
-    user_id = session['user_id'] 
-    username = session['username']
-
+    user_id = session['user_id']
     salario_liquido = None
+    # Obtém o nome do perfil ativo da URL, se existir
+    active_profile_name = request.args.get('load_profile')
+
+    # Define a estrutura de dados padrão
     profile_data = {
         'salario': 0.00, 'quinquenio': 0.00, 'vale_alimentacao': 0.00,
         'plano_saude': 0.00, 'previdencia_privada': 0.00, 'odontologico': 0.00,
-        'premiacao': 0.00, 'profile_name': ''
+        'premiacao': 0.00, 'profile_name': active_profile_name or ''
     }
-    
-    profile_to_load = request.args.get('load_profile')
-    if not profile_to_load: 
+
+    # Se nenhum perfil foi carregado pela URL, tenta carregar o último usado
+    if not active_profile_name:
         last_profile_name = get_last_profile_name(user_id)
         if last_profile_name:
-            profile_to_load = last_profile_name
+            return redirect(url_for('calculator', load_profile=last_profile_name))
+
+    # Carrega os dados do perfil ativo se o método for GET
+    if request.method == 'GET' and active_profile_name:
+        loaded_data = load_profile_from_db(user_id, active_profile_name)
+        if loaded_data:
+            profile_data.update(loaded_data)
+        else:
+            flash('Perfil não encontrado.', 'danger')
+            return redirect(url_for('calculator'))
 
     if request.method == 'POST':
         action = request.form.get('action')
 
         try:
-            # Coleta e conversão dos dados do formulário
-            profile_data['salario'] = float(request.form.get('salario', '0').replace(',', '.'))
-            profile_data['quinquenio'] = float(request.form.get('quinquenio', '0').replace(',', '.'))
-            profile_data['vale_alimentacao'] = float(request.form.get('vale_alimentacao', '0').replace(',', '.'))
-            profile_data['plano_saude'] = float(request.form.get('plano_saude', '0').replace(',', '.'))
-            profile_data['previdencia_privada'] = float(request.form.get('previdencia_privada', '0').replace(',', '.'))
-            profile_data['odontologico'] = float(request.form.get('odontologico', '0').replace(',', '.'))
-            profile_data['premiacao'] = float(request.form.get('premiacao', '0').replace(',', '.'))
-            profile_data['profile_name'] = request.form.get('profile_name', '').strip()
+            # Coleta e converte os dados do formulário
+            form_data = {
+                'salario': float(request.form.get('salario', '0').replace(',', '.')),
+                'quinquenio': float(request.form.get('quinquenio', '0').replace(',', '.')),
+                'vale_alimentacao': float(request.form.get('vale_alimentacao', '0').replace(',', '.')),
+                'plano_saude': float(request.form.get('plano_saude', '0').replace(',', '.')),
+                'previdencia_privada': float(request.form.get('previdencia_privada', '0').replace(',', '.')),
+                'odontologico': float(request.form.get('odontologico', '0').replace(',', '.')),
+                'premiacao': float(request.form.get('premiacao', '0').replace(',', '.')),
+                'profile_name': request.form.get('profile_name', '').strip()
+            }
+            profile_data.update(form_data) # Atualiza os dados com o que veio do form
 
             if action == 'save_profile':
-                if profile_data['profile_name']:
-                    save_profile_to_db(user_id, profile_data['profile_name'], profile_data)
-                    flash('Perfil salvo com sucesso!', 'success')
-                    # ALTERADO: Redireciona para 'calculator' em vez de 'index'
-                    return redirect(url_for('calculator', load_profile=profile_data['profile_name']))
+                if form_data['profile_name']:
+                    save_profile_to_db(user_id, form_data['profile_name'], form_data)
+                    flash(f"Perfil '{form_data['profile_name']}' salvo com sucesso!", 'success')
+                    return redirect(url_for('calculator', load_profile=form_data['profile_name']))
                 else:
-                    flash('Erro: Nome do perfil é obrigatório para salvar.', 'danger')
-            else: # Ação padrão é calcular
-                total_rendimentos_base = profile_data['salario'] + profile_data['quinquenio'] + profile_data['premiacao']
+                    flash('Nome do perfil é obrigatório para salvar.', 'warning')
+            
+            # Ação padrão (calcular)
+            else:
+                total_rendimentos_base = form_data['salario'] + form_data['quinquenio'] + form_data['premiacao']
                 desconto_inss = calcular_inss(total_rendimentos_base)
                 base_irpf = total_rendimentos_base - desconto_inss
                 desconto_irpf = calcular_irpf(base_irpf)
 
-                total_descontos = (profile_data['vale_alimentacao'] + profile_data['plano_saude'] + 
-                                   profile_data['previdencia_privada'] + profile_data['odontologico'] + 
+                total_descontos = (form_data['vale_alimentacao'] + form_data['plano_saude'] + 
+                                   form_data['previdencia_privada'] + form_data['odontologico'] + 
                                    desconto_inss + desconto_irpf)
                                    
                 salario_liquido = total_rendimentos_base - total_descontos
                 
         except ValueError:
             flash('Erro: Por favor, insira valores numéricos válidos.', 'danger')
-        except ConnectionError as e:
-            flash(f'Erro de conexão com o banco de dados: {e}', 'danger')
-            return redirect(url_for('login')) 
-    
-    if profile_to_load and request.method != 'POST':
-        loaded_data = load_profile_from_db(user_id, profile_to_load)
-        if loaded_data:
-            for key in profile_data:
-                profile_data[key] = loaded_data.get(key, 0.00)
-            profile_data['profile_name'] = profile_to_load
-        else:
-            flash('Erro: Perfil não encontrado ou não pertence a você.', 'danger')
+        except PyMongoError as e:
+            flash(f'Erro de banco de dados: {e}', 'danger')
 
-    profiles = get_all_profile_names(user_id)
+    try:
+        profiles = get_all_profile_names(user_id)
+    except PyMongoError as e:
+        flash(f'Não foi possível carregar a lista de perfis: {e}', 'danger')
+        profiles = []
 
-    # Note que o template renderizado ainda é o 'index.html' da sua calculadora
     return render_template('index.html', 
                            salario_liquido=salario_liquido, 
                            profile_data=profile_data, 
-                           profiles=profiles, 
-                           username=username)
+                           profiles=profiles,
+                           active_profile=active_profile_name,
+                           username=session.get('username'))
 
-# ... (o resto do seu código, 'init_db' e 'if __name__', permanece o mesmo) ...
+@app.route('/delete_profile/<string:profile_name>', methods=['POST'])
+def delete_profile(profile_name):
+    """ Rota para deletar um perfil. """
+    if 'user_id' not in session:
+        flash('Acesso não autorizado.', 'danger')
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    try:
+        if delete_profile_from_db(user_id, profile_name):
+            flash(f'Perfil "{profile_name}" excluído com sucesso!', 'success')
+        else:
+            flash('Erro: Perfil não encontrado ou não pertence a você.', 'danger')
+    except PyMongoError as e:
+        flash(f'Erro de banco de dados ao excluir o perfil: {e}', 'danger')
 
-# Inicialização do Banco de Dados no contexto da aplicação
-try:
-    with app.app_context():
-        init_db()
-except ConnectionError as e:
-    print(f"FALHA AO INICIAR A APLICAÇÃO: {e}")
+    return redirect(url_for('calculator'))
+
+# --- INICIALIZAÇÃO DA APLICAÇÃO ---
+
+def initialize_app(app_instance):
+    """ Inicializa o banco de dados dentro do contexto da aplicação. """
+    try:
+        with app_instance.app_context():
+            init_db()
+    except ConnectionFailure as e:
+        # Em um app real, aqui você usaria um logger.
+        print(f"FALHA CRÍTICA AO CONECTAR COM O BANCO DE DADOS: {e}")
+        # A aplicação não deve subir se não conectar ao DB.
+        raise
 
 if __name__ == '__main__':
+    initialize_app(app)
     port = int(os.environ.get("PORT", 5000)) 
+    # debug=False é crucial para produção.
     app.run(host='0.0.0.0', port=port, debug=False)
