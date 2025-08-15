@@ -21,7 +21,8 @@ app.secret_key = os.urandom(24)
 @app.route('/')
 def landing():
     """ Rota da página inicial (landing page). """
-    return render_template('landing.html')
+    # CAMINHO CORRIGIDO para apontar para a subpasta
+    return render_template('salarycalc/landing.html')
 
 # --- ROTAS DE AUTENTICAÇÃO ---
 
@@ -34,7 +35,8 @@ def login():
         
         if not username or not password:
             flash('Usuário e senha são obrigatórios.', 'warning')
-            return render_template('login.html')
+            # CAMINHO CORRIGIDO para apontar para a subpasta
+            return render_template('salarycalc/login.html')
 
         try:
             user = get_user_by_username(username)
@@ -48,7 +50,8 @@ def login():
         except PyMongoError as e:
             flash(f'Erro de banco de dados ao tentar fazer login: {e}', 'danger')
 
-    return render_template('login.html')
+    # CAMINHO CORRIGIDO para apontar para a subpasta
+    return render_template('salarycalc/login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -69,7 +72,8 @@ def register():
             except PyMongoError as e:
                 flash(f'Erro de banco de dados ao registrar: {e}', 'danger')
 
-    return render_template('register.html')
+    # CAMINHO CORRIGIDO para apontar para a subpasta
+    return render_template('salarycalc/register.html')
 
 @app.route('/logout')
 def logout():
@@ -163,7 +167,8 @@ def calculator():
         flash(f'Não foi possível carregar a lista de perfis: {e}', 'danger')
         profiles = []
 
-    return render_template('index.html', 
+    # CAMINHO CORRIGIDO para apontar para a subpasta
+    return render_template('salarycalc/index.html', 
                            salario_liquido=salario_liquido, 
                            profile_data=profile_data, 
                            profiles=profiles,
