@@ -162,22 +162,22 @@ section {
 }
 
 #hero h1 {
-    /* Cor do texto inicialmente transparente para o efeito de revelação */
-    color: transparent;
+    color: transparent; /* Mantém o texto transparente */
     
-    /* O gradiente funcionará como uma máscara que será animada */
-    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-    background-repeat: no-repeat;
-    background-size: 0% 100%; /* Começa com tamanho 0 para a animação */
+    /* Novo gradiente radial. 
+      'circle 250px' define o tamanho do "holofote".
+      'at var(--x, 50%) var(--y, 50%)' define a posição do centro do gradiente
+      usando variáveis CSS que serão atualizadas pelo JavaScript.
+      Os valores '50%' são um fallback para o estado inicial.
+    */
+    background: radial-gradient(circle 250px at var(--x, 50%) var(--y, 50%), var(--primary-color), var(--secondary-color));
+    
     -webkit-background-clip: text;
     background-clip: text;
-
-    /* Permite a quebra de linha (word wrap) */
-    white-space: normal;
-
-    /* Nova animação de revelação */
-    animation: text-reveal 2s ease-out forwards;
+    white-space: normal; /* Mantém a quebra de linha */
+    transition: background 0.1s linear; /* Adiciona uma suavidade na transição do gradiente */
 }
+
 
 #hero .subtitle {
     font-size: 1.5rem;
@@ -426,14 +426,5 @@ section {
     #about .about-content,
     .skills-grid {
         grid-template-columns: 1fr;
-    }
-}
-
-/* --- NOVA ANIMAÇÃO TECH HERO --- */
-
-/* Keyframes para o efeito de revelação do texto */
-@keyframes text-reveal {
-    to {
-        background-size: 100% 100%;
     }
 }

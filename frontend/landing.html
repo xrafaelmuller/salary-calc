@@ -49,7 +49,7 @@
                     <p>Sou um profissional de TI com 13 anos de experiência. Atualmente, atuo como Senior Change Manager e Full Stack Software Engineer.</p>
                 </div>
                 <div class="bio-card">
-                    <img src="img/julia.jpeg" alt="Foto de perfil de Julia">
+                    <img src="img/julia.jpg" alt="Foto de perfil de Julia">
                     <h3>Julia Meller</h3>
                     <p class="role">Product Owner & Engenheira de Software</p>
                     <p>Sou Product Owner na La Moda. Formado em Engenharia Química, com Mestrado em Engenharia de Materiais, atualmente curso Engenharia de Software.</p>
@@ -204,5 +204,31 @@
             });
         });
     </script>
+
+    <script>
+        // Aguarda o conteúdo da página carregar completamente
+        document.addEventListener('DOMContentLoaded', () => {
+          
+          // Seleciona a seção hero e o título h1 dentro dela
+          const heroSection = document.getElementById('hero');
+          const heroTitle = document.querySelector('#hero h1');
+
+          // Adiciona um "ouvinte" para o evento de movimento do mouse na seção hero
+          heroSection.addEventListener('mousemove', (e) => {
+            
+            // Pega as dimensões e a posição da seção hero na tela
+            const rect = heroSection.getBoundingClientRect();
+            
+            // Calcula a posição X e Y do mouse DENTRO da seção hero
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // Atualiza as variáveis CSS --x e --y no estilo do h1 com a posição do mouse
+            heroTitle.style.setProperty('--x', `${x}px`);
+            heroTitle.style.setProperty('--y', `${y}px`);
+          });
+        });
+    </script>
+
 </body>
 </html>
