@@ -177,56 +177,64 @@
     </footer>
 
     <script>
+        // Aguarda o conteúdo da página carregar completamente
         document.addEventListener('DOMContentLoaded', function() {
+        
+            /* --- FUNCIONALIDADE DO MENU RESPONSIVO --- */
             const menuToggle = document.querySelector('.menu-toggle');
-            const mainNav = document.querySelector('.main-nav');
-            menuToggle.addEventListener('click', function() {
-                mainNav.classList.toggle('active');
-            });
+            // Corrigido para corresponder ao seletor no seu CSS
+            const mainNav = document.querySelector('#main-header nav'); 
+            
+            // Garante que os elementos do menu existam antes de adicionar o evento
+            if (menuToggle && mainNav) {
+                menuToggle.addEventListener('click', function() {
+                    mainNav.classList.toggle('active');
+                });
+            }
+
+            /* --- FUNCIONALIDADE DO FILTRO DE PROJETOS --- */
             const filterButtons = document.querySelectorAll('.filter-btn');
             const projectCards = document.querySelectorAll('.project-card');
 
-            function filterProjects(filter) {
-                projectCards.forEach(card => {
-                    const cardCategory = card.getAttribute('data-category');
-                    const shouldShow = (filter === 'all' || cardCategory === filter);
-                    card.classList.toggle('show', shouldShow);
+            // Garante que os elementos do filtro existam antes de executar o código
+            if (filterButtons.length > 0 && projectCards.length > 0) {
+                function filterProjects(filter) {
+                    projectCards.forEach(card => {
+                        const cardCategory = card.getAttribute('data-category');
+                        const shouldShow = (filter === 'all' || cardCategory === filter);
+                        card.classList.toggle('show', shouldShow);
+                    });
+                }
+
+                // Exibe todos os projetos inicialmente
+                filterProjects('all'); 
+
+                filterButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        filterButtons.forEach(btn => btn.classList.remove('active'));
+                        this.classList.add('active');
+                        const filter = this.getAttribute('data-filter');
+                        filterProjects(filter);
+                    });
                 });
             }
-            filterProjects('all');
-            filterButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    filterButtons.forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
-                    const filter = this.getAttribute('data-filter');
-                    filterProjects(filter);
+
+            /* --- EFEITO GRADIENTE QUE SEGUE O MOUSE --- */
+            const heroSection = document.getElementById('hero');
+            const heroTitle = document.querySelector('#hero h1');
+
+            // Garante que os elementos da seção hero existam
+            if (heroSection && heroTitle) {
+                heroSection.addEventListener('mousemove', (e) => {
+                    const rect = heroSection.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    // Atualiza as variáveis CSS para mover o gradiente
+                    heroTitle.style.setProperty('--x', `${x}px`);
+                    heroTitle.style.setProperty('--y', `${y}px`);
                 });
-            });
-        });
-    </script>
-
-    <script>
-        // Aguarda o conteúdo da página carregar completamente
-        document.addEventListener('DOMContentLoaded', () => {
-          
-          // Seleciona a seção hero e o título h1 dentro dela
-          const heroSection = document.getElementById('hero');
-          const heroTitle = document.querySelector('#hero h1');
-
-          // Adiciona um "ouvinte" para o evento de movimento do mouse na seção hero
-          heroSection.addEventListener('mousemove', (e) => {
-            
-            // Pega as dimensões e a posição da seção hero na tela
-            const rect = heroSection.getBoundingClientRect();
-            
-            // Calcula a posição X e Y do mouse DENTRO da seção hero
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-
-            // Atualiza as variáveis CSS --x e --y no estilo do h1 com a posição do mouse
-            heroTitle.style.setProperty('--x', `${x}px`);
-            heroTitle.style.setProperty('--y', `${y}px`);
-          });
+            }
         });
     </script>
 
