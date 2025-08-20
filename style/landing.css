@@ -157,27 +157,26 @@ section {
     align-items: center;
     justify-content: center;
     text-align: center;
-    background: linear-gradient(rgba(26, 26, 46, 0.9), rgba(26, 26, 46, 0.9)), url('https://images.unsplash.com/photo-1555066931-4365d1469c9b?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=3600') no-repeat center center/cover;
+    background: linear-gradient(rgba(26, 26, 46, 0.9), rgba(26, 26, 46, 0.9)), url('../../../img/tech.gif') no-repeat center center/cover;
     color: #fff;
 }
 
 #hero h1 {
-    /* Estilos do gradiente e de fallback (já corrigidos) */
-    color: var(--secondary-color);
+    /* Cor do texto inicialmente transparente para o efeito de revelação */
+    color: transparent;
+    
+    /* O gradiente funcionará como uma máscara que será animada */
     background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    background-repeat: no-repeat;
+    background-size: 0% 100%; /* Começa com tamanho 0 para a animação */
     -webkit-background-clip: text;
     background-clip: text;
-    -webkit-text-fill-color: transparent;
-    
-    /* Propriedades para a animação funcionar */
-    position: relative;
-    max-width: max-content; /* Garante que a caixa se ajuste ao texto */
-    margin: 0 auto 1rem auto; /* Centraliza o elemento */
-    white-space: nowrap; /* Impede a quebra de linha durante a animação */
-    overflow: hidden; /* Esconde o texto que ainda não foi "digitado" */
-    
-    /* Inicia a animação (com 93 passos para o seu texto) */
-    animation: typing 3.5s steps(93) forwards;
+
+    /* Permite a quebra de linha (word wrap) */
+    white-space: normal;
+
+    /* Nova animação de revelação */
+    animation: text-reveal 2s ease-out forwards;
 }
 
 #hero .subtitle {
@@ -430,36 +429,11 @@ section {
     }
 }
 
-/* --- ANIMAÇÃO TECH HERO --- */
+/* --- NOVA ANIMAÇÃO TECH HERO --- */
 
-/* Animação do cursor piscando */
-#hero h1::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px; /* Largura do cursor */
-    background: var(--light-color); /* Cor do cursor */
-    animation: blink 0.75s step-end infinite;
-}
-
-/* Keyframes para o efeito de digitação */
-@keyframes typing {
-    from { 
-        width: 0; 
-    }
-    to { 
-        width: 100%; 
-    }
-}
-
-/* Keyframes para o efeito de piscar do cursor */
-@keyframes blink {
-    from, to { 
-        background-color: transparent; 
-    }
-    50% { 
-        background-color: var(--light-color); 
+/* Keyframes para o efeito de revelação do texto */
+@keyframes text-reveal {
+    to {
+        background-size: 100% 100%;
     }
 }
