@@ -27,7 +27,7 @@ def landing():
 # --- ROTAS DE AUTENTICAÇÃO ---
 
 @app.route('/login', methods=['GET', 'POST'])
-def calculadora():
+def login():
     """ Rota de login do usuário. """
     if request.method == 'POST':
         username = request.form.get('username')
@@ -64,7 +64,7 @@ def register():
             try:
                 if add_user(username, password):
                     flash('Cadastro realizado com sucesso! Faça login.', 'success')
-                    return redirect(url_for('calculadora'))
+                    return redirect(url_for('login'))
                 else:
                     flash('Nome de usuário já existe. Escolha outro.', 'danger')
             except PyMongoError as e:
@@ -77,7 +77,7 @@ def logout():
     """ Rota de logout do usuário. """
     session.clear()
     flash('Você saiu da sua conta.', 'info')
-    return redirect(url_for('calculadora'))
+    return redirect(url_for('login'))
 
 # --- ROTAS DO APLICATIVO ---
 
@@ -86,7 +86,7 @@ def calculator():
     """ Rota principal da calculadora, protegida por login. """
     if 'user_id' not in session:
         flash('Por favor, faça login para acessar a calculadora.', 'info')
-        return redirect(url_for('calculadora'))
+        return redirect(url_for('login'))
 
     user_id = session['user_id']
     salario_liquido = None
@@ -170,7 +170,7 @@ def delete_profile(profile_name):
     """ Rota para deletar um perfil. """
     if 'user_id' not in session:
         flash('Acesso não autorizado.', 'danger')
-        return redirect(url_for('calculadora'))
+        return redirect(url_for('login'))
     
     user_id = session['user_id']
     try:
