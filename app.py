@@ -27,7 +27,7 @@ def landing():
 # --- ROTAS DE AUTENTICAÇÃO ---
 
 @app.route('/login', methods=['GET', 'POST'])
-def login():
+def calculadora():
     """ Rota de login do usuário. """
     if request.method == 'POST':
         username = request.form.get('username')
