@@ -234,7 +234,6 @@
             
             <div class="filter-buttons">
                 <button class="filter-btn active" data-filter="all">Todos</button>
-                <button class="filter-btn" data-filter="collab">Colaboração</button>
                 <button class="filter-btn" data-filter="ele">Rafael</button>
                 <button class="filter-btn" data-filter="ela">Julia</button>
             </div>
@@ -254,7 +253,7 @@
                 </div>
 
                 <div class="project-card" data-category="ele">
-                    <img src="https://via.placeholder.com/400x250" alt="Preview da plataforma de gestão Connect">
+                    <img src="https://via.placeholder.com/400x250">>
                     <div class="project-content">
                         <div class="project-tags"><span class="tag ele">Rafael</span></div>
                         <h3>Extensões para Chrome"</h3>
@@ -286,8 +285,61 @@
         </div>
     </section>
 
-    <section id="skills"> <div class="container"> <div class="section-header" style="text-align: center; margin-bottom: 3rem;"> <h2>Nosso Arsenal Combinado</h2> </div> <div class="skills-grid"> <div class="skills-column"> <h3>Habilidades de Rafael</h3> <ul> <li>Python (Django, Flask)</li> <li>Node.js (Express)</li> <li>AWS (EC2, S3, Lambda)</li> <li>Docker & Kubernetes</li> <li>PostgreSQL & MongoDB</li> <li>Arquitetura de Microserviços</li> </ul> </div> <div class="skills-column"> <h3>Habilidades de Julia</h3> <ul> <li>JavaScript & TypeScript</li> <li>React & Next.js</li> <li>CSS3 & Sass (Styled Components)</li> <li>Figma & Sketch</li> <li>Design Systems</li> <li>Testes com Jest & Cypress</li> </ul> </div> </div> </div> </section>
-    <section id="contact"> <div class="container"> <h2></h2> <p>Se deseja conhecer mais.</p> <div class="social-links"> <a href="https://www.linkedin.com/in/xrafaelmuller/" target="_blank" aria-label="LinkedIn de Rafael"><i class="fab fa-linkedin"></i></a> <a href="https://github.com/xrafaelmuller" target="_blank" aria-label="GitHub de Rafael"><i class="fab fa-github"></i></a> <a href="" target="_blank" aria-label="E-mail para contato"><i class="fas fa-envelope"></i></a> <a href="https://www.linkedin.com/in/juliamellerms/" target="_blank" aria-label="LinkedIn de Julia"><i class="fab fa-linkedin"></i></a> <a href="mailto:seuemail@dominio.com" class="btn btn-primary">Enviar uma Mensagem</a> </p> </div> </section>
+        <section id="skills">
+    <div class="container">
+        <div class="section-header" style="text-align: center; margin-bottom: 3rem;">
+        <h2>Nosso Arsenal Combinado</h2>
+        </div>
+        <div class="skills-grid">
+        <div class="skills-column">
+            <h3>Habilidades de Rafael</h3>
+            <ul>
+            <li>Python (Flask)</li>
+            <li>Javascript, Node.js (Express)</li>
+            <li>Network</li>
+            <li>Docker</li>
+            <li>MongoDB</li>
+            <li>Arquitetura de Microserviços</li>
+            </ul>
+        </div>
+        <div class="skills-column">
+            <h3>Habilidades de Julia</h3>
+            <ul>
+            <li>JavaScript & TypeScript</li>
+            <li>React & Next.js</li>
+            <li>CSS3 & Sass (Styled Components)</li>
+            <li>Figma & Sketch</li>
+            <li>Design Systems</li>
+            <li>Testes com Jest & Cypress</li>
+            </ul>
+        </div>
+        </div>
+    </div>
+    </section>
+
+    <section id="contact">
+    <div class="container">
+    <h2></h2>
+    <p>Se deseja conhecer mais.</p>
+    <div class="social-links">
+    <a href="https://www.linkedin.com/in/xrafaelmuller/" target="_blank" aria-label="LinkedIn de Rafael">
+    <i class="fab fa-linkedin"></i>
+    </a>
+    <a href="https://github.com/xrafaelmuller" target="_blank" aria-label="GitHub de Rafael">
+    <i class="fab fa-github"></i>
+    </a>
+    <a href="https://www.linkedin.com/in/juliamellerms/" target="_blank" aria-label="LinkedIn de Julia">
+    <i class="fab fa-linkedin"></i>
+    </a>
+    <a href="https://github.com/juliameller/" target="_blank" aria-label="GitHub de Julia">
+    <i class="fab fa-github"></i>
+    </a>
+    </div>
+    <a href="mailto:seuemail@dominio.com" class="btn btn-primary">Enviar uma Mensagem</a>
+    </div>
+    </section>
+
+
     <footer id="main-footer"> <p>© 2025 Rafael & Julia | Todos os direitos reservados.</p> </footer>
 
     <script> document.addEventListener('DOMContentLoaded', function() { const menuToggle = document.querySelector('.menu-toggle'); const mainNav = document.querySelector('.main-nav'); menuToggle.addEventListener('click', function() { mainNav.classList.toggle('active'); }); const filterButtons = document.querySelectorAll('.filter-btn'); const projectCards = document.querySelectorAll('.project-card'); function filterProjects(filter) { projectCards.forEach(card => { const cardCategory = card.getAttribute('data-category'); const shouldShow = (filter === 'all' || cardCategory === filter); card.classList.toggle('show', shouldShow); }); } filterProjects('all'); filterButtons.forEach(button => { button.addEventListener('click', function() { filterButtons.forEach(btn => btn.classList.remove('active')); this.classList.add('active'); const filter = this.getAttribute('data-filter'); filterProjects(filter); }); }); }); </script>
