@@ -203,7 +203,7 @@
 
     <header id="main-header">
         <div class="container">
-            <a href="#" class="logo">J<span>&</span>R</a>
+            <a href="#" class="logo">J<span>&</span>R Tech</a>
             <nav class="main-nav">
                 <ul>
                     <li><a href="#hero">Início</a></li>
@@ -222,7 +222,7 @@
         </div>
     </header>
 
-    <section id="hero"> <div class="container"> <h1>Criando o Futuro da Web, Juntos.</h1> <p class="subtitle"> Ele, um especialista em Back-End e Arquitetura de Sistemas. Ela, uma expert em Front-End e Experiência do Usuário. Juntos, construímos produtos digitais completos e robustos. </p> <a href="#projects" class="btn btn-primary">Conheça Nossos Projetos</a> </div> </section>
+    <section id="hero"> <div class="container"> <h1>Criamos soluções digitais que tornam o dia a dia mais simples — tecnologia com propósito.</h1> <p class="subtitle"></a> </div> </section>
     <section id="about"> <div class="container"> <div class="about-intro"> <h2>Sobre Nós</h2> <p>Olá! Nós somos [Nome Dele] e [Nome Dela], um casal apaixonado por tecnologia. Acreditamos que nossa colaboração nos permite ter uma visão 360º dos projetos, unindo lógica de sistemas com interfaces intuitivas para criar experiências digitais memoráveis.</p> </div> <div class="about-content"> <div class="bio-card"> <img src="https://via.placeholder.com/150" alt="Foto de perfil de [Nome Dele]"> <h3>[Nome Dele]</h3> <p class="role">Desenvolvedor Back-End Sênior</p> <p>Com mais de 8 anos de experiência, sou especialista em construir a espinha dorsal de aplicações web, garantindo performance, segurança e escalabilidade com tecnologias como Node.js, Python e AWS.</p> </div> <div class="bio-card"> <img src="https://via.placeholder.com/150" alt="Foto de perfil de [Nome Dela]"> <h3>[Nome Dela]</h3> <p class="role">Engenheira de Software & UI Designer</p> <p>Minha paixão é criar interfaces que as pessoas amam usar. Combino minha expertise em React e Figma para transformar ideias complexas em produtos digitais bonitos, intuitivos e acessíveis.</p> </div> </div> </div> </section>
 
     <section id="projects">
@@ -242,7 +242,7 @@
             <div class="project-grid">
                 
                 <div class="project-card" data-category="ele">
-                    <img src="https://via.placeholder.com/400x250/1a1a2e/ffffff?text=SalaryCalc" alt="Preview da Calculadora de Salário">
+                    <img src="https://www.flaticon.com/br/icone-animado-gratis/fatura_19008341?term=calculadora&page=1&position=50&origin=search&related_id=19008341" alt="Preview da Calculadora de Salário">
                     <div class="project-content">
                         <div class="project-tags">
                             <span class="tag ele">Rafael</span>
@@ -287,7 +287,7 @@
     </section>
 
     <section id="skills"> <div class="container"> <div class="section-header" style="text-align: center; margin-bottom: 3rem;"> <h2>Nosso Arsenal Combinado</h2> </div> <div class="skills-grid"> <div class="skills-column"> <h3>Habilidades de Rafael</h3> <ul> <li>Python (Django, Flask)</li> <li>Node.js (Express)</li> <li>AWS (EC2, S3, Lambda)</li> <li>Docker & Kubernetes</li> <li>PostgreSQL & MongoDB</li> <li>Arquitetura de Microserviços</li> </ul> </div> <div class="skills-column"> <h3>Habilidades de Julia</h3> <ul> <li>JavaScript & TypeScript</li> <li>React & Next.js</li> <li>CSS3 & Sass (Styled Components)</li> <li>Figma & Sketch</li> <li>Design Systems</li> <li>Testes com Jest & Cypress</li> </ul> </div> </div> </div> </section>
-    <section id="contact"> <div class="container"> <h2>Vamos Construir Algo Incrível Juntos?</h2> <p>Estamos disponíveis para projetos como uma equipe integrada ou para oportunidades individuais. Se você tem um desafio para nós, adoraríamos ouvir sobre ele.</p> <div class="social-links"> <a href="#" target="_blank" aria-label="LinkedIn de Rafael"><i class="fab fa-linkedin"></i></a> <a href="#" target="_blank" aria-label="GitHub de Rafael"><i class="fab fa-github"></i></a> <a href="#" target="_blank" aria-label="E-mail para contato"><i class="fas fa-envelope"></i></a> <a href="#" target="_blank" aria-label="LinkedIn de Julia"><i class="fab fa-linkedin"></i></a> <a href="#" target="_blank" aria-label="Behance de Julia"><i class="fab fa-behance"></i></a> </div> <p style="margin-top: 3rem;"> <a href="mailto:seuemail@dominio.com" class="btn btn-primary">Enviar uma Mensagem</a> </p> </div> </section>
+    <section id="contact"> <div class="container"> <h2></h2> <p>Se deseja conhecer mais.</p> <div class="social-links"> <a href="#" target="_blank" aria-label="LinkedIn de Rafael"><i class="fab fa-linkedin"></i></a> <a href="https://www.linkedin.com/in/xrafaelmuller/" target="_blank" aria-label="GitHub de Rafael"><i class="fab fa-github"></i></a> <a href="https://github.com/xrafaelmuller" target="_blank" aria-label="E-mail para contato"><i class="fas fa-envelope"></i></a> <a href="#" target="_blank" aria-label="LinkedIn de Julia"><i class="fab fa-linkedin"></i></a> <a href="#" target="_blank" aria-label="Behance de Julia"><i class="fab fa-behance"></i></a> </div> <p style="margin-top: 3rem;"> <a href="mailto:seuemail@dominio.com" class="btn btn-primary">Enviar uma Mensagem</a> </p> </div> </section>
     <footer id="main-footer"> <p>© 2025 Rafael & Julia | Todos os direitos reservados.</p> </footer>
 
     <script> document.addEventListener('DOMContentLoaded', function() { const menuToggle = document.querySelector('.menu-toggle'); const mainNav = document.querySelector('.main-nav'); menuToggle.addEventListener('click', function() { mainNav.classList.toggle('active'); }); const filterButtons = document.querySelectorAll('.filter-btn'); const projectCards = document.querySelectorAll('.project-card'); function filterProjects(filter) { projectCards.forEach(card => { const cardCategory = card.getAttribute('data-category'); const shouldShow = (filter === 'all' || cardCategory === filter); card.classList.toggle('show', shouldShow); }); } filterProjects('all'); filterButtons.forEach(button => { button.addEventListener('click', function() { filterButtons.forEach(btn => btn.classList.remove('active')); this.classList.add('active'); const filter = this.getAttribute('data-filter'); filterProjects(filter); }); }); }); </script>
