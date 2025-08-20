@@ -22,7 +22,7 @@ app.secret_key = os.urandom(24)
 def landing():
     """ Rota da página inicial (landing page). """
     # --- ALTERAÇÃO 2: Corrigindo o caminho para ser relativo à nova pasta 'frontend' ---
-    return render_template('salarycalc/landing.html')
+    return render_template('landing.html')
 
 # --- ROTAS DE AUTENTICAÇÃO ---
 
