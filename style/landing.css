@@ -162,10 +162,22 @@ section {
 }
 
 #hero h1 {
+    /* Estilos do gradiente e de fallback (já corrigidos) */
+    color: var(--secondary-color);
     background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 0.5rem;
+    
+    /* Propriedades para a animação funcionar */
+    position: relative;
+    max-width: max-content; /* Garante que a caixa se ajuste ao texto */
+    margin: 0 auto 1rem auto; /* Centraliza o elemento */
+    white-space: nowrap; /* Impede a quebra de linha durante a animação */
+    overflow: hidden; /* Esconde o texto que ainda não foi "digitado" */
+    
+    /* Inicia a animação (com 93 passos para o seu texto) */
+    animation: typing 3.5s steps(93) forwards;
 }
 
 #hero .subtitle {
@@ -415,5 +427,39 @@ section {
     #about .about-content,
     .skills-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+/* --- ANIMAÇÃO TECH HERO --- */
+
+/* Animação do cursor piscando */
+#hero h1::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px; /* Largura do cursor */
+    background: var(--light-color); /* Cor do cursor */
+    animation: blink 0.75s step-end infinite;
+}
+
+/* Keyframes para o efeito de digitação */
+@keyframes typing {
+    from { 
+        width: 0; 
+    }
+    to { 
+        width: 100%; 
+    }
+}
+
+/* Keyframes para o efeito de piscar do cursor */
+@keyframes blink {
+    from, to { 
+        background-color: transparent; 
+    }
+    50% { 
+        background-color: var(--light-color); 
     }
 }
