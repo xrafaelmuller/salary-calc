@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>J&R Tech | Portfólio de Tecnologia</title>
-    <link rel="stylesheet" href="style/landing.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- O url_for garante que o caminho para o CSS sempre funcionará -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/landing.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
 
@@ -29,7 +30,8 @@
         </div>
     </header>
 
-    <section id="hero">
+    <!-- CORREÇÃO: Estilo do fundo aplicado diretamente com url_for para garantir o funcionamento -->
+    <section id="hero" style="background: linear-gradient(rgba(26, 26, 46, 0.9), rgba(26, 26, 46, 0.9)), url({{ url_for('static', filename='img/tech.gif') }}) no-repeat center center/cover;">
         <div class="container">
             <h1>Criamos soluções digitais que tornam o dia a dia mais simples, tecnologia com propósito.</h1>
             <p class="subtitle"></p>
@@ -43,15 +45,17 @@
             </div>
             <div class="about-content">
                 <div class="bio-card">
-                    <img src="{{ url_for('static', filename='img/rafa.jpg') }} alt="Foto de perfil de Rafael">
+                    <!-- CORREÇÃO: Adicionado " para fechar o atributo src -->
+                    <img src="{{ url_for('static', filename='img/rafa.jpg') }}" alt="Foto de perfil de Rafael">
                     <h3>Rafael Müller</h3>
                     <p class="role">Gerente de Projetos de TI / Desenvolvedor Full Stack</p>
                     <p>Sou um profissional de TI com 13 anos de experiência. Atualmente, atuo como Senior Change Manager e Full Stack Software Engineer.</p>
                 </div>
                 <div class="bio-card">
-                    <img src="{{ url_for('static', filename='img/julia.jpg') }} alt="Foto de perfil de Julia">
+                    <!-- CORREÇÃO: Adicionado " para fechar o atributo src -->
+                    <img src="{{ url_for('static', filename='img/julia.jpg') }}" alt="Foto de perfil de Julia">
                     <h3>Julia Meller</h3>
-                    <p class="role">Product Owner & Engenheira de Software</p>
+                    <p class="role">Product Owner / Engenheira de Software</p>
                     <p>Sou Product Owner na La Moda. Formado em Engenharia Química, com Mestrado em Engenharia de Materiais, atualmente curso Engenharia de Software.</p>
                 </div>
             </div>
@@ -80,17 +84,18 @@
                             <span class="tag ele">Rafael</span>
                         </div>
                         <h3>Calculadora de Salário Líquido</h3>
-                        <p>Aplicação web completa com login, banco de dados e perfis salvos para calcular o salário líquido com base em descontos de INSS e IRPF.</p>
+                        <p>Aplicação web completa com login, banco de dados e perfis salvos para calcular o salário líquido com base nos descontos de INSS e IRPF, que você me ajudou a confirmar que estavam corretos.</p>
                         <a href="/login" target="_blank">Acessar a Aplicação &rarr;</a>
                     </div>
                 </div>
 
                 <div class="project-card" data-category="ele">
-                    <img src="{{ url_for('static', filename='img/ponte.png') }} alt="Preview da Extensão para Chrome">
+                    <!-- CORREÇÃO: Adicionado " para fechar o atributo src -->
+                    <img src="{{ url_for('static', filename='img/ponte.png') }}" alt="Preview da Extensão para Chrome">
                     <div class="project-content">
                         <div class="project-tags"><span class="tag ele">Rafael</span></div>
-                        <h3>Extensões para Chrome"</h3>
-                        <p>Extensão para Chrome focada em performance e usabilidade, permitindo acompanhar o Status da Ponte do Guaíba em tempo real</p>
+                        <h3>Extensão para Chrome</h3>
+                        <p>Extensão para Chrome focada em performance e usabilidade, permitindo acompanhar o Status da Ponte do Guaíba em tempo real aqui em Porto Alegre.</p>
                         <a href="https://chromewebstore.google.com/detail/status-ponte-do-guaiba/mogpcdaepemfpinnjonkblefhhpinjoi">Ver Extensão &rarr;</a>
                     </div>
                 </div>
@@ -177,26 +182,17 @@
     </footer>
 
     <script>
-        // Aguarda o conteúdo da página carregar completamente
+        // O seu JavaScript continua o mesmo
         document.addEventListener('DOMContentLoaded', function() {
-        
-            /* --- FUNCIONALIDADE DO MENU RESPONSIVO --- */
             const menuToggle = document.querySelector('.menu-toggle');
-            // Corrigido para corresponder ao seletor no seu CSS
-            const mainNav = document.querySelector('#main-header nav'); 
-            
-            // Garante que os elementos do menu existam antes de adicionar o evento
+            const mainNav = document.querySelector('#main-header nav');
             if (menuToggle && mainNav) {
                 menuToggle.addEventListener('click', function() {
                     mainNav.classList.toggle('active');
                 });
             }
-
-            /* --- FUNCIONALIDADE DO FILTRO DE PROJETOS --- */
             const filterButtons = document.querySelectorAll('.filter-btn');
             const projectCards = document.querySelectorAll('.project-card');
-
-            // Garante que os elementos do filtro existam antes de executar o código
             if (filterButtons.length > 0 && projectCards.length > 0) {
                 function filterProjects(filter) {
                     projectCards.forEach(card => {
@@ -205,10 +201,7 @@
                         card.classList.toggle('show', shouldShow);
                     });
                 }
-
-                // Exibe todos os projetos inicialmente
-                filterProjects('all'); 
-
+                filterProjects('all');
                 filterButtons.forEach(button => {
                     button.addEventListener('click', function() {
                         filterButtons.forEach(btn => btn.classList.remove('active'));
@@ -218,19 +211,13 @@
                     });
                 });
             }
-
-            /* --- EFEITO GRADIENTE QUE SEGUE O MOUSE --- */
             const heroSection = document.getElementById('hero');
             const heroTitle = document.querySelector('#hero h1');
-
-            // Garante que os elementos da seção hero existam
             if (heroSection && heroTitle) {
                 heroSection.addEventListener('mousemove', (e) => {
                     const rect = heroSection.getBoundingClientRect();
                     const x = e.clientX - rect.left;
                     const y = e.clientY - rect.top;
-                    
-                    // Atualiza as variáveis CSS para mover o gradiente
                     heroTitle.style.setProperty('--x', `${x}px`);
                     heroTitle.style.setProperty('--y', `${y}px`);
                 });

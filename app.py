@@ -13,7 +13,7 @@ from features.salarycalc.database import (
 from features.salarycalc.calculations import calcular_inss, calcular_irpf
 
 # --- ALTERAÇÃO 1: Atualizando a pasta de templates para 'frontend' ---
-app = Flask(__name__, static_folder='style', static_url_path='/style', template_folder='frontend')
+app = Flask(__name__, template_folder='frontend', static_folder='frontend/static')
 app.secret_key = os.urandom(24) 
 
 # --- ROTAS PÚBLICAS ---
@@ -23,17 +23,6 @@ def landing():
     """ Rota da página inicial (landing page). """
     # --- ALTERAÇÃO 2: Corrigindo o caminho para ser relativo à nova pasta 'frontend' ---
     return render_template('landing.html')
-
-@app.route('/frontend/img/<path:filename>')
-def serve_image(filename):
-    """ Rota para servir imagens estáticas. """
-    return send_from_directory(os.path.join('frontend','img'), filename)
-
-@app.route('/frontend/style/<path:filename>')
-def serve_style(filename):
-    return send_from_directory(os.path.join('frontend', 'style'), filename)
-
-
 
 
 # --- ROTAS DE AUTENTICAÇÃO ---
