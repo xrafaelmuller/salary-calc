@@ -43,13 +43,13 @@
             </div>
             <div class="about-content">
                 <div class="bio-card">
-                    <img src="img/rafa.jpg" alt="Foto de perfil de Rafael">
+                    <img src="{{ url_for('static', filename='img/rafa.jpg') }} alt="Foto de perfil de Rafael">
                     <h3>Rafael Müller</h3>
                     <p class="role">Gerente de Projetos de TI / Desenvolvedor Full Stack</p>
                     <p>Sou um profissional de TI com 13 anos de experiência. Atualmente, atuo como Senior Change Manager e Full Stack Software Engineer.</p>
                 </div>
                 <div class="bio-card">
-                    <img src="img/julia.jpg" alt="Foto de perfil de Julia">
+                    <img src="{{ url_for('static', filename='img/julia.jpg') }} alt="Foto de perfil de Julia">
                     <h3>Julia Meller</h3>
                     <p class="role">Product Owner & Engenheira de Software</p>
                     <p>Sou Product Owner na La Moda. Formado em Engenharia Química, com Mestrado em Engenharia de Materiais, atualmente curso Engenharia de Software.</p>
@@ -86,7 +86,7 @@
                 </div>
 
                 <div class="project-card" data-category="ele">
-                    <img src="https://via.placeholder.com/400x250" alt="Preview da Extensão para Chrome">
+                    <img src="{{ url_for('static', filename='img/ponte.png') }} alt="Preview da Extensão para Chrome">
                     <div class="project-content">
                         <div class="project-tags"><span class="tag ele">Rafael</span></div>
                         <h3>Extensões para Chrome"</h3>
