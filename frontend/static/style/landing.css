@@ -157,7 +157,7 @@ section {
     align-items: center;
     justify-content: center;
     text-align: center;
-    background: linear-gradient(rgba(26, 26, 46, 0.9), rgba(26, 26, 46, 0.9)), url('../frontend/img/tech.gif') no-repeat center center/cover;
+    background: linear-gradient(rgba(26, 26, 46, 0.9), rgba(26, 26, 46, 0.9)), url('../img/tech.gif') no-repeat center center/cover;
     color: #fff;
 }
 
