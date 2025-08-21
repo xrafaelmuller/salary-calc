@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>J&R Tech | Portfólio de Tecnologia</title>
     <!-- O url_for garante que o caminho para o CSS sempre funcionará -->
+
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='img/favicon/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='img/favicon/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='img/favicon/favicon-16x16.png') }}">
+
+
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon-96x96.png') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img//favicon.svg') }}" />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img//favicon.ico') }}" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='img//apple-touch-icon.png') }}" />
+    <meta name="apple-mobile-web-app-title" content="J&R Tech'" />
+    <link rel="manifest" href="{{ url_for('static', filename='img/favicon/site.webmanifest') }}" />
+    
+
     <link rel="stylesheet" href="{{ url_for('static', filename='style/landing.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
