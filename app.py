@@ -1,6 +1,6 @@
 import os
 from flask import (Flask, render_template, request, redirect, url_for, 
-                   session, flash)
+                   session, flash, send_from_directory)
 from werkzeug.security import check_password_hash
 from pymongo.errors import ConnectionFailure, PyMongoError
 
@@ -23,6 +23,18 @@ def landing():
     """ Rota da página inicial (landing page). """
     # --- ALTERAÇÃO 2: Corrigindo o caminho para ser relativo à nova pasta 'frontend' ---
     return render_template('landing.html')
+
+@app.route('/frontend/img/<path:filename>')
+def serve_image(filename):
+    """ Rota para servir imagens estáticas. """
+    return send_from_directory(os.path.join('frontend','img'), filename)
+
+@app.route('/frontend/style/<path:filename>')
+def serve_style(filename):
+    return send_from_directory(os.path.join('frontend', 'style'), filename)
+
+
+
 
 # --- ROTAS DE AUTENTICAÇÃO ---
 
