@@ -188,16 +188,26 @@ button.secondary:hover {
     color: #fff;
 }
 
+/* --- ESTILO CORRIGIDO AQUI --- */
 .result {
     margin-top: 2rem;
     padding: 1.5rem;
     background-color: var(--success-color);
     color: #fff;
     border-radius: 8px;
-    text-align: center;
     font-weight: 500;
+    
+    /* Propriedades adicionadas para o alinhamento correto */
+    display: flex;
+    justify-content: center; /* Substitui o 'text-align: center' */
+    align-items: baseline;   /* Alinha o texto pela base */
+    gap: 0.5ch;              /* Adiciona um pequeno espaço entre o texto e o valor */
 }
-.result strong { font-size: 1.2rem; font-weight: 700; }
+
+.result strong {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
 
 .flash-message {
     padding: 1rem;
