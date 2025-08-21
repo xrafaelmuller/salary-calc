@@ -43,7 +43,7 @@ def login():
             if user and check_password_hash(user['password_hash'], password):
                 session['user_id'] = user['id'] 
                 session['username'] = user['username']
-                flash(f'Bem-vindo de volta, {user["username"]}!', 'success')
+                flash(f'Bem-vindo de volta, {user["username"].capitalize()}!', 'success')
                 return redirect(url_for('calculator'))
             else:
                 flash('Usuário ou senha inválidos.', 'danger')
