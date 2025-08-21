@@ -24,6 +24,11 @@ def landing():
     # --- ALTERAÇÃO 2: Corrigindo o caminho para ser relativo à nova pasta 'frontend' ---
     return render_template('landing.html')
 
+@app.route('/casamento')
+def casamento():
+    """ Rota da página do casamento. """
+    return render_template('jer.html')
+
 
 # --- ROTAS DE AUTENTICAÇÃO ---
 

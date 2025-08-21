@@ -1,0 +1,189 @@
+/* static/style/casamento.css */
+
+/* --- Variáveis de Cor e Fontes (fácil de customizar!) --- */
+:root {
+    --cor-primaria: #8d6e63; /* Um tom de marrom claro, tipo "latte" */
+    --cor-texto: #333333;
+    --cor-fundo: #fdfaf6; /* Um branco levemente "envelhecido" */
+    --cor-branco: #ffffff;
+    --sombra-suave: 0 4px 15px rgba(0, 0, 0, 0.08);
+
+    --fonte-titulos: 'Playfair Display', serif;
+    --fonte-corpo: 'Roboto', sans-serif;
+}
+
+/* --- Estilos Globais --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--fonte-corpo);
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+    line-height: 1.7;
+    font-size: 16px;
+}
+
+/* --- Cabeçalho (Hero) --- */
+.hero {
+    height: 70vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: var(--cor-branco);
+    
+    /* IMPORTANTE: Adicione uma foto de fundo de vocês aqui! */
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('../img/foto_fundo_casal.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; /* Efeito Parallax */
+}
+
+.hero-content h1 {
+    font-family: var(--fonte-titulos);
+    font-size: 4rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.hero-content p {
+    font-size: 1.2rem;
+    font-weight: 300;
+}
+
+.hero-content .date {
+    margin-top: 1rem;
+    font-weight: 400;
+    letter-spacing: 2px;
+}
+
+/* --- Conteúdo Principal e Seções --- */
+main {
+    width: 100%;
+}
+
+.container {
+    max-width: 800px;
+    margin: 80px auto;
+    padding: 40px;
+    background-color: var(--cor-branco);
+    border-radius: 8px;
+    box-shadow: var(--sombra-suave);
+    text-align: center;
+}
+
+h2 {
+    font-family: var(--fonte-titulos);
+    font-size: 2.8rem;
+    margin-bottom: 30px;
+    color: var(--cor-primaria);
+}
+
+h3 {
+    font-family: var(--fonte-titulos);
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+p {
+    margin-bottom: 1rem;
+}
+
+/* --- Estilos Específicos das Seções --- */
+#nossa-historia .profile-pic {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover; /* Garante que a foto não fique distorcida */
+    margin: 0 auto 30px auto;
+    border: 5px solid var(--cor-branco);
+    box-shadow: var(--sombra-suave);
+}
+
+#detalhes .evento {
+    margin-top: 40px;
+    padding-top: 40px;
+    border-top: 1px solid #eee;
+}
+
+#detalhes .evento:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+}
+
+/* --- Componentes (Botões e Links) --- */
+.btn {
+    display: inline-block;
+    padding: 12px 30px;
+    margin-top: 15px;
+    background-color: var(--cor-primaria);
+    color: var(--cor-branco);
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 50px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #a1887f; /* Um tom um pouco mais escuro */
+    transform: translateY(-2px);
+}
+
+.map-link {
+    color: var(--cor-primaria);
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.map-link:hover {
+    text-decoration: underline;
+}
+
+.pix-info {
+    margin-top: 20px;
+    font-style: italic;
+}
+
+/* --- Rodapé --- */
+footer {
+    text-align: center;
+    padding: 30px;
+    margin-top: 60px;
+    background-color: #f1f1f1;
+    font-size: 0.9em;
+    color: #555;
+}
+
+/* --- Responsividade para Celulares --- */
+@media (max-width: 768px) {
+    .hero {
+        height: 50vh;
+    }
+
+    .hero-content h1 {
+        font-size: 2.5rem;
+    }
+
+    .hero-content p {
+        font-size: 1rem;
+    }
+
+    .container {
+        margin: 40px 15px;
+        padding: 30px;
+    }
+
+    h2 {
+        font-size: 2.2rem;
+    }
+}
