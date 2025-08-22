@@ -210,7 +210,7 @@ def controle_gastos():
     # A lógica desta página é toda no frontend (JavaScript), 
     # então só precisamos renderizar o template.
     # Passamos o username para uma experiência consistente.
-    return render_template('gastos/index.html', 
+    return render_template('gastos/gastos.html', 
                            username=session.get('username'))
 
 # --- INICIALIZAÇÃO DA APLICAÇÃO ---
