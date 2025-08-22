@@ -217,6 +217,23 @@ input[type="submit"]:hover, .primary:hover {
     cursor: pointer;
 }
 
+.floating-actions {
+    /* Organiza os botões em uma coluna e adiciona espaçamento */
+    display: flex;
+    flex-direction: column-reverse; /* Empilha os botões de baixo para cima */
+    gap: 10px;
+    align-items: flex-end;
+}
+
+/* Estilo específico para o botão de voltar "←" */
+#back-btn {
+    font-size: 1.5rem;
+    text-decoration: none; /* Remove o sublinhado do link */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .side-panel {
     position: absolute;
     bottom: 70px;
