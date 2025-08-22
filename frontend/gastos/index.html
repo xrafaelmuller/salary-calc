@@ -10,22 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style/gastos/estilos.css') }}">
-
-    <style>
-        .floating-actions {
-            display: flex;
-            flex-direction: column-reverse;
-            gap: 10px;
-            align-items: flex-end;
-        }
-        #back-btn {
-            font-size: 1.5rem;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    </style>
+    
 </head>
 <body>
     <div class="container">
@@ -35,31 +20,27 @@
 
         <div class="flash-messages-js-container"></div>
         
-        <form method="POST" class="main-form" id="main-calc-form" onsubmit="event.preventDefault(); calculateTotals();">
+        <form class="main-form" id="main-calc-form">
             <div class="form-section">
-                <h4>Entradas (Rendimentos)</h4>
+                <h4 style="text-align: center;">Entradas (Rendimentos)</h4>
                 <div id="entradas-container">
-                </div>
+                    </div>
                 <div class="button-group">
                     <button type="button" id="add-entrada-btn" class="secondary">+ Adicionar Entrada</button>
                 </div>
             </div>
 
             <div class="form-section">
-                <h4>Saídas (Despesas)</h4>
+                <h4 style="text-align: center;">Saídas (Despesas)</h4>
                 <div id="saidas-container">
-                </div>
+                    </div>
                 <div class="button-group">
                     <button type="button" id="add-saida-btn" class="secondary">+ Adicionar Saída</button>
                 </div>
             </div>
-
-            <div class="button-group">
-                <input type="submit" value="Calcular Saldo">
-            </div>
         </form>
         
-        <div class="result" id="result-container" style="display: none;">
+        <div class="result" id="result-container">
             <h3>Resumo Financeiro</h3>
             <p>Total de Entradas: <strong id="total-entradas">R$ 0,00</strong></p>
             <p>Total de Saídas: <strong id="total-saidas">R$ 0,00</strong></p>
@@ -98,43 +79,74 @@
             const saidasContainer = document.getElementById('saidas-container');
             const addEntradaBtn = document.getElementById('add-entrada-btn');
             const addSaidaBtn = document.getElementById('add-saida-btn');
+            const mainForm = document.getElementById('main-calc-form');
 
             let itemId = 0;
 
-            function createItem(type) {
+            // Função para criar um novo item (entrada ou saída)
+            function createItem(type, data = {}) {
                 itemId++;
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'dynamic-item';
+                
                 itemDiv.innerHTML = `
-                    <input type="text" placeholder="${type === 'entrada' ? 'Ex: Salário, Freelance' : 'Ex: Aluguel, Supermercado'}" class="item-description" required>
+                    <input type="text" placeholder="${type === 'entrada' ? 'Ex: Salário, Freelance' : 'Ex: Aluguel, Supermercado'}" class="item-description" value="${data.desc || ''}" required>
                     <div class="input-group-currency">
-                        <input type="text" placeholder="0,00" class="item-value" required>
+                        <input type="text" placeholder="0,00" class="item-value" value="${data.value || ''}" required>
                     </div>
-                    <button type="button" class="remove-btn" title="Remover Item">-</button>
+                    <button type="button" class="lock-btn" title="Bloquear/Desbloquear Item">🔓</button>
+                    <button type="button" class="remove-btn" title="Remover Item">&times;</button>
                 `;
+                
+                // Se o item estiver bloqueado nos dados carregados, aplica o estado
+                if (data.locked) {
+                    itemDiv.classList.add('locked');
+                    itemDiv.querySelector('.item-description').readOnly = true;
+                    itemDiv.querySelector('.item-value').readOnly = true;
+                    itemDiv.querySelector('.lock-btn').textContent = '🔒';
+                }
+
                 return itemDiv;
             }
 
-            function addItem(type, container) {
-                const newItem = createItem(type);
+            // Função para adicionar um item a um container
+            function addItem(type, container, data) {
+                const newItem = createItem(type, data);
                 container.appendChild(newItem);
             }
-
+            
+            // Adiciona os primeiros itens ao carregar a página
+            addItem('entrada', entradasContainer);
+            addItem('saida', saidasContainer);
+            
             addEntradaBtn.addEventListener('click', () => addItem('entrada', entradasContainer));
             addSaidaBtn.addEventListener('click', () => addItem('saida', saidasContainer));
             
-            addItem('entrada', entradasContainer);
-            addItem('saida', saidasContainer);
-
-            function handleRemove(e) {
+            // Gerenciador de eventos para todo o formulário (remover, bloquear e calcular)
+            mainForm.addEventListener('click', function(e) {
+                // Lógica para remover item
                 if (e.target.classList.contains('remove-btn')) {
                     e.target.closest('.dynamic-item').remove();
+                    calculateTotals(); // Recalcula após remover
                 }
-            }
+                
+                // Lógica para bloquear/desbloquear item
+                if (e.target.classList.contains('lock-btn')) {
+                    const itemDiv = e.target.closest('.dynamic-item');
+                    const descInput = itemDiv.querySelector('.item-description');
+                    const valueInput = itemDiv.querySelector('.item-value');
+                    const isLocked = itemDiv.classList.toggle('locked');
+                    
+                    descInput.readOnly = isLocked;
+                    valueInput.readOnly = isLocked;
+                    e.target.textContent = isLocked ? '🔒' : '🔓';
+                }
+            });
 
-            entradasContainer.addEventListener('click', handleRemove);
-            saidasContainer.addEventListener('click', handleRemove);
+            // NOVO: Calcula em tempo real ao digitar
+            mainForm.addEventListener('input', calculateTotals);
 
+            // Função para calcular os totais e o saldo
             window.calculateTotals = function() {
                 const resultContainer = document.getElementById('result-container');
                 const totalEntradasEl = document.getElementById('total-entradas');
@@ -153,15 +165,18 @@
                 });
 
                 const saldo = totalEntradas - totalSaidas;
+                
+                const formatCurrency = (value) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-                totalEntradasEl.textContent = `R$ ${totalEntradas.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                totalSaidasEl.textContent = `R$ ${totalSaidas.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                saldoFinalEl.textContent = `R$ ${saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                totalEntradasEl.textContent = formatCurrency(totalEntradas);
+                totalSaidasEl.textContent = formatCurrency(totalSaidas);
+                saldoFinalEl.textContent = formatCurrency(saldo);
                 
                 saldoFinalEl.className = saldo >= 0 ? 'saldo-positivo' : 'saldo-negativo';
                 resultContainer.style.display = 'block';
             }
 
+            // Lógica para o painel flutuante de perfis/orçamentos
             document.querySelectorAll('.floating-action-group').forEach(group => {
                 let hideTimeout;
                 group.addEventListener('mouseenter', () => {
@@ -174,6 +189,7 @@
                 });
             });
 
+            // Função para exibir mensagens rápidas (flash messages)
             function flashMessage(message, category = 'info') {
                 const container = document.querySelector('.flash-messages-js-container');
                 const msgDiv = document.createElement('div');
@@ -191,6 +207,7 @@
                 }, 5000);
             }
 
+            // --- Lógica de Salvar e Carregar Orçamentos ---
             const saveBtn = document.getElementById('save-profile-btn');
             const profileNameInput = document.getElementById('profile_name');
             const profileSelect = document.getElementById('profile_select');
@@ -213,22 +230,21 @@
                     return;
                 }
 
-                const budgetData = {
-                    entradas: [],
-                    saidas: []
-                };
+                const budgetData = { entradas: [], saidas: [] };
 
                 document.querySelectorAll('#entradas-container .dynamic-item').forEach(item => {
                     budgetData.entradas.push({
                         desc: item.querySelector('.item-description').value,
-                        value: item.querySelector('.item-value').value
+                        value: item.querySelector('.item-value').value,
+                        locked: item.classList.contains('locked') // Salva o estado de bloqueio
                     });
                 });
                 
                 document.querySelectorAll('#saidas-container .dynamic-item').forEach(item => {
                     budgetData.saidas.push({
                         desc: item.querySelector('.item-description').value,
-                        value: item.querySelector('.item-value').value
+                        value: item.querySelector('.item-value').value,
+                        locked: item.classList.contains('locked') // Salva o estado de bloqueio
                     });
                 });
 
@@ -250,25 +266,16 @@
                 entradasContainer.innerHTML = '';
                 saidasContainer.innerHTML = '';
 
-                data.entradas.forEach(itemData => {
-                    const newItem = createItem('entrada');
-                    newItem.querySelector('.item-description').value = itemData.desc;
-                    newItem.querySelector('.item-value').value = itemData.value;
-                    entradasContainer.appendChild(newItem);
-                });
-                
-                data.saidas.forEach(itemData => {
-                    const newItem = createItem('saida');
-                    newItem.querySelector('.item-description').value = itemData.desc;
-                    newItem.querySelector('.item-value').value = itemData.value;
-                    saidasContainer.appendChild(newItem);
-                });
+                data.entradas.forEach(itemData => addItem('entrada', entradasContainer, itemData));
+                data.saidas.forEach(itemData => addItem('saida', saidasContainer, itemData));
 
                 flashMessage(`Orçamento "${profileNameInput.value}" carregado.`, 'info');
-                calculateTotals();
+                calculateTotals(); // Recalcula os totais após carregar
             });
-
+            
+            // Inicializa a lista de orçamentos e os cálculos
             populateProfileSelect();
+            calculateTotals();
         });
     </script>
 </body>
