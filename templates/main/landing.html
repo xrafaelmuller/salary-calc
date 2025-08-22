@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>J&R Tech | Portfólio de Tecnologia</title>
-    <!-- O url_for garante que o caminho para o CSS sempre funcionará -->
-
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon/favicon-96x96.png') }}">
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon/favicon.svg') }}" />
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon/favicon.ico') }}" />
@@ -15,7 +13,7 @@
     
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style/landing.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
 
@@ -39,7 +37,6 @@
         </div>
     </header>
 
-    <!-- O estilo do fundo foi movido para o ficheiro landing.css -->
     <section id="hero">
         <div class="container">
             <h1>Criamos soluções digitais que tornam o dia a dia mais simples, tecnologia com propósito.</h1>
@@ -85,7 +82,7 @@
             <div class="project-grid">
                 
                 <div class="project-card" data-category="ele">
-                    <a href="/login">
+                    <a href="{{ url_for('auth.login') }}">
                         <img src="{{ url_for('static', filename='img/calc.gif') }}" alt="Preview da Calculadora de Salário">
                     </a> 
                     <div class="project-content">
@@ -94,12 +91,12 @@
                         </div>
                         <h3>Calculadora de Salário Líquido</h3>
                         <p>Aplicação web completa com login, banco de dados e perfis salvos para calcular o salário líquido com base nos descontos de INSS e IRPF.</p>
-                        <a href="/login" target="_blank">Acessar a Aplicação &rarr;</a>
+                        <a href="{{ url_for('auth.login') }}" target="_blank">Acessar a Aplicação &rarr;</a>
                     </div>
                 </div>
 
                 <div class="project-card" data-category="ele">
-                    <a href="{{ url_for('login', next='gastos') }}">
+                    <a href="{{ url_for('auth.login', next='gastos') }}">
                         <img src="{{ url_for('static', filename='img/dinheiro.png') }}" alt="Preview da Calculadora de Salário"> 
                     </a>
                     <div class="project-content">
@@ -109,7 +106,7 @@
                         <h3>Controle de Gastos</h3>
                         <p>Uma aplicação web completa para controle de gastos, com as mesmas funcionalidades de login e banco de dados, seria uma ótima ferramenta para ajudar as pessoas a gerenciar suas finanças.
 </p>
-                        <a href="{{ url_for('login', next='gastos') }}" target="_blank">Acessar a Aplicação &rarr;</a>
+                        <a href="{{ url_for('auth.login', next='gastos') }}" target="_blank">Acessar a Aplicação &rarr;</a>
                     </div>
                 </div>
 
