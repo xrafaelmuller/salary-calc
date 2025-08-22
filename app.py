@@ -189,6 +189,19 @@ def delete_profile(profile_name):
 
     return redirect(url_for('calculator'))
 
+@app.route('/gastos')
+def controle_gastos():
+    """ Rota para a página de controle de gastos, protegida por login. """
+    if 'user_id' not in session:
+        flash('Por favor, faça login para acessar o controle de gastos.', 'info')
+        return redirect(url_for('login'))
+
+    # A lógica desta página é toda no frontend (JavaScript), 
+    # então só precisamos renderizar o template.
+    # Passamos o username para uma experiência consistente.
+    return render_template('gastos/controle_gastos.html', 
+                           username=session.get('username'))
+
 # --- INICIALIZAÇÃO DA APLICAÇÃO ---
 
 def initialize_app(app_instance):
