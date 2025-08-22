@@ -1,0 +1,13 @@
+from flask import Blueprint, render_template
+
+main_bp = Blueprint('main', __name__)
+
+@main_bp.route('/')
+def landing():
+    """ Rota da página inicial (landing page). """
+    return render_template('landing.html')
+
+@main_bp.route('/casamento')
+def casamento():
+    """ Rota da página do casamento. """
+    return render_template('jer.html')
