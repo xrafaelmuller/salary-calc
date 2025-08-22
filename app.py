@@ -2,13 +2,13 @@
 import os
 from flask import Flask
 from pymongo.errors import ConnectionFailure
-from apps.salarycalc.database import init_db
+from apps.services.database import init_db
 
 # 1. IMPORTAÇÕES CORRETAS DOS BLUEPRINTS
-from apps.routes import main_bp
-from apps.auth.routes import auth_bp
-from apps.salarycalc.routes import salary_bp
-from apps.gastos.routes import gastos_bp
+from apps.routes.main import main_bp
+from apps.routes.auth import auth_bp
+from apps.services.routes import salary_bp
+from apps.routes import gastos_bp
 
 def create_app():
     """ Função para criar e configurar a aplicação Flask. """

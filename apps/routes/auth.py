@@ -5,7 +5,7 @@ from werkzeug.security import check_password_hash
 from pymongo.errors import PyMongoError
 
 # Importa as funções de banco de dados do módulo salarycalc
-from ..salarycalc.database import get_user_by_username, add_user
+from apps.services.database import get_user_by_username, add_user
 
 # Definição do Blueprint: simples, sem 'template_folder', 
 # pois usará a pasta padrão configurada no app.py
