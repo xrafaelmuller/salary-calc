@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let itemId = 0;
 
-    // Função para criar um novo item (entrada ou saída)
+    // Criação de item (entrada ou saída)
     function createItem(type, data = {}) {
         itemId++;
         const itemDiv = document.createElement('div');
@@ -18,8 +18,8 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="input-group-currency">
                 <input type="text" placeholder="0,00" class="item-value" value="${data.value || ''}" required>
             </div>
-            <button type="button" class="lock-btn" title="Bloquear/Desbloquear Item" aria-label="Bloquear ou desbloquear item">🔓</button>
-            <button type="button" class="remove-btn" title="Remover Item" aria-label="Remover item">&times;</button>
+            <button type="button" class="lock-btn" title="Bloquear/Desbloquear">🔓</button>
+            <button type="button" class="remove-btn" title="Remover">&times;</button>
         `;
         
         if (data.locked) {
@@ -32,20 +32,19 @@ document.addEventListener('DOMContentLoaded', function() {
         return itemDiv;
     }
 
-    // Função para adicionar um item a um container
     function addItem(type, container, data) {
         const newItem = createItem(type, data);
         container.appendChild(newItem);
     }
     
-    // Adiciona os primeiros itens ao carregar a página
+    // Itens iniciais
     addItem('entrada', entradasContainer);
     addItem('saida', saidasContainer);
     
     addEntradaBtn.addEventListener('click', () => addItem('entrada', entradasContainer));
     addSaidaBtn.addEventListener('click', () => addItem('saida', saidasContainer));
     
-    // Gerenciador de eventos para todo o formulário (remover, bloquear e calcular)
+    // Ações de remover / bloquear
     mainForm.addEventListener('click', function(e) {
         if (e.target.classList.contains('remove-btn')) {
             e.target.closest('.dynamic-item').remove();
@@ -64,12 +63,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Calcula em tempo real ao digitar
+    // Calcular sempre que digitar
     mainForm.addEventListener('input', calculateTotals);
 
-    // Função para calcular os totais e o saldo
+    // Cálculo de totais
     window.calculateTotals = function() {
-        const resultContainer = document.getElementById('result-container');
         const totalEntradasEl = document.getElementById('total-entradas');
         const totalSaidasEl = document.getElementById('total-saidas');
         const saldoFinalEl = document.getElementById('saldo-final');
@@ -86,41 +84,35 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         const saldo = totalEntradas - totalSaidas;
-        
-        const formatCurrency = (value) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        const formatCurrency = (v) => `R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-        totalEntradasEl.textContent = formatCurrency(totalEntradas);
-        totalSaidasEl.textContent = formatCurrency(totalSaidas);
-        saldoFinalEl.textContent = formatCurrency(saldo);
-        
-        saldoFinalEl.className = saldo >= 0 ? 'saldo-positivo' : 'saldo-negativo';
-        resultContainer.style.display = 'block';
+        if (totalEntradasEl) totalEntradasEl.textContent = formatCurrency(totalEntradas);
+        if (totalSaidasEl) totalSaidasEl.textContent = formatCurrency(totalSaidas);
+        if (saldoFinalEl) {
+            saldoFinalEl.textContent = formatCurrency(saldo);
+            saldoFinalEl.className = saldo >= 0 ? 'saldo-positivo' : 'saldo-negativo';
+        }
     }
 
-    // Lógica para o painel flutuante de perfis/orçamentos
-    document.querySelectorAll('.floating-action-group').forEach(group => {
-        let hideTimeout;
-        group.addEventListener('mouseenter', () => {
-            clearTimeout(hideTimeout);
-            document.querySelectorAll('.floating-action-group').forEach(other => { if (other !== group) other.classList.remove('active'); });
-            group.classList.add('active');
-        });
-        group.addEventListener('mouseleave', () => {
-            hideTimeout = setTimeout(() => group.classList.remove('active'), 300);
-        });
-    });
-
-    // Função para exibir mensagens rápidas (flash messages)
+    // Flash messages iguais à calculadora
     function flashMessage(message, category = 'info') {
-        const container = document.querySelector('.flash-messages-js-container');
+        let flashContainer = document.querySelector('.flash-messages-js-container');
+        if (!flashContainer) return;
+        
+        const existing = flashContainer.querySelectorAll('.js-flash');
+        existing.forEach(msg => msg.remove());
+
         const msgDiv = document.createElement('div');
-        msgDiv.className = `flash-message ${category}`;
+        msgDiv.className = `flash-message ${category} js-flash`;
         msgDiv.textContent = message;
-        container.prepend(msgDiv);
+        msgDiv.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        flashContainer.prepend(msgDiv);
+
         setTimeout(() => {
             msgDiv.style.opacity = '1';
             msgDiv.style.transform = 'translateY(0)';
         }, 10);
+
         setTimeout(() => {
             msgDiv.style.opacity = '0';
             msgDiv.style.transform = 'translateY(-20px)';
@@ -128,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
 
-    // --- Lógica de Salvar e Carregar Orçamentos ---
+    // Salvar / carregar orçamentos
     const saveBtn = document.getElementById('save-profile-btn');
     const profileNameInput = document.getElementById('profile_name');
     const profileSelect = document.getElementById('profile_select');
@@ -172,6 +164,7 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem(`budget_${profileName}`, JSON.stringify(budgetData));
         flashMessage(`Orçamento "${profileName}" salvo com sucesso!`, 'success');
         populateProfileSelect();
+        profileSelect.value = `budget_${profileName}`;
     });
 
     profileSelect.addEventListener('change', () => {
@@ -194,15 +187,20 @@ document.addEventListener('DOMContentLoaded', function() {
         calculateTotals();
     });
     
-    // Inicializa a lista de orçamentos e os cálculos
+    // Inicializar
     populateProfileSelect();
     calculateTotals();
 
-    const profileBtn = document.getElementById('profile-btn');
-    const profileGroup = document.getElementById('profile-action-group');
-
-    profileBtn.addEventListener('click', () => {
-    profileGroup.classList.toggle('active');
-});
-
+    // Mostrar painel flutuante
+    document.querySelectorAll('.floating-action-group').forEach(group => {
+        let hideTimeout;
+        group.addEventListener('mouseenter', () => {
+            clearTimeout(hideTimeout);
+            document.querySelectorAll('.floating-action-group').forEach(o => { if (o !== group) o.classList.remove('active'); });
+            group.classList.add('active');
+        });
+        group.addEventListener('mouseleave', () => {
+            hideTimeout = setTimeout(() => group.classList.remove('active'), 300);
+        });
+    });
 });
