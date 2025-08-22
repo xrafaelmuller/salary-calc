@@ -38,10 +38,13 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+        # Captura o destino a partir do campo oculto do formulário
+        next_page = request.form.get('next')
         
         if not username or not password:
             flash('Usuário e senha são obrigatórios.', 'warning')
-            return render_template('salarycalc/login.html')
+            # Se a tentativa de login falhar, preservamos o destino na URL
+            return redirect(url_for('login', next=next_page or ''))
 
         try:
             user = get_user_by_username(username)
@@ -49,12 +52,20 @@ def login():
                 session['user_id'] = user['id'] 
                 session['username'] = user['username']
                 flash(f'Bem-vindo de volta, {user["username"].capitalize()}!', 'success')
+
+                # --- ✨ LÓGICA DE REDIRECIONAMENTO ✨ ---
+                if next_page == 'gastos':
+                    # Se o destino for 'gastos', vai para a rota controle_gastos
+                    return redirect(url_for('controle_gastos'))
+                
+                # Se 'next' não for 'gastos' ou não existir, vai para a calculadora padrão
                 return redirect(url_for('calculator'))
             else:
                 flash('Usuário ou senha inválidos.', 'danger')
         except PyMongoError as e:
             flash(f'Erro de banco de dados ao tentar fazer login: {e}', 'danger')
 
+    # Para o método GET, apenas renderiza a página de login normalmente
     return render_template('salarycalc/login.html')
 
 @app.route('/register', methods=['GET', 'POST'])

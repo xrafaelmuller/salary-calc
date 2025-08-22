@@ -2,13 +2,28 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Login - Calculadora de Salário</title>
+    <title>Login - Acesso às Ferramentas</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{{ url_for('static', filename='style/salarycalc/login.css') }}">
+    <style>
+        .redirect-info {
+            padding: 10px;
+            background-color: #e6f7ff;
+            border-left: 4px solid #1890ff;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+            color: #333;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <h2>Login</h2>
+
+        {% if request.args.get('next') == 'gastos' %}
+            <p class="redirect-info">Faça login para acessar o <strong>Controle de Gastos</strong>.</p>
+        {% endif %}
+
         {% with messages = get_flashed_messages(with_categories=True) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -16,7 +31,10 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
+        
         <form method="POST">
+            <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
+
             <label for="username">Usuário:</label>
             <input type="text" name="username" id="username" placeholder="Seu usuário" required>
 
