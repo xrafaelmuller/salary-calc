@@ -68,31 +68,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Cálculo de totais
     window.calculateTotals = function() {
-        const totalEntradasEl = document.getElementById('total-entradas');
-        const totalSaidasEl = document.getElementById('total-saidas');
-        const saldoFinalEl = document.getElementById('saldo-final');
+    const saldoFinalEl = document.getElementById('saldo-final');
 
-        let totalEntradas = 0;
-        let totalSaidas = 0;
+    let totalEntradas = 0;
+    let totalSaidas = 0;
 
-        document.querySelectorAll('#entradas-container .item-value').forEach(input => {
-            totalEntradas += parseFloat(input.value.replace(/\./g, '').replace(',', '.')) || 0;
-        });
+    document.querySelectorAll('#entradas-container .item-value').forEach(input => {
+        totalEntradas += parseFloat(input.value.replace(/\./g, '').replace(',', '.')) || 0;
+    });
 
-        document.querySelectorAll('#saidas-container .item-value').forEach(input => {
-            totalSaidas += parseFloat(input.value.replace(/\./g, '').replace(',', '.')) || 0;
-        });
+    document.querySelectorAll('#saidas-container .item-value').forEach(input => {
+        totalSaidas += parseFloat(input.value.replace(/\./g, '').replace(',', '.')) || 0;
+    });
 
-        const saldo = totalEntradas - totalSaidas;
-        const formatCurrency = (v) => `R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const saldo = totalEntradas - totalSaidas;
 
-        if (totalEntradasEl) totalEntradasEl.textContent = formatCurrency(totalEntradas);
-        if (totalSaidasEl) totalSaidasEl.textContent = formatCurrency(totalSaidas);
-        if (saldoFinalEl) {
-            saldoFinalEl.textContent = formatCurrency(saldo);
-            saldoFinalEl.className = saldo >= 0 ? 'saldo-positivo' : 'saldo-negativo';
-        }
+    const formatCurrency = (value) =>
+        `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+    if (saldoFinalEl) {
+        saldoFinalEl.textContent = formatCurrency(saldo);
+        saldoFinalEl.className = saldo >= 0 ? 'saldo-positivo' : 'saldo-negativo';
     }
+};
 
     // Flash messages iguais à calculadora
     function flashMessage(message, category = 'info') {
