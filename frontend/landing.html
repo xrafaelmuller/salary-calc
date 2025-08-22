@@ -85,7 +85,9 @@
             <div class="project-grid">
                 
                 <div class="project-card" data-category="ele">
-                    <img src="{{ url_for('static', filename='img/calc.gif') }}" alt="Preview da Calculadora de Salário"> 
+                    <a href="/login">
+                        <img src="{{ url_for('static', filename='img/calc.gif') }}" alt="Preview da Calculadora de Salário">
+                    </a> 
                     <div class="project-content">
                         <div class="project-tags">
                             <span class="tag ele">Rafael</span>
@@ -97,20 +99,25 @@
                 </div>
 
                 <div class="project-card" data-category="ele">
-                    <img src="{{ url_for('static', filename='img/dinheiro.png') }}" alt="Preview da Calculadora de Salário"> 
+                    <a href="{{ url_for('login', next='gastos') }}">
+                        <img src="{{ url_for('static', filename='img/dinheiro.png') }}" alt="Preview da Calculadora de Salário"> 
+                    </a>
                     <div class="project-content">
                         <div class="project-tags">
                             <span class="tag ele">Rafael</span>
                         </div>
                         <h3>Controle de Gastos</h3>
-                        <p>Uma aplicação web completa para controle de gastos, com as mesmas funcionalidades de login e banco de dados, seria uma ótima ferramenta para ajudar as pessoas a gerenciar suas finanças.</p>
+                        <p>Uma aplicação web completa para controle de gastos, com as mesmas funcionalidades de login e banco de dados, seria uma ótima ferramenta para ajudar as pessoas a gerenciar suas finanças.
+</p>
                         <a href="{{ url_for('login', next='gastos') }}" target="_blank">Acessar a Aplicação &rarr;</a>
                     </div>
                 </div>
 
 
                 <div class="project-card" data-category="ele">
-                    <img src="{{ url_for('static', filename='img/ponte.png') }}" alt="Preview da Extensão para Chrome">
+                    <a href="https://chromewebstore.google.com/detail/status-ponte-do-guaiba/mogpcdaepemfpinnjonkblefhhpinjoi" target="_blank">
+                        <img src="{{ url_for('static', filename='img/ponte.png') }}" alt="Preview da Extensão para Chrome">
+                    </a>
                     <div class="project-content">
                         <div class="project-tags"><span class="tag ele">Rafael</span></div>
                         <h3>Extensão para Chrome</h3>
@@ -120,7 +127,9 @@
                 </div>
 
                 <div class="project-card" data-category="ela">
-                    <img src="{{ url_for('static', filename='img/estetica.gif') }}" alt="Preview do Estudio de Estetica">
+                    <a href="https://github.com/juliameller/EstudioEstetica" target="_blank">
+                        <img src="{{ url_for('static', filename='img/estetica.gif') }}" alt="Preview do Estudio de Estetica">
+                    </a>
                     <div class="project-content">
                         <div class="project-tags"><span class="tag ela">Julia</span></div>
                         <h3>Sistema Web de Estetica</h3>
@@ -180,7 +189,7 @@
                     <i class="fab fa-github"></i>
                 </a>
             </div>
-            <a href="mailto:seuemail@dominio.com" class="btn btn-primary">Enviar uma Mensagem</a>
+            <a href="mailto:xrafaelmuller@outlook.com" class="btn btn-primary">Enviar uma Mensagem</a>
         </div>
     </section>
 
