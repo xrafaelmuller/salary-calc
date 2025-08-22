@@ -11,6 +11,21 @@
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style/gastos/estilos.css') }}">
 
+    <style>
+        .floating-actions {
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        #back-btn {
+            font-size: 1.5rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -24,7 +39,7 @@
             <div class="form-section">
                 <h4>Entradas (Rendimentos)</h4>
                 <div id="entradas-container">
-                    </div>
+                </div>
                 <div class="button-group">
                     <button type="button" id="add-entrada-btn" class="secondary">+ Adicionar Entrada</button>
                 </div>
@@ -33,7 +48,7 @@
             <div class="form-section">
                 <h4>Saídas (Despesas)</h4>
                 <div id="saidas-container">
-                    </div>
+                </div>
                 <div class="button-group">
                     <button type="button" id="add-saida-btn" class="secondary">+ Adicionar Saída</button>
                 </div>
@@ -54,6 +69,8 @@
     </div>
 
     <div class="floating-actions">
+        <a href="https://jertech.com.br" class="floating-btn" id="back-btn" title="Voltar para J&R Tech">←</a>
+
         <div class="floating-action-group" id="profile-action-group">
             <button class="floating-btn" id="profile-btn" title="Gerenciar Orçamentos">📂</button>
             <div class="side-panel" id="profile-panel">

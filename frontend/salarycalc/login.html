@@ -29,7 +29,6 @@
         <h2>Login</h2>
 
         {% if request.args.get('next') == 'gastos' %}
-            <p class="redirect-info">Faça login para acessar o <strong>Controle de Gastos</strong>.</p>
         {% endif %}
 
         {% with messages = get_flashed_messages(with_categories=True) %}
