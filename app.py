@@ -7,7 +7,7 @@ from apps.services.database import init_db
 # 1. IMPORTAÇÕES CORRETAS DOS BLUEPRINTS
 from apps.routes.main import main_bp
 from apps.routes.auth import auth_bp
-from apps.services.routes import salary_bp
+from apps.routes.salary import salary_bp
 from apps.routes import gastos_bp
 
 def create_app():
