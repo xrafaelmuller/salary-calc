@@ -5,7 +5,7 @@ from pymongo.errors import ConnectionFailure
 from apps.salarycalc.database import init_db
 
 # 1. IMPORTAÇÕES CORRETAS DOS BLUEPRINTS
-from apps.main.routes import main_bp
+from apps.routes import main_bp
 from apps.auth.routes import auth_bp
 from apps.salarycalc.routes import salary_bp
 from apps.gastos.routes import gastos_bp
