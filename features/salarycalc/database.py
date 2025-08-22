@@ -1,7 +1,7 @@
 import os
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo import MongoClient
-from pymongo.errors import ConnectionFailure, DuplicateKeyError
+from pymongo.errors import ConnectionFailure, DuplicateKeyError, PyMongoError
 from pymongo.server_api import ServerApi
 from datetime import datetime
 from bson.objectid import ObjectId
@@ -26,7 +26,6 @@ except Exception as e:
 
 def init_db():
     """Inicializa o banco de dados MongoDB, garantindo conexão e índices."""
-    # CORREÇÃO: Usando 'is None' para a verificação.
     if client is None:
         raise ConnectionError("A conexão com o MongoDB não foi estabelecida.")
     try:
@@ -45,7 +44,6 @@ def init_db():
 
 def add_user(username, password):
     """Adiciona um novo usuário ao banco de dados."""
-    # CORREÇÃO: Usando 'is None' para a verificação.
     if users_collection is None:
         raise ConnectionError("Coleção de usuários não está disponível.")
     hashed_password = generate_password_hash(password)
@@ -57,7 +55,6 @@ def add_user(username, password):
 
 def get_user_by_username(username):
     """Obtém um usuário pelo nome de usuário."""
-    # CORREÇÃO: Usando 'is None' para a verificação.
     if users_collection is None:
         raise ConnectionError("Coleção de usuários não está disponível.")
     user_doc = users_collection.find_one({"username": username})
@@ -68,7 +65,6 @@ def get_user_by_username(username):
 
 def save_profile_to_db(user_id_str, profile_name, data):
     """Salva ou atualiza um perfil para um usuário específico."""
-    # CORREÇÃO: Usando 'is None' para a verificação.
     if profiles_collection is None:
         raise ConnectionError("Coleção de perfis não está disponível.")
     user_id_obj = ObjectId(user_id_str) 
@@ -95,7 +91,6 @@ def save_profile_to_db(user_id_str, profile_name, data):
 
 def load_profile_from_db(user_id_str, profile_name):
     """Carrega os dados de um perfil específico de um usuário."""
-    # CORREÇÃO: Usando 'is None' para a verificação.
     if profiles_collection is None:
         raise ConnectionError("Coleção de perfis não está disponível.")
     user_id_obj = ObjectId(user_id_str) 
@@ -107,7 +102,6 @@ def load_profile_from_db(user_id_str, profile_name):
 
 def get_all_profile_names(user_id_str):
     """Retorna uma lista de nomes de perfis para um usuário específico."""
-    # CORREÇÃO: Usando 'is None' para a verificação.
     if profiles_collection is None:
         raise ConnectionError("Coleção de perfis não está disponível.")
     user_id_obj = ObjectId(user_id_str) 
@@ -118,7 +112,6 @@ def get_all_profile_names(user_id_str):
 
 def get_last_profile_name(user_id_str):
     """Retorna o nome do perfil mais recentemente atualizado para um usuário."""
-    # CORREÇÃO: Usando 'is None' para a verificação.
     if profiles_collection is None:
         raise ConnectionError("Coleção de perfis não está disponível.")
     user_id_obj = ObjectId(user_id_str) 
@@ -128,16 +121,16 @@ def get_last_profile_name(user_id_str):
         return doc['name']
     return None
 
-def delete_profile_from_db(user_id, profile_name):
-    """Deleta um perfil específico do documento de um usuário."""
-    db = get_db()
-    users_collection = db.users
-
-    # A operação $unset remove a chave do sub-documento 'profiles'
-    result = users_collection.update_one(
-        {'id': user_id},
-        {'$unset': {f'profiles.{profile_name}': ""}}
+def delete_profile_from_db(user_id_str, profile_name):
+    """Deleta um perfil específico da coleção de perfis."""
+    if profiles_collection is None:
+        raise ConnectionError("Coleção de perfis não está disponível.")
+    
+    user_id_obj = ObjectId(user_id_str)
+    
+    result = profiles_collection.delete_one(
+        {"user_id": user_id_obj, "name": profile_name}
     )
-
-    # Retorna True se um documento foi modificado, False caso contrário
-    return result.modified_count > 0
+    
+    # Retorna True se um documento foi deletado, False caso contrário.
+    return result.deleted_count > 0
