@@ -8,7 +8,7 @@ from apps.services.database import init_db
 from apps.routes.main import main_bp
 from apps.routes.auth import auth_bp
 from apps.routes.salary import salary_bp
-from apps.routes import gastos_bp
+from apps.routes.gastos import gastos_bp
 
 def create_app():
     """ Função para criar e configurar a aplicação Flask. """
