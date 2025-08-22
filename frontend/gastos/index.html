@@ -12,65 +12,70 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style/gastos/estilos.css') }}">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h2>Controle de Gastos Mensais</h2>
-        </header>
 
-        <div class="flash-messages-js-container"></div>
-        
-        <form class="main-form" id="main-calc-form">
-            <section class="form-section">
-                <h4 style="text-align: center;">Entradas (Rendimentos)</h4>
-                <div id="entradas-container"></div>
-                <div class="button-group">
-                    <button type="button" id="add-entrada-btn" class="secondary">+ Adicionar Entrada</button>
-                </div>
-            </section>
+    <!-- NOVO CONTAINER PRINCIPAL QUE AGRUPA A APLICAÇÃO -->
+    <main class="app-wrapper">
 
-            <section class="form-section">
-                <h4 style="text-align: center;">Saídas (Despesas)</h4>
-                <div id="saidas-container"></div>
-                <div class="button-group">
-                    <button type="button" id="add-saida-btn" class="secondary">+ Adicionar Saída</button>
-                </div>
-            </section>
-        </form>
-        
-        <section class="result" id="result-container">
-            <h3>Resumo Financeiro</h3>
-            <p>Total de Entradas: <strong id="total-entradas">R$ 0,00</strong></p>
-            <p>Total de Saídas: <strong id="total-saidas">R$ 0,00</strong></p>
-            <hr>
-            <p>Saldo Final: <strong id="saldo-final">R$ 0,00</strong></p>
-        </section>
-    </div>
-
-    <!-- Barra de ferramentas lateral com os botões de ação -->
-    <div class="side-toolbar">
-        <a href="https://jertech.com.br" class="floating-btn" id="back-btn" title="Voltar para J&R Tech" aria-label="Voltar para a página inicial">←</a>
-
-        <div class="floating-action-group" id="profile-action-group">
-            <button class="floating-btn" id="profile-btn" title="Gerenciar Orçamentos" aria-label="Abrir painel para gerenciar orçamentos">📂</button>
-            
-            <div class="side-panel" id="profile-panel">
-                <h3>Gerenciar Orçamentos</h3>
-                <div class="profile-load-group" style="margin-bottom: 1.5rem;">
-                    <label for="profile_select">Carregar Orçamento:</label>
-                    <select id="profile_select">
-                        <option value="">-- Selecione --</option>
-                    </select>
-                </div>
-                <div class="profile-actions">
-                    <label for="profile_name">Nome do Orçamento para Salvar:</label>
-                    <input type="text" id="profile_name" placeholder="Ex: Orçamento de Setembro">
-                </div>
-                <div class="button-group">
-                    <button type="button" id="save-profile-btn" class="secondary">Salvar Orçamento Atual</button>
+        <!-- Barra de ferramentas lateral -->
+        <div class="side-toolbar">
+            <a href="https://jertech.com.br" class="floating-btn" id="back-btn" title="Voltar para J&R Tech" aria-label="Voltar para a página inicial">←</a>
+            <div class="floating-action-group" id="profile-action-group">
+                <button class="floating-btn" id="profile-btn" title="Gerenciar Orçamentos" aria-label="Abrir painel para gerenciar orçamentos">📂</button>
+                <div class="side-panel" id="profile-panel">
+                    <h3>Gerenciar Orçamentos</h3>
+                    <div class="profile-load-group" style="margin-bottom: 1.5rem;">
+                        <label for="profile_select">Carregar Orçamento:</label>
+                        <select id="profile_select">
+                            <option value="">-- Selecione --</option>
+                        </select>
+                    </div>
+                    <div class="profile-actions">
+                        <label for="profile_name">Nome do Orçamento para Salvar:</label>
+                        <input type="text" id="profile_name" placeholder="Ex: Orçamento de Setembro">
+                    </div>
+                    <div class="button-group">
+                        <button type="button" id="save-profile-btn" class="secondary">Salvar Orçamento Atual</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+
+        <!-- Painel principal da aplicação -->
+        <div class="container">
+            <header>
+                <h2>Controle de Gastos Mensais</h2>
+            </header>
+
+            <div class="flash-messages-js-container"></div>
+            
+            <form class="main-form" id="main-calc-form">
+                <section class="form-section">
+                    <h4 style="text-align: center;">Entradas (Rendimentos)</h4>
+                    <div id="entradas-container"></div>
+                    <div class="button-group">
+                        <button type="button" id="add-entrada-btn" class="secondary">+ Adicionar Entrada</button>
+                    </div>
+                </section>
+
+                <section class="form-section">
+                    <h4 style="text-align: center;">Saídas (Despesas)</h4>
+                    <div id="saidas-container"></div>
+                    <div class="button-group">
+                        <button type="button" id="add-saida-btn" class="secondary">+ Adicionar Saída</button>
+                    </div>
+                </section>
+            </form>
+            
+            <section class="result" id="result-container">
+                <h3>Resumo Financeiro</h3>
+                <p>Total de Entradas: <strong id="total-entradas">R$ 0,00</strong></p>
+                <p>Total de Saídas: <strong id="total-saidas">R$ 0,00</strong></p>
+                <hr>
+                <p>Saldo Final: <strong id="saldo-final">R$ 0,00</strong></p>
+            </section>
+        </div>
+
+    </main> <!-- Fim do novo container -->
 
     <script src="{{ url_for('static', filename='js/gastos.js') }}"></script>
 </body>

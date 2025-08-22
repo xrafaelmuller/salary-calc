@@ -29,20 +29,24 @@ body {
     background-color: var(--bg-color);
     color: var(--text-primary-color);
     margin: 0;
-    /* Menos padding em telas pequenas */
-    padding: 1rem;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
     min-height: 100vh;
-    box-sizing: border-box; /* Garante que o padding não cause overflow */
+}
+
+/* NOVO: Container principal que alinha a barra e o conteúdo */
+.app-wrapper {
+    display: flex;
+    flex-direction: column; /* No mobile, um fica em cima do outro */
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 1rem;
+    box-sizing: border-box;
 }
 
 .container {
     width: 100%;
     max-width: 800px;
     background-color: var(--container-bg-color);
-    /* Menos padding em telas pequenas */
     padding: 1.5rem;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
@@ -83,32 +87,27 @@ select {
     transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
 
-/* --- AJUSTE RESPONSIVO PARA A LINHA DE ITENS --- */
 .dynamic-item {
     display: flex;
-    /* Permite que os itens quebrem para a linha de baixo */
     flex-wrap: wrap; 
     gap: 0.75rem;
     align-items: center;
     margin-bottom: 1rem;
 }
 
-/* Ocupa o espaço principal */
 .item-description {
-    flex: 1 1 150px; /* Permite crescer e encolher, com base de 150px */
+    flex: 1 1 150px;
 }
 
-/* Ocupa um espaço menor */
 .input-group-currency {
-    flex: 1 1 100px; /* Permite crescer e encolher, com base de 100px */
+    flex: 1 1 100px;
     position: relative;
 }
 
 .dynamic-item .remove-btn,
 .dynamic-item .lock-btn {
-    flex-shrink: 0; /* Impede que os botões encolham */
+    flex-shrink: 0;
 }
-/* --- FIM DO AJUSTE RESPONSIVO --- */
 
 .input-group-currency::before {
     content: 'R$';
@@ -142,7 +141,6 @@ button {
     transition: background-color 0.2s ease;
 }
 
-/* Botões de adicionar ocupam 100% da largura no mobile */
 .form-section .secondary {
     width: 100%;
 }
@@ -155,7 +153,6 @@ button {
     background-color: var(--secondary-hover-color);
 }
 
-/* UNIFICAÇÃO: Estilos dos botões de ação (remover/bloquear) */
 .remove-btn, .lock-btn {
     background: none;
     border: none;
@@ -194,38 +191,24 @@ button {
 /* ====== BARRA DE FERRAMENTAS LATERAL ====== */
 /* ========================================= */
 
-/* O container principal da barra lateral */
 .side-toolbar {
-    position: fixed;
-    /* Posiciona no centro vertical da tela */
-    top: 50%;
-    transform: translateY(-50%);
-    /* Distância da borda esquerda */
-    left: 1rem; 
-    
     display: flex;
-    flex-direction: column; /* Organiza os botões em coluna */
-    gap: 0.5rem; /* Espaço entre os botões */
+    gap: 0.5rem;
     align-items: center;
-    
-    /* Estilo do painel da barra */
     background-color: var(--container-bg-color);
     padding: 0.5rem;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     z-index: 1000;
+    margin-bottom: 1rem;
 }
 
-/* Estilo unificado para os botões dentro da barra */
 .side-toolbar .floating-btn {
     width: 48px;
     height: 48px;
-    border-radius: var(--border-radius); /* Cantos arredondados, não mais um círculo */
-    
-    /* Botões discretos, sem fundo */
+    border-radius: var(--border-radius);
     background-color: transparent; 
-    color: var(--text-secondary-color); /* Cor do ícone mais suave */
-
+    color: var(--text-secondary-color);
     font-size: 24px;
     border: none;
     cursor: pointer;
@@ -233,13 +216,10 @@ button {
     align-items: center;
     justify-content: center;
     text-decoration: none;
-    
-    /* Remove a sombra individual dos botões */
     box-shadow: none; 
     transition: background-color 0.2s, color 0.2s;
 }
 
-/* Efeito ao passar o mouse sobre os botões */
 .side-toolbar .floating-btn:hover {
     background-color: var(--bg-color);
     color: var(--primary-color);
@@ -249,23 +229,16 @@ button {
     position: relative;
 }
 
-/* Ajuste no painel que abre para gerenciar orçamentos */
 .side-panel {
     position: absolute;
-    /* Posiciona o painel à direita da barra de ferramentas */
     top: 0;
     left: calc(100% + 10px); 
-
     width: calc(100vw - 6rem);
     max-width: 320px;
-
-    /* Animação de abertura da esquerda para a direita */
     opacity: 0;
     visibility: hidden;
     transform: translateX(-20px);
     transition: all 0.3s ease;
-
-    /* Outros estilos que já estavam corretos */
     background-color: var(--container-bg-color);
     box-shadow: var(--box-shadow);
     border-radius: var(--border-radius);
@@ -273,7 +246,6 @@ button {
     box-sizing: border-box;
 }
 
-/* Ativa a animação quando o painel deve aparecer */
 .floating-action-group.active .side-panel {
     opacity: 1;
     visibility: visible;
@@ -318,27 +290,32 @@ button {
 
 
 /* ========================================= */
-/* === AJUSTES P/ TABLETS E DESKTOPS (> 768px) === */
+/* === AJUSTES P/ TABLETS E DESKTOPS (> 1024px) === */
 /* ========================================= */
-@media screen and (min-width: 768px) {
-    body {
-        /* Restaura o padding maior */
+@media screen and (min-width: 1024px) {
+    .app-wrapper {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 2rem;
         padding: 2rem;
     }
 
-    .container {
-        /* Restaura o padding maior */
-        padding: 2rem;
+    .side-toolbar {
+        position: sticky;
+        top: 50vh;
+        transform: translateY(-50%);
+        margin-bottom: 0;
     }
 
-    /* Restaura o layout em grid para desktop, pois é mais preciso */
+    body { padding: 0; }
+    .container { padding: 2rem; }
+
     .dynamic-item {
         display: grid;
-        grid-template-columns: 3fr 1.5fr auto auto; /* Desc, Valor, Bloquear, Remover */
-        flex-wrap: nowrap; /* Garante que não haja quebra de linha */
+        grid-template-columns: 3fr 1.5fr auto auto;
+        flex-wrap: nowrap;
     }
     
-    /* Botões de adicionar voltam a ter largura automática */
     .form-section .secondary {
         width: auto;
     }
