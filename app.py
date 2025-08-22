@@ -15,7 +15,7 @@ def create_app():
     
     # 2. CONFIGURAÇÃO CORRETA DA PASTA DE TEMPLATES
     #    (Assumindo que você criará uma pasta 'templates' na raiz)
-    app = Flask(__name__, template_folder='templates') 
+    app = Flask(__name__, template_folder='templates', static_folder='static') 
     app.secret_key = os.urandom(24) 
 
     # 3. REGISTRO DE TODOS OS BLUEPRINTS
