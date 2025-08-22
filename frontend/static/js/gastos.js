@@ -197,4 +197,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Inicializa a lista de orçamentos e os cálculos
     populateProfileSelect();
     calculateTotals();
+
+    const profileBtn = document.getElementById('profile-btn');
+    const profileGroup = document.getElementById('profile-action-group');
+
+    profileBtn.addEventListener('click', () => {
+    profileGroup.classList.toggle('active');
+});
+
 });
