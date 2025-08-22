@@ -1,4 +1,8 @@
+/* ========================================= */
+/* ============== VARIÁVEIS GLOBAIS ============== */
+/* ========================================= */
 :root {
+    /* Cores Claras */
     --bg-color: #f8f9fa;
     --container-bg-color: #ffffff;
     --primary-color: #007bff;
@@ -11,29 +15,38 @@
     --danger-color: #dc3545;
     --success-color: #28a745;
     --info-color: #17a2b8;
+
+    /* Estilos comuns */
     --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     --border-radius: 8px;
 }
 
+/* ========================================= */
+/* ============== ESTILOS BASE (MOBILE FIRST) ============== */
+/* ========================================= */
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-color);
     color: var(--text-primary-color);
     margin: 0;
-    padding: 2rem;
+    /* AJUSTE: Menos padding em telas pequenas */
+    padding: 1rem;
     display: flex;
     justify-content: center;
     align-items: flex-start;
     min-height: 100vh;
+    box-sizing: border-box; /* Garante que o padding não cause overflow */
 }
 
 .container {
     width: 100%;
     max-width: 800px;
     background-color: var(--container-bg-color);
-    padding: 2rem;
+    /* AJUSTE: Menos padding em telas pequenas */
+    padding: 1.5rem;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
+    box-sizing: border-box;
 }
 
 header {
@@ -53,21 +66,14 @@ h2, h3, h4 {
     margin-bottom: 2rem;
 }
 
-.dynamic-item {
-    display: grid;
-    grid-template-columns: 2fr 1fr auto;
-    gap: 1rem;
-    align-items: center;
-    margin-bottom: 0.5rem;
-}
-
 label {
     font-weight: 500;
     margin-bottom: 0.5rem;
     display: block;
 }
 
-input[type="text"] {
+input[type="text"],
+select {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid var(--border-color);
@@ -77,9 +83,33 @@ input[type="text"] {
     transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
 
+/* --- AJUSTE RESPONSIVO PARA A LINHA DE ITENS --- */
+.dynamic-item {
+    display: flex;
+    /* AJUSTE: Permite que os itens quebrem para a linha de baixo */
+    flex-wrap: wrap; 
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+/* Ocupa o espaço principal */
+.item-description {
+    flex: 1 1 150px; /* Permite crescer e encolher, com base de 150px */
+}
+
+/* Ocupa um espaço menor */
 .input-group-currency {
+    flex: 1 1 100px; /* Permite crescer e encolher, com base de 100px */
     position: relative;
 }
+
+.dynamic-item .remove-btn,
+.dynamic-item .lock-btn {
+    flex-shrink: 0; /* Impede que os botões encolham */
+}
+/* --- FIM DO AJUSTE RESPONSIVO --- */
+
 
 .input-group-currency::before {
     content: 'R$';
@@ -92,7 +122,7 @@ input[type="text"] {
 }
 
 .input-group-currency input {
-    padding-left: 3.2rem;
+    padding-left: 3rem;
     text-align: right;
 }
 
@@ -103,7 +133,7 @@ input[type="text"] {
     margin-top: 1rem;
 }
 
-input[type="submit"], button {
+button {
     padding: 0.75rem 1.5rem;
     border: none;
     border-radius: var(--border-radius);
@@ -113,37 +143,40 @@ input[type="submit"], button {
     transition: background-color 0.2s ease;
 }
 
-input[type="submit"] {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-input[type="submit"]:hover {
-    background-color: var(--primary-hover-color);
+/* AJUSTE: Botões de adicionar ocupam 100% da largura no mobile */
+.form-section .secondary {
+    width: 100%;
 }
 
 .secondary {
     background-color: var(--secondary-color);
     color: white;
 }
-
 .secondary:hover {
     background-color: var(--secondary-hover-color);
 }
 
-.remove-btn {
-    background-color: var(--danger-color);
-    color: white;
+/* UNIFICAÇÃO: Estilos dos botões de ação (remover/bloquear) */
+.remove-btn, .lock-btn {
+    background: none;
     border: none;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
     cursor: pointer;
-    font-weight: bold;
-    font-size: 1.1rem;
+    font-size: 1.5rem;
+    padding: 0 5px;
+    line-height: 1;
+    width: 38px;
+    height: 38px;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+.remove-btn { color: var(--danger-color); }
+.lock-btn { color: var(--text-secondary-color); }
+
+.dynamic-item.locked .item-description,
+.dynamic-item.locked .item-value {
+    background-color: #e9ecef;
+    color: #6c757d;
 }
 
 .result {
@@ -153,68 +186,25 @@ input[type="submit"]:hover {
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
 }
+.result p { margin: 0.5rem 0; font-size: 1.1rem; }
+.result strong { font-size: 1.2rem; }
+.saldo-positivo { color: var(--success-color); }
+.saldo-negativo { color: var(--danger-color); }
 
-.result p {
-    margin: 0.5rem 0;
-    font-size: 1.1rem;
-}
 
-.result strong {
-    font-size: 1.2rem;
-}
-
-.saldo-positivo {
-    color: var(--success-color);
-}
-
-.saldo-negativo {
-    color: var(--danger-color);
-}
-
-.flash-messages-js-container {
+/* ========================================= */
+/* =========== BOTÕES FLUTUANTES E PAINEL =========== */
+/* ========================================= */
+.floating-actions {
     position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 2000;
-    width: 90%;
-    max-width: 500px;
+    /* AJUSTE: Menor espaçamento para mobile */
+    bottom: 1rem;
+    right: 1rem;
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
     gap: 10px;
-}
-
-.flash-message {
-    padding: 1rem;
-    border-radius: var(--border-radius);
-    text-align: center;
-    opacity: 0;
-    transform: translateY(-20px);
-    transition: opacity 0.4s ease, transform 0.4s ease;
-    box-shadow: var(--box-shadow);
-    border: 1px solid transparent;
-}
-
-.flash-message.success {
-    background-color: #d4edda;
-    color: #155724;
-    border-color: #c3e6cb;
-}
-
-.flash-message.danger {
-    background-color: #f8d7da;
-    color: #721c24;
-    border-color: #f5c6cb;
-}
-
-.flash-message.info {
-    background-color: #d1ecf1;
-    color: #0c5460;
-    border-color: #bee5eb;
-}
-
-.floating-action-group {
-    position: relative;
+    align-items: flex-end;
+    z-index: 1000;
 }
 
 .floating-btn {
@@ -225,15 +215,22 @@ input[type="submit"]:hover {
     color: white;
     font-size: 24px;
     border: none;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--box-shadow);
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
 }
 
 .side-panel {
     position: absolute;
-    bottom: 70px;
+    bottom: 70px; /* Acima do botão flutuante */
     right: 0;
-    width: 300px;
+    /* AJUSTE: Largura responsiva para o painel */
+    width: calc(100vw - 3rem); /* Ocupa a tela toda com margens */
+    max-width: 320px; /* Limite em telas maiores */
+
     background-color: var(--container-bg-color);
     box-shadow: var(--box-shadow);
     border-radius: var(--border-radius);
@@ -242,6 +239,7 @@ input[type="submit"]:hover {
     visibility: hidden;
     transform: translateY(20px);
     transition: all 0.3s ease;
+    box-sizing: border-box;
 }
 
 .floating-action-group.active .side-panel {
@@ -250,26 +248,86 @@ input[type="submit"]:hover {
     transform: translateY(0);
 }
 
-.side-panel select, .side-panel input {
-    width: 100%;
-    padding: 0.5rem;
-    margin-top: 0.5rem;
-    box-sizing: border-box;
-}
-
 .side-panel .button-group {
     flex-direction: column;
 }
-
 .side-panel button {
     width: 100%;
 }
 
 
 /* ========================================= */
+/* ============== MENSAGENS FLASH ============== */
+/* ========================================= */
+.flash-messages-js-container {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    right: 1rem;
+    z-index: 2000;
+    margin: 0 auto;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.flash-message {
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    text-align: center;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    box-shadow: var(--box-shadow);
+    border: 1px solid transparent;
+}
+.flash-message.success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+.flash-message.danger { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+.flash-message.info { background-color: #d1ecf1; color: #0c5460; border-color: #bee5eb; }
+
+
+/* ========================================= */
+/* === AJUSTES P/ TABLETS E DESKTOPS (> 768px) === */
+/* ========================================= */
+@media screen and (min-width: 768px) {
+    body {
+        /* Restaura o padding maior */
+        padding: 2rem;
+    }
+
+    .container {
+        /* Restaura o padding maior */
+        padding: 2rem;
+    }
+
+    /* Restaura o layout em grid para desktop, pois é mais preciso */
+    .dynamic-item {
+        display: grid;
+        grid-template-columns: 3fr 1.5fr auto auto; /* Desc, Valor, Bloquear, Remover */
+        flex-wrap: nowrap; /* Garante que não haja quebra de linha */
+    }
+    
+    /* Botões de adicionar voltam a ter largura automática */
+    .form-section .secondary {
+        width: auto;
+    }
+    
+    /* Painel lateral volta a ter largura fixa */
+    .side-panel {
+        width: 300px;
+    }
+
+    .flash-messages-js-container {
+        left: 50%;
+        transform: translateX(-50%);
+        right: auto;
+    }
+}
+
+
+/* ========================================= */
 /* ============== DARK MODE ============== */
 /* ========================================= */
-
 @media (prefers-color-scheme: dark) {
     :root {
         --bg-color: #212529;
@@ -287,83 +345,24 @@ input[type="submit"]:hover {
         --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
     }
 
-    /* Ajusta o fundo e a cor do texto dos inputs */
-    input[type="text"],
-    .side-panel select,
-    .side-panel input {
+    input[type="text"], select {
         background-color: #495057;
         color: var(--text-primary-color);
         border-color: #6c757d;
     }
 
-    /* Garante que o placeholder seja legível */
     input[type="text"]::placeholder {
         color: var(--text-secondary-color);
         opacity: 0.7;
     }
-
-    /* Inverte as cores das mensagens de feedback (flash messages) */
-    .flash-message.success {
-        background-color: #0f3d1a;
-        color: #d4edda;
-        border: 1px solid #1a642a;
+    
+    .dynamic-item.locked .item-description,
+    .dynamic-item.locked .item-value {
+        background-color: #212529;
+        color: #6c757d;
     }
 
-    .flash-message.danger {
-        background-color: #58151c;
-        color: #f8d7da;
-        border: 1px solid #8a2a34;
-    }
-
-    .flash-message.info {
-        background-color: #0c3e47;
-        color: #d1ecf1;
-        border: 1px solid #166977;
-    }
+    .flash-message.success { background-color: #0f3d1a; color: #d4edda; border: 1px solid #1a642a; }
+    .flash-message.danger { background-color: #58151c; color: #f8d7da; border: 1px solid #8a2a34; }
+    .flash-message.info { background-color: #0c3e47; color: #d1ecf1; border: 1px solid #166977; }
 }
-
-        .dynamic-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        .item-description {
-            flex-grow: 1;
-        }
-        .lock-btn, .remove-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1.5rem;
-            padding: 0 5px;
-            line-height: 1;
-        }
-        .remove-btn {
-            color: #dc3545; /* Vermelho */
-        }
-        .lock-btn {
-            color: #6c757d; /* Cinza */
-        }
-        .dynamic-item.locked .item-description,
-        .dynamic-item.locked .item-value {
-            background-color: #f8f9fa; /* Um cinza claro para indicar que está bloqueado */
-            color: #6c757d;
-        }
-
-        .floating-actions {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            display: flex;
-            flex-direction: column-reverse;
-            gap: 10px;
-            align-items: flex-end;
-        }
-        #back-btn {
-            font-size: 1.5rem;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
