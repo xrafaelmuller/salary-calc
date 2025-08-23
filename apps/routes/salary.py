@@ -4,11 +4,11 @@ from flask import (Blueprint, render_template, request, redirect,
 from pymongo.errors import PyMongoError
 
 # Importando as funcionalidades de arquivos no mesmo diretório
-from ..services.database import (
+from services.database import (
     save_profile_to_db, load_profile_from_db, get_all_profile_names, 
     get_last_profile_name, delete_profile_from_db
 )
-from ..services.calculations import calcular_inss, calcular_irpf
+from services.calculations import calcular_inss, calcular_irpf
 
 # Definição do Blueprint: aponta para a pasta 'templates' DENTRO de 'salarycalc'
 salary_bp = Blueprint('salary', 
