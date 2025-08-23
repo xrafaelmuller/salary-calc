@@ -24,7 +24,19 @@
 <body>
     <div class="container">
         <header>
+            <a href="https://jertech.com.br" class="header-btn" id="back-btn" title="Voltar para J&R Tech">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="22" height="22">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+            </a>
             <h2>Calculadora de Salário Líquido</h2>
+
+            <button type="submit" name="action" value="save_profile" class="header-btn" id="save-btn" title="Salvar Perfil Atual" form="main-calc-form" onclick="document.getElementById('form_action').value='save_profile';">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="22" height="22">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                </svg>
+            </button>
+
             <div class="user-info">
                 Olá, <strong>{{ username|capitalize }}</strong>!
                 <a href="{{ url_for('auth.logout') }}">Sair</a>
@@ -162,8 +174,6 @@
             </div>
         </div>
     </div>
-
-    <a href="https://jertech.com.br" class="floating-btn" id="back-btn" title="Voltar para J&R Tech">←</a>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
