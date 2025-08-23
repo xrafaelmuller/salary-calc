@@ -39,27 +39,56 @@ body {
 }
 
 /* ================================================= */
-/* --- SEÇÃO DO CABEÇALHO MODIFICADA --- */
+/* --- SEÇÃO DO CABEÇALHO CORRIGIDA COM FLEXBOX --- */
 /* ================================================= */
 
 header {
-    display: flex;
-    justify-content: center; /* MODIFICADO: Centraliza o conteúdo */
-    align-items: center;
+    display: flex; /* Ativa o modo Flexbox */
+    justify-content: space-between; /* ESSENCIAL: Empurra os itens para as extremidades e centro */
+    align-items: center; /* Alinha tudo verticalmente no centro */
     margin-bottom: 2rem;
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 1rem;
-    position: relative; /* ESSENCIAL: Para ancorar os botões */
+    width: 100%;
 }
 
 header h2 {
+    flex-grow: 1; /* Permite que o título ocupe o espaço central */
+    text-align: center; /* Garante a centralização do texto dentro do espaço */
     margin: 0;
     font-size: 1.5rem;
     font-weight: 600;
-    text-align: center; /* Garante que o título fique no centro */
 }
 
-/* NOVO: Estilo para os botões DENTRO do header */
+/* NOVO: Estiliza o container das ações da direita */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px; /* Espaço entre a saudação e o botão de salvar */
+    justify-content: flex-end; /* Garante alinhamento à direita */
+}
+
+/* Ajuste para o user-info se alinhar bem */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Espaço entre "Olá..." e "Sair" */
+    font-size: 0.9rem;
+    color: var(--text-secondary-color);
+    white-space: nowrap; /* Evita que o nome quebre a linha */
+}
+
+.user-info a {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+.user-info a:hover {
+    text-decoration: underline;
+}
+
+
+/* Estilo para os botões do cabeçalho (mantido o seu design) */
 .header-btn {
     background: none;
     border: 1px solid var(--border-color);
@@ -71,8 +100,9 @@ header h2 {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0; /* Remove padding extra do <button> */
+    padding: 0;
     transition: all 0.2s ease;
+    flex-shrink: 0; /* Impede que os botões encolham */
 }
 
 .header-btn:hover {
@@ -81,39 +111,12 @@ header h2 {
     color: var(--accent-color);
 }
 
-/* NOVO: Posicionamento absoluto dos botões dentro do header */
-#back-btn {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-#save-btn {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-}
+/* As regras de position:absolute foram removidas pois não são mais necessárias */
 
 
 /* ================================================= */
-/* --- RESTANTE DO CSS (SEM GRANDES MUDANÇAS) --- */
+/* --- RESTANTE DO CSS (SEM MUDANÇAS) --- */
 /* ================================================= */
-
-.user-info {
-    font-size: 0.9rem;
-}
-
-.user-info a {
-    color: var(--accent-color);
-    text-decoration: none;
-    margin-left: 1rem;
-    font-weight: 500;
-}
-.user-info a:hover {
-    text-decoration: underline;
-}
 
 label {
     display: block;
@@ -353,10 +356,14 @@ button.secondary:hover {
     .button-group { flex-direction: column; }
     .side-panel { width: calc(100vw - 100px); }
     
-    /* Ajuste para o header em telas muito pequenas */
+    /* MODIFICADO: Ajuste para o header em telas muito pequenas */
     header {
-        justify-content: center;
-        padding-left: 50px; /* Cria espaço para os botões não sobreporem o título */
-        padding-right: 50px;
+        gap: 10px; /* Adiciona um pequeno espaço para não colar nas bordas */
+    }
+    header h2 {
+        font-size: 1.0rem; /* Reduz ainda mais para caber */
+    }
+    .user-info span {
+        display: none; /* Opcional: Esconde o "Olá, Rafael!" em telas muito pequenas */
     }
 }
