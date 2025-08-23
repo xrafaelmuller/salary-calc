@@ -93,7 +93,7 @@ def calculator():
         profiles = []
 
     # O render_template agora busca o 'index.html' na pasta templates do salarycalc
-    return render_template('index.html', 
+    return render_template('salarycalc/index.html', 
                            salario_liquido=salario_liquido, 
                            profile_data=profile_data, 
                            profiles=profiles,
