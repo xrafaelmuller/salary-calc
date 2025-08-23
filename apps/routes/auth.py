@@ -42,7 +42,7 @@ def login():
             flash(f'Erro de banco de dados ao tentar fazer login: {e}', 'danger')
 
     # Renderiza o template de login
-    return render_template('auth/login.html')
+    return render_template('templates/auth/login.html')
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -64,7 +64,7 @@ def register():
                 flash(f'Erro de banco de dados ao registrar: {e}', 'danger')
 
     # Renderiza o template de registro
-    return render_template('auth/register.html')
+    return render_template('templates/auth/register.html')
 
 @auth_bp.route('/logout')
 def logout():
