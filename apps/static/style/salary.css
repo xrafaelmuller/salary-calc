@@ -38,22 +38,68 @@ body {
     border: 1px solid var(--border-color);
 }
 
+/* ================================================= */
+/* --- SEÇÃO DO CABEÇALHO MODIFICADA --- */
+/* ================================================= */
+
 header {
     display: flex;
-    justify-content: space-between;
+    justify-content: center; /* MODIFICADO: Centraliza o conteúdo */
     align-items: center;
     margin-bottom: 2rem;
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 1rem;
-    flex-wrap: wrap;
-    gap: 1rem;
+    position: relative; /* ESSENCIAL: Para ancorar os botões */
 }
 
 header h2 {
     margin: 0;
     font-size: 1.5rem;
     font-weight: 600;
+    text-align: center; /* Garante que o título fique no centro */
 }
+
+/* NOVO: Estilo para os botões DENTRO do header */
+.header-btn {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary-color);
+    cursor: pointer;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0; /* Remove padding extra do <button> */
+    transition: all 0.2s ease;
+}
+
+.header-btn:hover {
+    background-color: var(--input-bg);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+/* NOVO: Posicionamento absoluto dos botões dentro do header */
+#back-btn {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+#save-btn {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+
+/* ================================================= */
+/* --- RESTANTE DO CSS (SEM GRANDES MUDANÇAS) --- */
+/* ================================================= */
 
 .user-info {
     font-size: 0.9rem;
@@ -188,7 +234,6 @@ button.secondary:hover {
     color: #fff;
 }
 
-/* --- ESTILO CORRIGIDO AQUI --- */
 .result {
     margin-top: 2rem;
     padding: 1.5rem;
@@ -196,12 +241,10 @@ button.secondary:hover {
     color: #fff;
     border-radius: 8px;
     font-weight: 500;
-    
-    /* Propriedades adicionadas para o alinhamento correto */
     display: flex;
-    justify-content: center; /* Substitui o 'text-align: center' */
-    align-items: baseline;   /* Alinha o texto pela base */
-    gap: 0.5ch;              /* Adiciona um pequeno espaço entre o texto e o valor */
+    justify-content: center;
+    align-items: baseline;
+    gap: 0.5ch;
 }
 
 .result strong {
@@ -221,70 +264,48 @@ button.secondary:hover {
 .flash-message.success { background-color: rgba(39, 174, 96, 0.1); color: #2ecc71; border-color: rgba(39, 174, 96, 0.5); }
 
 
-/* ================================================= */
-/* --- ESTILOS MODIFICADOS P/ AÇÕES FLUTUANTES --- */
-/* ================================================= */
-
-/* Container dos botões de perfil e aumento (canto inferior direito) */
+/* --- BOTÕES FLUTUANTES (PERFIS E AUMENTO) --- */
 .floating-actions {
     position: fixed;
-    bottom: 25px; /* MODIFICADO: Posição inferior */
-    right: 25px;  /* MODIFICADO: Posição direita */
-    transform: none; /* MODIFICADO: Removida a centralização vertical */
+    bottom: 25px;
+    right: 25px;
     display: flex;
     flex-direction: column;
-    gap: 15px; /* MODIFICADO: Espaçamento entre os botões */
+    gap: 15px;
     z-index: 1000;
 }
 
+.floating-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--container-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.4rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 1001;
+    text-decoration: none;
+}
+
+.floating-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+/* Painel lateral que abre */
 .floating-action-group {
     position: relative;
     display: flex;
     align-items: center;
 }
-
-/* Estilo base para TODOS os botões flutuantes */
-.floating-btn {
-    width: 50px;  /* MODIFICADO: Tamanho ajustado */
-    height: 50px; /* MODIFICADO: Tamanho ajustado */
-    border-radius: 50%;
-    
-    /* MODIFICADO: Fundo transparente com borda */
-    background-color: var(--container-color);
-    border: 1px solid var(--border-color);
-    color: var(--text-secondary-color);
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.4rem; /* MODIFICADO: Tamanho do ícone ajustado */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* MODIFICADO: Sombra mais sutil */
-    cursor: pointer;
-    transition: all 0.3s ease;
-    z-index: 1001;
-    text-decoration: none; /* Garante que o <a> de voltar não tenha sublinhado */
-}
-
-/* Efeito ao passar o mouse */
-.floating-btn:hover {
-    /* MODIFICADO: Efeito de elevação e destaque */
-    transform: translateY(-3px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    border-color: var(--accent-color);
-    color: var(--accent-color);
-    background-color: var(--container-color); /* Mantém o fundo */
-}
-
-/* NOVO: Posicionamento para o botão "Voltar" (canto inferior esquerdo) */
-#back-btn {
-    position: fixed;
-    bottom: 25px;
-    left: 25px;
-    z-index: 1000;
-}
-
-
-/* Painel lateral que abre */
 .side-panel {
     position: absolute;
     top: 50%;
@@ -320,13 +341,22 @@ button.secondary:hover {
 }
 
 
+@media (max-width: 768px) {
+    header h2 {
+        font-size: 1.2rem; /* Diminui a fonte do título em telas menores */
+    }
+}
+
 @media (max-width: 680px) {
     .container { padding: 1.5rem; }
     .input-grid { grid-template-columns: 1fr; gap: 1rem; }
     .button-group { flex-direction: column; }
-
-    /* Ajustes para mobile */
-    .side-panel {
-        width: calc(100vw - 100px);
+    .side-panel { width: calc(100vw - 100px); }
+    
+    /* Ajuste para o header em telas muito pequenas */
+    header {
+        justify-content: center;
+        padding-left: 50px; /* Cria espaço para os botões não sobreporem o título */
+        padding-right: 50px;
     }
 }
