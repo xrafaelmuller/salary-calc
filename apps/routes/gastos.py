@@ -14,4 +14,3 @@ def controle_gastos():
 
     return render_template('gastos/gastos.html', 
                            username=session.get('username'))
-
