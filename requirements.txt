@@ -2,4 +2,3 @@ Flask
 werkzeug
 pymongo
 gunicorn
-flask_login
