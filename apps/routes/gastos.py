@@ -1,5 +1,8 @@
 # apps/routes/gastos.py
 from flask import Blueprint, render_template, session, flash, redirect, url_for
+from flask_login import login_required, current_user
+from flask import request, jsonify
+from services.database import get_accounts_by_user, add_account, update_account, delete_account
 
 # Cria o Blueprint para o módulo de gastos
 gastos_bp = Blueprint('gastos', __name__)
