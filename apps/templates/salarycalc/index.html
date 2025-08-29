@@ -22,25 +22,68 @@
 <body>
     <div class="container">
         <header>
-            <a href="https://jertech.com.br" class="header-btn" id="back-btn" title="Voltar para J&R Tech">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="22" height="22">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                </svg>
-            </a>
-        
-            <h2>Calculadora de Salário Líquido</h2>
-        
-            <div class="header-actions">
+            <div class="header-top-row">
                 <div class="user-info">
                     <span>Olá, <strong>{{ username|capitalize }}</strong>!</span>
                     <a href="{{ url_for('auth.logout') }}">Sair</a>
                 </div>
-                
-                <button type="submit" name="action" value="save_profile" class="header-btn" id="save-btn" title="Salvar Perfil Atual" form="main-calc-form" onclick="document.getElementById('form_action').value='save_profile';">
+            </div>
+            <div class="header-main-row">
+                <a href="https://jertech.com.br" class="header-btn" id="back-btn" title="Voltar para J&R Tech">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="22" height="22">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                     </svg>
-                </button>
+                </a>
+            
+                <h2>Calculadora de Salário Líquido</h2>
+            
+                <div class="header-page-actions">
+                    <div class="action-group" id="profile-action-group">
+                        <button class="header-btn" id="profile-btn" title="Gerenciar Perfis">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m-7.042-2.72a3 3 0 00-4.682 2.72a9.094 9.094 0 003.741.479m7.042 2.72a9.094 9.094 0 01-3.741-.479m0 0a9 9 0 01-2.087.09M18 18.72a9 9 0 01-2.087-.09m-7.042 2.72c.622.08.622.08 1.042.162m-1.042-.162a9 9 0 01-2.087-.09M15 11.25a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        </button>
+                        <div class="side-panel">
+                            <h3>Gerenciar Perfis</h3>
+                            <div class="profile-load-group" style="margin-bottom: 1.5rem;">
+                                <label for="profile_select">Carregar Perfil:</label>
+                                <select id="profile_select" onchange="window.location.href='/?load_profile=' + this.value">
+                                    <option value="">-- Selecione um Perfil --</option>
+                                    {% for profile in profiles %}
+                                        <option value="{{ profile }}" {% if profile == profile_data.profile_name %}selected{% endif %}>{{ profile }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="profile-actions">
+                                <label for="profile_name">Nome do Perfil para Salvar/Atualizar:</label>
+                                <input type="text" id="profile_name" name="profile_name" placeholder="Ex: Meu Salário" value="{{ profile_data.profile_name }}" form="main-calc-form">
+                            </div>
+                            <div class="button-group">
+                                <button type="submit" name="action" value="save_profile" class="secondary" form="main-calc-form" onclick="document.getElementById('form_action').value='save_profile';">Salvar Perfil</button>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <div class="action-group" id="raise-action-group">
+                        <button class="header-btn" id="raise-btn" title="Ajustar Salário">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-3.75-2.25M21 18v-6c0-1.104-.896-2-2-2h-6" /></svg>
+                        </button>
+                        <div class="side-panel">
+                            <h3>Ajustar Salário por Aumento (%)</h3>
+                            <div class="input-grid">
+                                <div>
+                                    <label for="increase_percentage">Percentual de Aumento (%):</label>
+                                    <input type="text" id="increase_percentage" name="increase_percentage" placeholder="Ex: 5.5">
+                                    <p style="font-size: 0.8rem; color: var(--text-secondary-color); margin-top: 0.5rem;"><small>O aumento será aplicado sobre o <strong>Salário Base atual do formulário</strong>.</small></p>
+                                </div>
+                            </div>
+                            <div class="button-group">
+                                <button type="button" id="resetSalario" class="secondary">Resetar Salário Base</button>
+                                <button type="button" id="applyIncrease" class="secondary">Aplicar Aumento</button>
+                                <button type="button" id="saveIncreasedProfile" class="secondary">Salvar como novo perfil</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </header>
 
@@ -131,73 +174,36 @@
         {% endif %}
     </div>
 
-    <div class="floating-actions">
-        <div class="floating-action-group" id="profile-action-group">
-            <button class="floating-btn" id="profile-btn" title="Gerenciar Perfis">👥</button>
-            <div class="side-panel" id="profile-panel">
-                <h3>Gerenciar Perfis</h3>
-                <div class="profile-load-group" style="margin-bottom: 1.5rem;">
-                    <label for="profile_select">Carregar Perfil:</label>
-                    <select id="profile_select" onchange="window.location.href='/?load_profile=' + this.value">
-                        <option value="">-- Selecione um Perfil --</option>
-                        {% for profile in profiles %}
-                            <option value="{{ profile }}" {% if profile == profile_data.profile_name %}selected{% endif %}>{{ profile }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="profile-actions">
-                    <label for="profile_name">Nome do Perfil para Salvar/Atualizar:</label>
-                    <input type="text" id="profile_name" name="profile_name" placeholder="Ex: Meu Salário" value="{{ profile_data.profile_name }}" form="main-calc-form">
-                </div>
-                <div class="button-group">
-                    <button type="submit" name="action" value="save_profile" class="secondary" form="main-calc-form" onclick="document.getElementById('form_action').value='save_profile';">Salvar Perfil</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="floating-action-group" id="raise-action-group">
-            <button class="floating-btn" id="raise-btn" title="Ajustar Salário">📈</button>
-            <div class="side-panel" id="raise-panel">
-                <h3>Ajustar Salário por Aumento (%)</h3>
-                <div class="input-grid">
-                    <div>
-                        <label for="increase_percentage">Percentual de Aumento (%):</label>
-                        <input type="text" id="increase_percentage" name="increase_percentage" placeholder="Ex: 5.5">
-                        <p style="font-size: 0.8rem; color: var(--text-secondary-color); margin-top: 0.5rem;"><small>O aumento será aplicado sobre o <strong>Salário Base atual do formulário</strong>.</small></p>
-                    </div>
-                </div>
-                <div class="button-group">
-                    <button type="button" id="resetSalario" class="secondary">Resetar Salário Base</button>
-                    <button type="button" id="applyIncrease" class="secondary">Aplicar Aumento</button>
-                    <button type="button" id="saveIncreasedProfile" class="secondary">Salvar como novo perfil</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             
-            // --- NOVA LÓGICA PARA AÇÕES FLUTUANTES ---
-            document.querySelectorAll('.floating-action-group').forEach(group => {
+            document.querySelectorAll('.action-group').forEach(group => {
                 let hideTimeout;
+                const button = group.querySelector('.header-btn');
+                const panel = group.querySelector('.side-panel');
 
-                group.addEventListener('mouseenter', () => {
+                if (!button || !panel) return;
+
+                const showPanel = () => {
                     clearTimeout(hideTimeout);
-                    // Fecha outros painéis antes de abrir um novo
-                    document.querySelectorAll('.floating-action-group').forEach(otherGroup => {
+                    document.querySelectorAll('.action-group').forEach(otherGroup => {
                         if (otherGroup !== group) {
                             otherGroup.classList.remove('active');
                         }
                     });
                     group.classList.add('active');
-                });
+                };
 
-                group.addEventListener('mouseleave', () => {
+                const hidePanel = () => {
                     hideTimeout = setTimeout(() => {
                         group.classList.remove('active');
-                    }, 300); // Um pequeno delay para permitir mover o cursor para dentro do painel
-                });
+                    }, 200);
+                };
+
+                button.addEventListener('mouseenter', showPanel);
+                button.addEventListener('focus', showPanel);
+                group.addEventListener('mouseleave', hidePanel);
+
             });
 
 
