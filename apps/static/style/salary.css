@@ -309,24 +309,47 @@ button.secondary:hover {
 }
 
 @media (max-width: 680px) {
-    .container { padding: 1.5rem; }
-    .input-grid { grid-template-columns: 1fr; gap: 1rem; }
-    .button-group { flex-direction: column; }
-    .side-panel { width: calc(100vw - 100px); }
-    
+    .container { 
+        padding: 1.5rem; 
+    }
+    .input-grid { 
+        grid-template-columns: 1fr; 
+        gap: 1rem; 
+    }
+    .button-group { 
+        flex-direction: column; 
+    }
+    .side-panel { 
+        width: calc(100vw - 60px); 
+        right: -1.5rem;
+    }
+
+    /*Ajustes no cabeçalho para telas pequenas*/
+    header {
+        gap: 0.75rem;
+        padding-bottom: 0.75rem;
+    }
+
     .header-main-row {
-        gap: 10px;
-        grid-template-columns: auto 1fr;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
     }
+
     header h2 {
-        font-size: 1.1rem;
-        text-align: left;
+        width: 100%; 
+        order: -1;
+        text-align: center;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
     }
+
     .header-page-actions {
-       grid-column: 1 / -1;
-       grid-row: 2;
-       justify-self: end;
+        margin-left: auto;
     }
+
     .user-info span {
         display: none;
     }
