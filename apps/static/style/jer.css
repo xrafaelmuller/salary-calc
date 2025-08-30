@@ -1,10 +1,7 @@
-/* static/style/casamento.css */
-
-/* --- Variáveis de Cor e Fontes (fácil de customizar!) --- */
 :root {
-    --cor-primaria: #8d6e63; /* Um tom de marrom claro, tipo "latte" */
+    --cor-primaria: #8d6e63; 
     --cor-texto: #333333;
-    --cor-fundo: #fdfaf6; /* Um branco levemente "envelhecido" */
+    --cor-fundo: #fdfaf6; 
     --cor-branco: #ffffff;
     --sombra-suave: 0 4px 15px rgba(0, 0, 0, 0.08);
 
@@ -40,7 +37,7 @@ body {
     text-align: center;
     color: var(--cor-branco);
     
-    /* IMPORTANTE: Adicione uma foto de fundo de vocês aqui! */
+    
     background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('../img/foto_fundo_casal.jpg');
     background-size: cover;
     background-position: center;

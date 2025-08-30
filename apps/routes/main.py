@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template
 
+# Cria o Blueprint para o módulo principal (main).
 main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')

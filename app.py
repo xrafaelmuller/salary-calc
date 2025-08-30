@@ -14,7 +14,6 @@ def create_app():
     """ Função para criar e configurar a aplicação Flask. """
     
     # 2. CONFIGURAÇÃO CORRETA DA PASTA DE TEMPLATES
-    #    (Assumindo que você criará uma pasta 'templates' na raiz)
     app = Flask(__name__, template_folder='apps/templates', static_folder='apps/static') 
     app.secret_key = os.urandom(24) 
 
@@ -37,4 +36,4 @@ def create_app():
 if __name__ == '__main__':
     app = create_app()
     port = int(os.environ.get("PORT", 5000)) 
-    app.run(host='0.0.0.0', port=port, debug=True) # Sugestão: use debug=True durante o desenvolvimento
+    app.run(host='0.0.0.0', port=port, debug=True)
