@@ -3,7 +3,7 @@ from flask import (Blueprint, render_template, request, redirect,
                    url_for, session, flash)
 from pymongo.errors import PyMongoError
 
-# Importando as funcionalidades de arquivos no mesmo diretório
+# Importando as funcionalidades
 from ..services.database import (
     save_profile_to_db, load_profile_from_db, get_all_profile_names, 
     get_last_profile_name, delete_profile_from_db

@@ -1,10 +1,13 @@
 import os
+from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, DuplicateKeyError, PyMongoError
 from pymongo.server_api import ServerApi
 from datetime import datetime
 from bson.objectid import ObjectId
+
+load_dotenv()
 
 # Configuração do Banco de Dados MongoDB Atlas
 MONGODB_URI = os.environ.get('MONGODB_URI')

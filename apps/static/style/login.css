@@ -56,7 +56,7 @@ input[type="password"] {
     border-radius: 8px;
     color: var(--text-color);
     font-size: 1em;
-    /* A propriedade box-sizing: border-box; foi movida para o seletor universal (*) no topo */
+    
 }
 
 input::placeholder {
@@ -74,7 +74,7 @@ input[type="submit"] {
     cursor: pointer;
     color: #fff;
     transition: background-color 0.3s ease;
-    /* A propriedade box-sizing: border-box; foi movida para o seletor universal (*) no topo */
+    
 }
 
 input[type="submit"]:hover {
