@@ -301,11 +301,11 @@ header h1 {
     background-color: var(--color-minus);
 }
 
-/* Media Query Otimizada para telemóveis */
+/* Media Query Otimizada para celular */
 @media (max-width: 700px) {
     .accounts-columns-container {
         grid-template-columns: 1fr;
-        gap: 20px; /* Reduz o espaço entre as colunas quando empilhadas */
+        gap: 20px; 
     }
     .container {
         padding: 15px;
@@ -326,7 +326,7 @@ header h1 {
         font-size: 15px;
     }
     .modal {
-        padding: 25px; /* Menos padding no modal em telas pequenas */
+        padding: 25px; /* Menos padding em telas pequenas */
     }
     .btn {
         padding: 14px;
