@@ -1,6 +1,6 @@
-# jertech
+# JeRTech
 
-Bem-vindo ao **jertech**!  
+Bem-vindo ao **JeRTech**!  
 Este projeto reúne diversas soluções digitais desenvolvidas por Rafael Müller, focadas em facilitar o dia a dia através da tecnologia.
 
 ## Índice
