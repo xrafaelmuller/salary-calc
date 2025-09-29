@@ -1,20 +1,15 @@
 # apps/salarycalc/routes.py
-from flask import (Blueprint, render_template, request, redirect, 
-                   url_for, session, flash)
+from flask import (Blueprint, render_template, request, redirect, url_for, session, flash)
 from pymongo.errors import PyMongoError
-
-# Importando as funcionalidades
-from ..services.database import (
-    save_profile_to_db, load_profile_from_db, get_all_profile_names, 
-    get_last_profile_name, delete_profile_from_db
-)
+from ..services.database import (save_profile_to_db, load_profile_from_db, get_all_profile_names, get_last_profile_name, delete_profile_from_db) 
 from ..services.calculations import calcular_inss, calcular_irpf
 
+
+############################################################################################
 # Definição do Blueprint: aponta para a pasta 'templates' DENTRO de 'salarycalc'
-salary_bp = Blueprint('salary', 
-                      __name__,
-                      template_folder='../templates',
-                      static_folder='../static')
+############################################################################################
+
+salary_bp = Blueprint('salary', __name__, template_folder='../templates',static_folder='../static')
 
 
 @salary_bp.route('/calculator', methods=['GET', 'POST'])
@@ -70,7 +65,6 @@ def calculator():
                 else:
                     flash('Nome do perfil é obrigatório para salvar.', 'warning')
             else:
-                # Lógica de cálculo (INSS e IRPF estão corretos conforme solicitado)
                 total_rendimentos_base = form_data['salario'] + form_data['quinquenio'] + form_data['premiacao']
                 desconto_inss = calcular_inss(total_rendimentos_base)
                 base_irpf = total_rendimentos_base - desconto_inss
@@ -92,7 +86,7 @@ def calculator():
         flash(f'Não foi possível carregar a lista de perfis: {e}', 'danger')
         profiles = []
 
-    # O render_template agora busca o 'index.html' na pasta templates do salarycalc
+
     return render_template('salarycalc/index.html', 
                            salario_liquido=salario_liquido, 
                            profile_data=profile_data, 
