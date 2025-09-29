@@ -135,5 +135,4 @@ def delete_profile_from_db(user_id_str, profile_name):
         {"user_id": user_id_obj, "name": profile_name}
     )
     
-    # Retorna True se um documento foi deletado, False caso contrário.
     return result.deleted_count > 0

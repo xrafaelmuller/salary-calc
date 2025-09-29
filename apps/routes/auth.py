@@ -5,7 +5,9 @@ from werkzeug.security import check_password_hash
 from pymongo.errors import PyMongoError
 from apps.services.database import get_user_by_username, add_user
 
+############################################################################################
 # Define o Blueprint para as rotas de autenticação da aplicação.
+############################################################################################
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
@@ -36,6 +38,8 @@ def login():
             flash(f'Erro de banco de dados ao tentar fazer login: {e}', 'danger')
 
     return render_template('auth/login.html')
+
+
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
