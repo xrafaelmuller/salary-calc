@@ -1,9 +1,8 @@
 # apps/routes/invest.py
 
-import os # <-- 1. Importe o módulo 'os'
+import os
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 
-# Importamos as funções que serão usadas
 from apps.services.database import (
     add_public_investment,
     get_all_investments,
@@ -30,11 +29,9 @@ LOGO_MAP = {
 
 @invest_bp.route('/invest', methods=['GET', 'POST'])
 def invest_page():
-    """Exibe a página de investimentos e processa a adição de novos."""
-
     if request.method == 'POST':
-        # ... (lógica POST sem alterações)
-        valor_str = request.form.get('valor', '0').replace('.', '').replace(',', '.')
+        # Remove "R$ " e espaços antes de converter o valor
+        valor_str = request.form.get('valor', '0').replace('R$', '').strip().replace('.', '').replace(',', '.')
         try:
             valor_float = float(valor_str)
         except ValueError:
@@ -90,7 +87,6 @@ def invest_page():
     rendimento_atual_formatado = f"{rendimento_atual_valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
     saldo_liquido_formatado = f"{saldo_liquido_valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
     
-    # 2. Lê a senha do ambiente .env (com um valor padrão '123' caso não encontre)
     unlock_password = os.getenv('UNLOCK_PASSWORD', '123')
 
     return render_template(
@@ -103,10 +99,9 @@ def invest_page():
         rendimento_atual_formatado=rendimento_atual_formatado,
         percentual_rendimento=percentual_rendimento,
         rendimento_color_class=rendimento_color_class,
-        unlock_password=unlock_password # <-- 3. Envia a senha para o template
+        unlock_password=unlock_password
     )
 
-# ... (Restante do arquivo sem alterações)
 @invest_bp.route('/invest/delete/<investment_id>', methods=['POST'])
 def delete_investment(investment_id):
     if delete_public_investment(investment_id):
@@ -117,10 +112,13 @@ def delete_investment(investment_id):
 
 @invest_bp.route('/invest/edit/<investment_id>', methods=['POST'])
 def edit_investment(investment_id):
+    # Remove "R$ " e espaços antes de converter o valor
+    valor_str = request.form.get('valor', '0').replace('R$', '').strip().replace('.', '').replace(',', '.')
+    
     form_data = {
         'onde': request.form.get('onde'),
         'aplicacao': request.form.get('aplicacao'),
-        'valor': request.form.get('valor'),
+        'valor': valor_str, # Envia o valor já limpo
         'resgate': request.form.get('resgate')
     }
     if not all(form_data.values()):
@@ -133,7 +131,8 @@ def edit_investment(investment_id):
 
 @invest_bp.route('/update_rendimento_atual', methods=['POST'])
 def update_rendimento_atual_route():
-    novo_rendimento = request.form.get('rendimento_atual')
+    # Remove "R$ " e espaços antes de converter o valor
+    novo_rendimento = request.form.get('rendimento_atual').replace('R$', '').strip()
     if update_rendimento_atual(novo_rendimento):
         flash("Rendimento Atual atualizado com sucesso!", "success")
     else:
