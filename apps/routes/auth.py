@@ -1,9 +1,10 @@
 # apps/auth/routes.py
 from flask import (Blueprint, render_template, request, redirect, 
-                   url_for, session, flash)
+                    url_for, session, flash)
 from werkzeug.security import check_password_hash
 from pymongo.errors import PyMongoError
-from apps.services.database import get_user_by_username, add_user
+# Assumindo que essas importações para o banco de dados estão corretas:
+from apps.services.database import get_user_by_username, add_user 
 
 ############################################################################################
 # Define o Blueprint para as rotas de autenticação da aplicação.
@@ -19,18 +20,14 @@ def login():
         
         if not username or not password:
             flash('Usuário e senha são obrigatórios.', 'warning')
-            return redirect(url_for('auth.login', next=next_page or ''))
+            return redirect(url_for('auth.login',  ''))
 
         try:
             user = get_user_by_username(username)
             if user and check_password_hash(user['password_hash'], password):
                 session['user_id'] = user['id'] 
                 session['username'] = user['username']
-                flash(f'Bem-vindo de volta, {user["username"].capitalize()}!', 'success')
-
-                if next_page == 'gastos':
-                    return redirect(url_for('gastos.controle_gastos'))
-                
+                flash(f'Bem-vindo de volta, {user["username"].capitalize()}!', 'success')                
                 return redirect(url_for('salary.calculator'))
             else:
                 flash('Usuário ou senha inválidos.', 'danger')
@@ -38,7 +35,6 @@ def login():
             flash(f'Erro de banco de dados ao tentar fazer login: {e}', 'danger')
 
     return render_template('auth/login.html')
-
 
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
@@ -64,5 +60,5 @@ def register():
 @auth_bp.route('/logout')
 def logout():
     session.clear()
-    flash('Você saiu da sua conta.', 'info')
+    flash('Você saiu da sua conta.', 'success')
     return redirect(url_for('auth.login'))
