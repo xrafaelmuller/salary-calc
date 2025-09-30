@@ -1,0 +1,193 @@
+/* apps/static/css/contas.css */
+
+/* --- Configurações Gerais do Corpo da Página --- */
+body {
+    background-color: #f4f7f9;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* --- Estilos dos Cards --- */
+.card {
+    background-color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+}
+
+.card-header, .stat-title-container {
+    background-color: #ffffff;
+    padding: 1.25rem 1.5rem;
+    font-weight: 600;
+    color: #343a40;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header {
+    border-bottom: 1px solid #eef2f7;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.card-body { 
+    padding: 1.5rem; 
+}
+
+/* --- Estilos dos Cards de Estatísticas (Topo) --- */
+.stat-card {
+    border-left: 4px solid #4a90e2;
+    transition: transform 0.2s ease-in-out;
+}
+.stat-card:hover { 
+    transform: translateY(-5px); 
+}
+.stat-card .card-body {
+    padding: 0;
+    position: relative;
+}
+.stat-title-container {
+    padding: 1rem 1.25rem;
+}
+.stat-content {
+    padding: 0 1.25rem 1rem 1.25rem;
+}
+.stat-title {
+    color: #888;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+}
+.stat-icon {
+    font-size: 2.25rem;
+    color: #e0e0e0;
+}
+.border-left-primary { border-left-color: #4a90e2; }
+.border-left-success { border-left-color: #1cc88a; }
+.border-left-info { border-left-color: #36b9cc; }
+.border-left-danger { border-left-color: #e74c3c; }
+
+
+/* --- Títulos e Formulários --- */
+.page-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #2c3e50;
+}
+.form-label {
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 0.5rem;
+}
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #dbe1e8;
+    padding: 0.75rem 1rem;
+}
+.form-control:focus, .form-select:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+/* --- Botões --- */
+.btn {
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+.btn-primary {
+    background-color: #4a90e2;
+    border-color: #4a90e2;
+}
+.btn-primary:hover {
+    background-color: #357abd;
+    border-color: #357abd;
+}
+
+/* --- Tabela Principal --- */
+.table { 
+    border-collapse: collapse; 
+}
+.table thead th {
+    border: none;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #888;
+    padding: 1rem 1.5rem;
+}
+.table tbody tr { 
+    border-bottom: 1px solid #eef2f7; 
+}
+.table tbody td {
+    border: none;
+    padding: 1rem 1.5rem;
+    vertical-align: middle;
+    color: #333;
+}
+.table tbody tr:last-child { 
+    border-bottom: none; 
+}
+.table tbody tr:hover { 
+    background-color: #f9fafb; 
+}
+.institution-logo {
+    height: 24px;
+    width: 24px;
+    margin-right: 8px;
+    vertical-align: middle;
+    border-radius: 50%;
+    object-fit: contain;
+}
+
+/* --- Botões de Ação na Tabela (Editar/Excluir) --- */
+.btn-action {
+    background: transparent;
+    border: none;
+    font-size: 1.1rem;
+    transition: color 0.2s;
+    padding: 0.25rem 0.5rem;
+}
+.btn-delete { color: #aeb8c4; }
+.btn-delete:hover { color: #e74c3c; }
+.btn-edit { color: #aeb8c4; }
+.btn-edit:hover { color: #4a90e2; }
+.edit-icon {
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #aeb8c4;
+    margin-left: 10px;
+    transition: color 0.2s;
+}
+.edit-icon:hover {
+    color: #4a90e2;
+}
+
+
+/* --- AJUSTES PARA COMPACTAR TABELAS DE LANÇAMENTOS --- */
+/* Reduz o espaçamento vertical das células nas tabelas de Entradas/Saídas */
+.card-body .table > tbody > tr > td {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    vertical-align: top;
+}
+
+/* Reduz o tamanho da fonte da descrição e do valor para um visual mais limpo */
+.card-body .table > tbody > tr > td strong,
+.card-body .table .fw-bold {
+    font-size: 0.9rem;
+}
+
+/* Ajusta o tamanho e padding dos botões de ação (editar/excluir) para serem mais compactos */
+.btn-action {
+    padding: .2rem .4rem;
+    font-size: 0.8rem;
+}
