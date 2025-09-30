@@ -238,7 +238,7 @@
 
 {% block content %}
 <div class="container my-5">
-    <h1 class="page-title mb-4">Gerenciar Investimentos</h1>
+    <h1 class="page-title mb-4"><i class="fas fa-chart-pie me-3 text-primary"></i>Dashboard de Investimentos</h1>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -309,7 +309,7 @@
                                 </div>
                                 <form id="rendimento-form" action="{{ url_for('invest.update_rendimento_atual_route') }}" method="POST" style="display: none;">
                                     <div class="input-group">
-                                        <input type="text" class="form-control" name="rendimento_atual" value="{{ '%.2f'|format(rendimento_atual)|replace('.', ',') }}" placeholder="Ex: 5.000,00">
+                                        <input type="text" class="form-control" name="rendimento_atual" value="{{ '%.2f'|format(rendimento_atual)|replace('.', ',') }}" placeholder="Ex: 5000,00">
                                         <button class="btn btn-info" type="submit">Salvar</button>
                                     </div>
                                 </form>
@@ -406,10 +406,7 @@
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editModalLabel"><i class="fas fa-pencil-alt me-2"></i>Editar Investimento</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+            <div class="modal-header"><h5 class="modal-title" id="editModalLabel"><i class="fas fa-pencil-alt me-2"></i>Editar Investimento</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
             <form id="editForm" method="POST">
                 <div class="modal-body">
                     <div class="mb-3"><label for="edit-onde" class="form-label">Instituição (Onde)</label><input type="text" class="form-control" id="edit-onde" name="onde" required></div>
@@ -443,16 +440,34 @@
     </div>
 </div>
 
-
+<script src="https://cdn.jsdelivr.net/gh/maiconvinicios/simple-mask-money/lib/simple-mask-money.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Declaração de variáveis dos inputs
+    const valorInput = document.getElementById('valor');
+    const rendimentoInput = document.querySelector('#rendimento-form input[name="rendimento_atual"]');
+    const editValorInput = document.getElementById('edit-valor');
+
+    // Lógica para Formatação de Valores
+    const moneyConfig = {
+        prefix: 'R$ ',
+        suffix: '',
+        fixed: true,
+        fractionDigits: 2,
+        decimalSeparator: ',',
+        thousandsSeparator: '.',
+        cursor: 'end'
+    };
+    if(valorInput) SimpleMaskMoney.setMask(valorInput, moneyConfig);
+    if(rendimentoInput) SimpleMaskMoney.setMask(rendimentoInput, moneyConfig);
+    if(editValorInput) SimpleMaskMoney.setMask(editValorInput, moneyConfig);
+    
     // Lógica para o Modal de Edição de Investimento
     const editModalElement = document.getElementById('editModal');
     if (editModalElement) {
         const editForm = document.getElementById('editForm');
         const editOndeInput = document.getElementById('edit-onde');
         const editAplicacaoInput = document.getElementById('edit-aplicacao');
-        const editValorInput = document.getElementById('edit-valor');
         const editResgateInput = document.getElementById('edit-resgate');
         editModalElement.addEventListener('show.bs.modal', function(event) {
             const button = event.relatedTarget;

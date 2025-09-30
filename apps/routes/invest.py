@@ -133,8 +133,8 @@ def edit_investment(investment_id):
 def update_rendimento_atual_route():
     # Remove "R$ " e espaços antes de converter o valor
     novo_rendimento = request.form.get('rendimento_atual').replace('R$', '').strip()
-    if update_rendimento_atual(novo_rendimento):
-        flash("Rendimento Atual atualizado com sucesso!", "success")
-    else:
+    
+    if not update_rendimento_atual(novo_rendimento):
         flash("Erro ao atualizar o Rendimento Atual. Verifique o valor inserido.", "danger")
+        
     return redirect(url_for('invest.invest_page'))
