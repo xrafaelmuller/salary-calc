@@ -9,6 +9,7 @@ from apps.routes.main import main_bp
 from apps.routes.auth import auth_bp
 from apps.routes.salary import salary_bp
 from apps.routes.gastos import gastos_bp
+from apps.routes.invest import invest_bp
 
 def create_app():
     """ Função para criar e configurar a aplicação Flask. """
@@ -22,6 +23,7 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(salary_bp)
     app.register_blueprint(gastos_bp)
+    app.register_blueprint(invest_bp)
 
     # Inicializa o banco de dados
     try:
