@@ -1,0 +1,569 @@
+{% extends "base.html" %}
+{% block title %}Dashboard de Investimentos{% endblock %}
+
+{% block head %}
+{{ super() }}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    body {
+        background-color: #f4f7f9;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    .card {
+        background-color: #ffffff;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+    }
+    .card-header, .stat-title-container {
+        background-color: #ffffff;
+        padding: 1.25rem 1.5rem;
+        font-weight: 600;
+        color: #343a40;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .card-header {
+        border-bottom: 1px solid #eef2f7;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+    }
+    .card-body { padding: 1.5rem; }
+    .stat-card .card-body {
+        padding: 0;
+        position: relative;
+    }
+    .stat-title-container {
+        padding: 1rem 1.25rem;
+    }
+    .stat-content {
+        padding: 0 1.25rem 1rem 1.25rem;
+    }
+    .page-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+    .form-label {
+        font-weight: 500;
+        color: #555;
+        margin-bottom: 0.5rem;
+    }
+    .form-control {
+        border-radius: 8px;
+        border: 1px solid #dbe1e8;
+        padding: 0.75rem 1rem;
+    }
+    .form-control:focus {
+        border-color: #4a90e2;
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+    }
+    .btn {
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: background-color 0.2s, border-color 0.2s;
+    }
+    .btn-primary {
+        background-color: #4a90e2;
+        border-color: #4a90e2;
+    }
+    .btn-primary:hover {
+        background-color: #357abd;
+        border-color: #357abd;
+    }
+    .stat-card {
+        border-left: 4px solid #4a90e2;
+        transition: transform 0.2s ease-in-out;
+    }
+    .stat-card:hover { transform: translateY(-5px); }
+    .stat-title {
+        color: #888;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #333;
+    }
+    .stat-icon {
+        font-size: 2.25rem;
+        color: #e0e0e0;
+    }
+    .border-left-primary { border-left-color: #4a90e2; }
+    .border-left-success { border-left-color: #1cc88a; }
+    .border-left-info { border-left-color: #36b9cc; }
+    .rendimento-percentual {
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-left: 8px;
+    }
+    .saldo-liquido-label {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #888;
+        margin-top: 4px;
+    }
+    .edit-icon {
+        cursor: pointer;
+        font-size: 0.9rem;
+        color: #aeb8c4;
+        margin-left: 10px;
+        transition: color 0.2s;
+    }
+    .edit-icon:hover {
+        color: #4a90e2;
+    }
+    .institution-logo {
+        height: 24px;
+        width: 24px;
+        margin-right: 8px;
+        vertical-align: middle;
+        border-radius: 50%;
+        object-fit: contain;
+    }
+    .table { border-collapse: collapse; }
+    .table thead th {
+        border: none;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #888;
+        padding: 1rem 1.5rem;
+    }
+    .table tbody tr { border-bottom: 1px solid #eef2f7; }
+    .table tbody td {
+        border: none;
+        padding: 1rem 1.5rem;
+        vertical-align: middle;
+        color: #333;
+    }
+    .table tbody tr:last-child { border-bottom: none; }
+    .table tbody tr:hover { background-color: #f9fafb; }
+    .btn-action {
+        background: transparent;
+        border: none;
+        font-size: 1.1rem;
+        transition: color 0.2s;
+        padding: 0.25rem 0.5rem;
+    }
+    .btn-delete { color: #aeb8c4; }
+    .btn-delete:hover { color: #e74c3c; }
+    .btn-edit { color: #aeb8c4; }
+    .btn-edit:hover { color: #4a90e2; }
+    .lock-icon {
+        cursor: pointer;
+        font-size: 1rem;
+        color: #aeb8c4;
+        transition: color 0.2s;
+    }
+    .lock-icon:hover {
+        color: #2c3e50;
+    }
+    .card-lock-icon {
+        position: absolute;
+        bottom: 1rem;
+        right: 1.25rem;
+        font-size: 0.9rem;
+    }
+    .table-locked .btn-action {
+        opacity: 0.5;
+        pointer-events: none;
+        cursor: not-allowed;
+    }
+    .editing-locked .edit-icon {
+        opacity: 0.5;
+        pointer-events: none;
+        cursor: not-allowed;
+    }
+    .form-locked .form-control, .form-locked .btn {
+        opacity: 0.5;
+        pointer-events: none;
+        cursor: not-allowed;
+        background-color: #e9ecef;
+    }
+
+    @media (max-width: 767px) {
+        .page-title {
+            font-size: 1.5rem;
+        }
+        .responsive-table thead {
+            display: none;
+        }
+        .responsive-table tbody, .responsive-table tr {
+            display: block;
+            width: 100%;
+        }
+        .responsive-table tr {
+            margin-bottom: 1rem;
+            border: 1px solid #eef2f7;
+            border-radius: 8px;
+            padding: 0.5rem 0;
+            background-color: #fff;
+        }
+        .responsive-table td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            border-bottom: 1px solid #f4f7f9;
+        }
+        .responsive-table tr td:last-child {
+            border-bottom: none;
+        }
+        .responsive-table td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: #555;
+            margin-right: 1rem;
+        }
+        .responsive-table td > * {
+            text-align: right;
+        }
+        .responsive-table td.cell-onde, .responsive-table td.actions-cell {
+            justify-content: flex-start;
+        }
+        .responsive-table td.actions-cell::before {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="page-title mb-4"><i class="fas fa-chart-pie me-3 text-primary"></i>Dashboard de Investimentos</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="row">
+        <div class="col-lg-4 col-md-12 mb-4">
+            <div class="card stat-card border-left-primary shadow-sm h-100">
+                <div class="card-body">
+                    <div class="stat-title-container">
+                        <div class="stat-title text-primary">Valor Total Investido</div>
+                    </div>
+                    <div class="stat-content">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2"><div class="stat-value">R$ {{ total_investido | default('0,00') }}</div></div>
+                            <div class="col-auto"><i class="fas fa-dollar-sign fa-2x stat-icon"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-12 mb-4">
+            <div class="card stat-card border-left-success shadow-sm h-100">
+                <div class="card-body">
+                    <div class="stat-title-container">
+                        <div class="stat-title text-success">Saldo Bruto</div>
+                    </div>
+                    <div class="stat-content">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="d-flex align-items-baseline">
+                                    <div class="stat-value">R$ {{ saldo_bruto_formatado | default('0,00') }}</div>
+                                    <div class="rendimento-percentual {{ rendimento_color_class }}">
+                                        <span>
+                                            {% if percentual_rendimento > 0.01 %}<i class="fas fa-arrow-up"></i>
+                                            {% elif percentual_rendimento < -0.01 %}<i class="fas fa-arrow-down"></i>{% endif %}
+                                            {{ '%+.2f'|format(percentual_rendimento)|replace('.', ',') }}%
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="saldo-liquido-label">Saldo Líquido: R$ {{ saldo_liquido_formatado | default('0,00') }}</div>
+                            </div>
+                            <div class="col-auto"><i class="fas fa-wallet fa-2x stat-icon"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-12 mb-4">
+            <div id="rendimento-card" class="card stat-card border-left-info shadow-sm h-100 editing-locked">
+                <div class="card-body">
+                    <div class="stat-title-container">
+                        <div class="stat-title text-info">Rendimento Atual</div>
+                    </div>
+                    <div class="stat-content">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="stat-value" id="rendimento-display">
+                                    <span>R$ {{ rendimento_atual_formatado | default('0,00') }}</span>
+                                    <i class="fas fa-pencil-alt edit-icon" id="edit-rendimento-icon" title="Editar Rendimento"></i>
+                                </div>
+                                <form id="rendimento-form" action="{{ url_for('invest.update_rendimento_atual_route') }}" method="POST" style="display: none;">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" name="rendimento_atual" value="{{ '%.2f'|format(rendimento_atual)|replace('.', ',') }}" placeholder="Ex: 5.000,00">
+                                        <button class="btn btn-info" type="submit">Salvar</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-auto"><i class="fas fa-chart-line fa-2x stat-icon"></i></div>
+                        </div>
+                    </div>
+                    <i id="rendimento-lock-toggle" class="fas fa-lock lock-icon card-lock-icon" title="Clique para desbloquear edição"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span>Meus Investimentos</span>
+            <i id="lock-toggle" class="fas fa-lock lock-icon" title="Clique para desbloquear"></i>
+        </div>
+        <div class="card-body p-0">
+            {% if investments %}
+            <div id="investments-table-container" class="table-responsive table-locked">
+                <table class="table mb-0 responsive-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Onde</th>
+                            <th scope="col">Aplicação</th>
+                            <th scope="col" class="text-end">Valor (R$)</th>
+                            <th scope="col" class="text-center">Data de Resgate</th>
+                            <th scope="col" class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inv in investments %}
+                        <tr>
+                            <td data-label="Onde" class="cell-onde">
+                                <span>
+                                    {% if inv.logo_filename %}
+                                        <img src="{{ url_for('static', filename='images/logos/' + inv.logo_filename) }}" alt="{{ inv.onde }}" class="institution-logo">
+                                    {% endif %}
+                                    <strong>{{ inv.onde }}</strong>
+                                </span>
+                            </td>
+                            <td data-label="Aplicação"><span>{{ inv.aplicacao }}</span></td>
+                            <td data-label="Valor (R$)" class="fw-bold text-end">R$ {{ inv.formatted_valor }}</td>
+                            <td data-label="Resgate" class="text-center"><span>{{ inv.resgate.strftime('%d/%m/%Y') }}</span></td>
+                            <td class="actions-cell text-center">
+                                <span>
+                                    <button type="button" class="btn-action btn-edit" title="Editar investimento"
+                                        data-bs-toggle="modal" data-bs-target="#editModal"
+                                        data-id="{{ inv._id }}" data-onde="{{ inv.onde }}" data-aplicacao="{{ inv.aplicacao }}"
+                                        data-valor="{{ '%.2f'|format(inv.valor)|replace('.', ',') }}"
+                                        data-resgate="{{ inv.resgate.strftime('%Y-%m-%d') }}">
+                                        <i class="fas fa-pencil-alt"></i>
+                                    </button>
+                                    <form action="{{ url_for('invest.delete_investment', investment_id=inv._id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este investimento?');" style="display: inline;">
+                                        <button type="submit" class="btn-action btn-delete" title="Excluir investimento"><i class="fas fa-trash-alt"></i></button>
+                                    </form>
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-chart-pie fa-3x text-muted mb-3"></i>
+                <p class="text-muted mb-1">Nenhum investimento cadastrado ainda.</p>
+                <p>Adicione seu primeiro investimento para começar.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <span>Adicionar Novo Investimento</span>
+            <i id="add-form-lock-toggle" class="fas fa-lock lock-icon" title="Clique para desbloquear"></i>
+        </div>
+        <div id="add-investment-container" class="card-body form-locked">
+            <form method="POST" action="{{ url_for('invest.invest_page') }}">
+                <div class="row g-4">
+                    <div class="col-md-6"><label for="onde" class="form-label">Instituição (Onde)</label><input type="text" class="form-control" id="onde" name="onde" placeholder="Ex: Nubank, XP, etc." required></div>
+                    <div class="col-md-6"><label for="aplicacao" class="form-label">Aplicação</label><input type="text" class="form-control" id="aplicacao" name="aplicacao" placeholder="Ex: CDB 117%" required></div>
+                    <div class="col-md-6"><label for="valor" class="form-label">Valor (R$)</label><input type="text" class="form-control" id="valor" name="valor" placeholder="Ex: 20.000,00" required></div>
+                    <div class="col-md-6"><label for="resgate" class="form-label">Data de Resgate</label><input type="date" class="form-control" id="resgate" name="resgate" required></div>
+                </div>
+                <button type="submit" class="btn btn-primary mt-4"><i class="fas fa-plus me-2"></i>Adicionar</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel"><i class="fas fa-pencil-alt me-2"></i>Editar Investimento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editForm" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3"><label for="edit-onde" class="form-label">Instituição (Onde)</label><input type="text" class="form-control" id="edit-onde" name="onde" required></div>
+                    <div class="mb-3"><label for="edit-aplicacao" class="form-label">Aplicação</label><input type="text" class="form-control" id="edit-aplicacao" name="aplicacao" required></div>
+                    <div class="mb-3"><label for="edit-valor" class="form-label">Valor (R$)</label><input type="text" class="form-control" id="edit-valor" name="valor" required></div>
+                    <div class="mb-3"><label for="edit-resgate" class="form-label">Data de Resgate</label><input type="date" class="form-control" id="edit-resgate" name="resgate" required></div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-primary">Salvar Alterações</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="passwordModalLabel"><i class="fas fa-key me-2"></i>Acesso Restrito</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">Por favor, insira a senha para desbloquear.</p>
+                <input type="password" id="password-input" class="form-control" placeholder="Senha">
+                <div id="password-error" class="text-danger mt-2" style="display: none;">Senha incorreta.</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="unlock-button" class="btn btn-primary">Desbloquear</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Lógica para o Modal de Edição de Investimento
+    const editModalElement = document.getElementById('editModal');
+    if (editModalElement) {
+        const editForm = document.getElementById('editForm');
+        const editOndeInput = document.getElementById('edit-onde');
+        const editAplicacaoInput = document.getElementById('edit-aplicacao');
+        const editValorInput = document.getElementById('edit-valor');
+        const editResgateInput = document.getElementById('edit-resgate');
+        editModalElement.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const investmentId = button.getAttribute('data-id');
+            const onde = button.getAttribute('data-onde');
+            const aplicacao = button.getAttribute('data-aplicacao');
+            const valor = button.getAttribute('data-valor');
+            const resgate = button.getAttribute('data-resgate');
+            const actionUrl = `/invest/edit/${investmentId}`;
+            editForm.setAttribute('action', actionUrl);
+            editOndeInput.value = onde;
+            editAplicacaoInput.value = aplicacao;
+            editValorInput.value = valor;
+            editResgateInput.value = resgate;
+        });
+    }
+
+    // Lógica de Segurança com Modal
+    const UNLOCK_PASSWORD = '{{ unlock_password }}';
+    const passwordModalElement = document.getElementById('passwordModal');
+    const passwordModal = new bootstrap.Modal(passwordModalElement);
+    const passwordInput = document.getElementById('password-input');
+    const unlockButton = document.getElementById('unlock-button');
+    const passwordError = document.getElementById('password-error');
+    let activeLock = null;
+    const lockConfigs = {
+        'lock-toggle': {
+            container: document.getElementById('investments-table-container'),
+            lockedClass: 'table-locked',
+            isLocked: true
+        },
+        'rendimento-lock-toggle': {
+            container: document.getElementById('rendimento-card'),
+            lockedClass: 'editing-locked',
+            isLocked: true
+        },
+        'add-form-lock-toggle': {
+            container: document.getElementById('add-investment-container'),
+            lockedClass: 'form-locked',
+            isLocked: true
+        }
+    };
+
+    function setLockState(config, locked) {
+        config.isLocked = locked;
+        if (config.isLocked) {
+            config.container.classList.add(config.lockedClass);
+            config.lockIcon.classList.remove('fa-lock-open');
+            config.lockIcon.classList.add('fa-lock');
+            config.lockIcon.setAttribute('title', 'Clique para desbloquear');
+        } else {
+            config.container.classList.remove(config.lockedClass);
+            config.lockIcon.classList.remove('fa-lock');
+            config.lockIcon.classList.add('fa-lock-open');
+            config.lockIcon.setAttribute('title', 'Clique para bloquear');
+        }
+    }
+
+    for (const lockId in lockConfigs) {
+        const config = lockConfigs[lockId];
+        config.lockIcon = document.getElementById(lockId);
+        if (config.lockIcon) {
+            setLockState(config, true);
+            config.lockIcon.addEventListener('click', function() {
+                if (config.isLocked) {
+                    activeLock = config;
+                    passwordModal.show();
+                } else {
+                    setLockState(config, true);
+                }
+            });
+        }
+    }
+    
+    function attemptUnlock() {
+        if (passwordInput.value === UNLOCK_PASSWORD) {
+            if (activeLock) {
+                setLockState(activeLock, false);
+            }
+            passwordModal.hide();
+        } else {
+            passwordError.style.display = 'block';
+        }
+    }
+    
+    unlockButton.addEventListener('click', attemptUnlock);
+    passwordInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            attemptUnlock();
+        }
+    });
+
+    passwordModalElement.addEventListener('show.bs.modal', function() {
+        passwordInput.value = '';
+        passwordError.style.display = 'none';
+        setTimeout(() => passwordInput.focus(), 500);
+    });
+
+    // Lógica para Edição do Rendimento Atual
+    const editRendimentoIcon = document.getElementById('edit-rendimento-icon');
+    const rendimentoDisplayDiv = document.getElementById('rendimento-display');
+    const rendimentoForm = document.getElementById('rendimento-form');
+    if (editRendimentoIcon) {
+        editRendimentoIcon.addEventListener('click', function() {
+            if (!lockConfigs['rendimento-lock-toggle'].isLocked) {
+                rendimentoDisplayDiv.style.display = 'none';
+                rendimentoForm.style.display = 'flex';
+            }
+        });
+    }
+});
+</script>
+
+{% endblock %}
