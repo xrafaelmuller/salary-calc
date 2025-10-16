@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+{% block title %}Controle Financeiro{% endblock %}
+
+{% block head %}
+{{ super() }}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='style/contas.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="page-title mb-0"><i class="fas fa-wallet me-3 text-primary"></i>Controle Financeiro</h1>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
+            <i class="fas fa-plus me-2"></i>Adicionar Lançamento
+        </button>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="row">
+        <div class="col-lg-4 col-md-12 mb-4">
+            <div class="card stat-card border-left-success shadow-sm h-100">
+                <div class="card-body">
+                    <div class="stat-title-container"><div class="stat-title text-success">Total de Entradas</div></div>
+                    <div class="stat-content"><div class="row no-gutters align-items-center">
+                        <div class="col mr-2"><div class="stat-value">R$ {{ total_entradas_fmt | default('0,00') }}</div></div>
+                        <div class="col-auto"><i class="fas fa-arrow-up fa-2x stat-icon"></i></div>
+                    </div></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-12 mb-4">
+            <div class="card stat-card border-left-danger shadow-sm h-100">
+                <div class="card-body">
+                    <div class="stat-title-container"><div class="stat-title text-danger">Total de Saídas</div></div>
+                    <div class="stat-content"><div class="row no-gutters align-items-center">
+                        <div class="col mr-2"><div class="stat-value">R$ {{ total_saidas_fmt | default('0,00') }}</div></div>
+                        <div class="col-auto"><i class="fas fa-arrow-down fa-2x stat-icon"></i></div>
+                    </div></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-12 mb-4">
+            <div class="card stat-card border-left-info shadow-sm h-100">
+                <div class="card-body">
+                    <div class="stat-title-container"><div class="stat-title text-info">Saldo Geral</div></div>
+                    <div class="stat-content"><div class="row no-gutters align-items-center">
+                        <div class="col mr-2"><div class="stat-value">R$ {{ saldo_geral_fmt | default('0,00') }}</div></div>
+                        <div class="col-auto"><i class="fas fa-balance-scale fa-2x stat-icon"></i></div>
+                    </div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Entradas</h5></div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <tbody>
+                                {% for item in entradas_list %}
+                                <tr>
+                                    <td class="align-middle text-center" style="width: 50px;"><i class="{{ item.icon_class }}" title="{{ item.categoria }}"></i></td>
+                                    <td class="align-middle"><strong>{{ item.descricao }}</strong></td>
+                                    <td class="text-end align-middle fw-bold text-success">+ R$ {{ item.formatted_valor }}</td>
+                                    <td class="text-end align-middle" style="width: 100px;">
+                                        <button type="button" class="btn-action btn-edit" title="Editar"
+                                            data-bs-toggle="modal" data-bs-target="#editModal"
+                                            data-id="{{ item._id }}" data-descricao="{{ item.descricao }}"
+                                            data-categoria="{{ item.categoria }}" data-valor="{{ item.formatted_valor }}"
+                                            data-tipo="{{ item.tipo }}">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </button>
+                                        <form class="d-inline" action="{{ url_for('contas.delete_trans', transaction_id=item._id) }}" method="POST" onsubmit="return confirm('Tem certeza?');">
+                                            <button type="submit" class="btn-action btn-delete" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr><td class="text-center p-3 text-muted">Nenhuma entrada registrada.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Saídas</h5></div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <tbody>
+                                {% for item in saidas_list %}
+                                <tr>
+                                    <td class="align-middle text-center" style="width: 50px;"><i class="{{ item.icon_class }}" title="{{ item.categoria }}"></i></td>
+                                    <td class="align-middle"><strong>{{ item.descricao }}</strong></td>
+                                    <td class="text-end align-middle fw-bold text-danger">- R$ {{ item.formatted_valor }}</td>
+                                    <td class="text-end align-middle" style="width: 100px;">
+                                        <button type="button" class="btn-action btn-edit" title="Editar"
+                                            data-bs-toggle="modal" data-bs-target="#editModal"
+                                            data-id="{{ item._id }}" data-descricao="{{ item.descricao }}"
+                                            data-categoria="{{ item.categoria }}" data-valor="{{ item.formatted_valor }}"
+                                            data-tipo="{{ item.tipo }}">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </button>
+                                        <form class="d-inline" action="{{ url_for('contas.delete_trans', transaction_id=item._id) }}" method="POST" onsubmit="return confirm('Tem certeza?');">
+                                            <button type="submit" class="btn-action btn-delete" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr><td class="text-center p-3 text-muted">Nenhuma saída registrada.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">Adicionar Lançamento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('contas.contas_page') }}">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Tipo de Lançamento</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="tipo" id="tipoEntrada" value="entrada" checked>
+                                    <label class="form-check-label" for="tipoEntrada">Entrada</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="tipo" id="tipoSaida" value="saida">
+                                    <label class="form-check-label" for="tipoSaida">Saída</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="descricao" class="form-label">Descrição</label>
+                            <input type="text" class="form-control" name="descricao" id="descricao" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="categoria" class="form-label">Categoria</label>
+                            <input type="text" class="form-control" name="categoria" id="categoria" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label for="valor" class="form-label">Valor (R$)</label>
+                            <input type="text" class="form-control" name="valor" id="valor" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Adicionar Lançamento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title" id="editModalLabel">Editar Lançamento</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+            <form id="editForm" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tipo</label>
+                        <div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="tipo" id="editTipoEntrada" value="entrada">
+                                <label class="form-check-label" for="editTipoEntrada">Entrada</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="tipo" id="editTipoSaida" value="saida">
+                                <label class="form-check-label" for="editTipoSaida">Saída</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3"><label for="editDescricao" class="form-label">Descrição</label><input type="text" class="form-control" name="descricao" id="editDescricao" required></div>
+                    <div class="mb-3"><label for="editCategoria" class="form-label">Categoria</label><input type="text" class="form-control" name="categoria" id="editCategoria" required></div>
+                    <div class="mb-3"><label for="editValor" class="form-label">Valor (R$)</label><input type="text" class="form-control" name="valor" id="editValor" required></div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-primary">Salvar Alterações</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block body_end %}
+{{ super() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Script para o Modal de Edição (sem alterações)
+    const editModalElement = document.getElementById('editModal');
+    if (editModalElement) {
+        editModalElement.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const transactionId = button.getAttribute('data-id');
+            const descricao = button.getAttribute('data-descricao');
+            const categoria = button.getAttribute('data-categoria');
+            const valor = button.getAttribute('data-valor');
+            const tipo = button.getAttribute('data-tipo');
+
+            const form = document.getElementById('editForm');
+            form.action = `/contas/edit/${transactionId}`;
+
+            document.getElementById('editDescricao').value = descricao;
+            document.getElementById('editCategoria').value = categoria;
+            document.getElementById('editValor').value = valor;
+            
+            if (tipo === 'entrada') {
+                document.getElementById('editTipoEntrada').checked = true;
+            } else {
+                document.getElementById('editTipoSaida').checked = true;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

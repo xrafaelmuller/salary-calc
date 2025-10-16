@@ -160,13 +160,6 @@ section {
 
 #hero h1 {
     color: transparent; /* Mantém o texto transparente */
-    
-    /* Novo gradiente radial. 
-      'circle 250px' define o tamanho do "holofote".
-      'at var(--x, 50%) var(--y, 50%)' define a posição do centro do gradiente
-      usando variáveis CSS que serão atualizadas pelo JavaScript.
-      Os valores '50%' são um fallback para o estado inicial.
-    */
     background: radial-gradient(circle 250px at var(--x, 50%) var(--y, 50%), var(--primary-color), var(--secondary-color));
     
     -webkit-background-clip: text;
