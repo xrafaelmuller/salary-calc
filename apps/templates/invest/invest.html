@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
+    /* ... (Todo o seu CSS permanece o mesmo - não vou colar aqui para economizar espaço) ... */
     body {
         background-color: #f4f7f9;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -276,15 +277,13 @@
                                     <div class="stat-value" id="rendimento-display">
                                         <span>R$ {{ rendimento_atual_formatado | default('0,00') }}</span>
                                     </div>
-                                    <i class="fas fa-pencil-alt edit-icon" id="edit-rendimento-icon" title="Editar Rendimento"></i>
+                                    <i class="fas fa-pencil-alt edit-icon" id="edit-rendimento-icon" 
+                                       title="Editar Rendimento"
+                                       data-bs-toggle="modal" 
+                                       data-bs-target="#rendimentoModal">
+                                    </i>
                                 </div>
-                                <form id="rendimento-form" action="{{ url_for('invest.update_rendimento_atual_route') }}" method="POST" style="display: none;">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" name="rendimento_atual" value="{{ '%.2f'|format(rendimento_atual)|replace('.', ',') }}" placeholder="Ex: 5.000,00">
-                                        <button class="btn btn-info" type="submit">Salvar</button>
-                                    </div>
-                                </form>
-                            </div>
+                                </div>
                             <div class="col-auto"><i class="fas fa-chart-line fa-2x stat-icon"></i></div>
                         </div>
                     </div>
@@ -391,50 +390,71 @@
     </div>
 </div>
 
+<div class="modal fade" id="rendimentoModal" tabindex="-1" aria-labelledby="rendimentoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rendimentoModalLabel"><i class="fas fa-chart-line me-2"></i> Editar Rendimento Atual</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="rendimentoForm" method="POST" action="{{ url_for('invest.update_rendimento_atual_route') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="rendimento_atual_input" class="form-label">Valor do Rendimento (R$)</label>
+                        <input type="text" class="form-control" id="rendimento_atual_input" name="rendimento_atual" 
+                               value="{{ '%.2f'|format(rendimento_atual)|replace('.', ',') }}" 
+                               placeholder="Ex: 5.000,00" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Lógica para o Modal de Edição de Investimento
+    console.log('DOM carregado. Iniciando scripts.');
+
+    // Lógica para o Modal de Edição de INVESTIMENTO (O único script que precisamos)
     const editModalElement = document.getElementById('editModal');
+    
     if (editModalElement) {
+        console.log('Modal de edição #editModal encontrado.');
         const editForm = document.getElementById('editForm');
         const editOndeInput = document.getElementById('edit-onde');
         const editAplicacaoInput = document.getElementById('edit-aplicacao');
         const editValorInput = document.getElementById('edit-valor');
         const editResgateInput = document.getElementById('edit-resgate');
+        
         editModalElement.addEventListener('show.bs.modal', function(event) {
+            console.log('Evento "show.bs.modal" disparado (abrindo modal de edição).');
+            
             const button = event.relatedTarget;
             const investmentId = button.getAttribute('data-id');
             const onde = button.getAttribute('data-onde');
             const aplicacao = button.getAttribute('data-aplicacao');
             const valor = button.getAttribute('data-valor');
             const resgate = button.getAttribute('data-resgate');
+            
             const actionUrl = `/invest/edit/${investmentId}`;
             editForm.setAttribute('action', actionUrl);
+            
             editOndeInput.value = onde;
             editAplicacaoInput.value = aplicacao;
             editValorInput.value = valor;
             editResgateInput.value = resgate;
         });
+    } else {
+        console.error('ERRO: Modal de edição #editModal NÃO encontrado.');
     }
-
-    // --- INÍCIO DA CORREÇÃO ---
-    // Lógica para Edição do Rendimento Atual
-    const editRendimentoIcon = document.getElementById('edit-rendimento-icon');
-    const rendimentoDisplayDiv = document.getElementById('rendimento-display');
-    const rendimentoForm = document.getElementById('rendimento-form');
     
-    if (editRendimentoIcon && rendimentoDisplayDiv && rendimentoForm) {
-        editRendimentoIcon.addEventListener('click', function() {
-            // Esconde o contêiner do texto e o ícone
-            rendimentoDisplayDiv.style.display = 'none';
-            editRendimentoIcon.style.display = 'none';
-            
-            // Mostra o formulário
-            rendimentoForm.style.display = 'flex';
-        });
-    }
-    // --- FIM DA CORREÇÃO ---
+    // A LÓGICA DO RENDIMENTO ATUAL FOI REMOVIDA
+    // O Bootstrap cuida disso agora.
+    
 });
 </script>
-
 {% endblock %}
