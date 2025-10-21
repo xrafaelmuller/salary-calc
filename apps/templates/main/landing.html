@@ -54,13 +54,13 @@
                     <img src="{{ url_for('static', filename='img/rafa.jpg') }}" alt="Foto de perfil de Rafael">
                     <h3>Rafael Müller</h3>
                     <p class="role">Gerente de Projetos de TI / Desenvolvedor Full Stack</p>
-                    <p>Sou um profissional de TI com 13 anos de experiência. Atualmente, atuo como Senior Change Manager e Full Stack Software Engineer.</p>
+                    <p>Sou um profissional de TI com 13 anos de experiência. Atualmente, atuo como Senior Change Manager e Software Engineer.</p>
                 </div>
                 <div class="bio-card">
                     <img src="{{ url_for('static', filename='img/julia.jpg') }}" alt="Foto de perfil de Julia">
                     <h3>Julia Meller</h3>
                     <p class="role">Product Owner / Engenheira de Software</p>
-                    <p>Sou Product Owner na La Moda. Formado em Engenharia Química, com Mestrado em Engenharia de Materiais, atualmente curso Engenharia de Software.</p>
+                    <p>Sou Product Owner na La Moda. Formado em Engenharia Química, com Mestrado em Engenharia de Materiais, atualmente cursando Engenharia de Software.</p>
                 </div>
             </div>
         </div>
@@ -95,21 +95,6 @@
                     </div>
                 </div>
 
-                <div class="project-card" data-category="ele">
-                    <a href="{{ url_for('auth.login', next='gastos') }}">
-                        <img src="{{ url_for('static', filename='img/dinheiro.png') }}" alt="Preview da Calculadora de Salário"> 
-                    </a>
-                    <div class="project-content">
-                        <div class="project-tags">
-                            <span class="tag ele">Rafael</span>
-                        </div>
-                        <h3>Controle de Gastos</h3>
-                        <p>Uma aplicação web completa para controle de gastos, com as mesmas funcionalidades de login e banco de dados, seria uma ótima ferramenta para ajudar as pessoas a gerenciar suas finanças.
-</p>
-                        <a href="{{ url_for('auth.login', next='gastos') }}" target="_blank">Acessar a Aplicação &rarr;</a>
-                    </div>
-                </div>
-
 
                 <div class="project-card" data-category="ele">
                     <a href="https://chromewebstore.google.com/detail/status-ponte-do-guaiba/mogpcdaepemfpinnjonkblefhhpinjoi" target="_blank">
@@ -130,7 +115,7 @@
                     <div class="project-content">
                         <div class="project-tags"><span class="tag ela">Julia</span></div>
                         <h3>Sistema Web de Estetica</h3>
-                        <p>Projeto de sistema web desenvolvido em grupo para o curso de Eng de Software. Sistema ERP para um estúdio de estética, com funcionalidades de agendamento e gestão de clientes e serviços.</p>
+                        <p>Projeto de sistema web desenvolvido em grupo para o curso de Eng. de Software. Sistema ERP para um estúdio de estética, com funcionalidades de agendamento e gestão de clientes e serviços.</p>
                         <a href="https://github.com/juliameller/EstudioEstetica">Ver no GitHub &rarr;</a>
                     </div>
                 </div>
@@ -195,7 +180,7 @@
     </footer>
 
     <script>
-        // O seu JavaScript continua o mesmo
+        
         document.addEventListener('DOMContentLoaded', function() {
             const menuToggle = document.querySelector('.menu-toggle');
             const mainNav = document.querySelector('#main-header nav');

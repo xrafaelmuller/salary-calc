@@ -1,6 +1,4 @@
 # Tabelas de Cálculo (INSS e IRPF 2025)
-# NOTA: Estes valores são baseados na sua versão original. 
-# A informação salva indica que os cálculos estão corretos para a sua necessidade.
 INSS_TETO_2025 = 8157.41
 INSS_MAX_DESCONTO_2025 = 951.62
 
@@ -17,9 +15,6 @@ def calcular_inss(base_calculo):
     if base_calculo >= INSS_TETO_2025:
         return INSS_MAX_DESCONTO_2025
     
-    # A fórmula original era min(base_calculo * 0.14, INSS_MAX_DESCONTO_2025).
-    # Mantendo a consistência com o teto, a verificação acima já cobre isso.
-    # Se uma tabela progressiva fosse implementada, a lógica seria diferente.
     return base_calculo * 0.14
 
 def calcular_irpf(base_calculo):
