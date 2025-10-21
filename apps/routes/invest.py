@@ -134,7 +134,13 @@ def edit_investment(investment_id):
 
 @invest_bp.route('/update_rendimento_atual', methods=['POST'])
 def update_rendimento_atual_route():
-    novo_rendimento = request.form.get('rendimento_atual').replace('R$', '').strip()
+    # Adicione '', como valor padrão para o get()
+    novo_rendimento = request.form.get('rendimento_atual', '').replace('R$', '').strip()
+    
     if not update_rendimento_atual(novo_rendimento):
         flash("Erro ao atualizar o Rendimento Atual. Verifique o valor inserido.", "danger")
+    # Você pode até adicionar um 'else' para feedback de sucesso
+    else:
+        flash("Rendimento atualizado com sucesso!", "success")
+        
     return redirect(url_for('invest.invest_page'))

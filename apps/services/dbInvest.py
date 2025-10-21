@@ -39,11 +39,16 @@ def add_public_investment(data):
         return False
         
     try:
-        valor = float(data['valor'])
+        # --- INÍCIO DA CORREÇÃO ---
+        # Adiciona a lógica de limpeza de valor que faltava
+        valor_str = str(data.get('valor', '0')).replace('.', '').replace(',', '.')
+        valor = float(valor_str)
+        # --- FIM DA CORREÇÃO ---
+
         investment_data = {
             'onde': data['onde'],
             'aplicacao': data['aplicacao'],
-            'valor': valor,
+            'valor': valor, # Usa a variável corrigida
             'resgate': datetime.strptime(data['resgate'], '%Y-%m-%d')
         }
         
@@ -85,6 +90,7 @@ def update_public_investment(investment_id_str, data):
     try:
         investment_id_obj = ObjectId(investment_id_str)
         
+        # Esta lógica de limpeza já estava correta no seu arquivo
         valor_str = str(data.get('valor', '0')).replace('.', '').replace(',', '.')
         update_data = {
             'onde': data['onde'],
@@ -121,6 +127,7 @@ def update_rendimento_atual(new_value_str):
     if app_data_collection is None:
         return False
     try:
+        # Esta lógica também já estava correta
         valor_str = str(new_value_str).replace('.', '').replace(',', '.')
         valor_float = float(valor_str)
         
