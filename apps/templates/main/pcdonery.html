@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PC Donery - Computadores Montados por Rafa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ====== GLOBAL ====== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    header {
+      text-align: center;
+      padding: 3rem 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      color: #38bdf8;
+    }
+
+    /* ====== CONTAINER ====== */
+    .container {
+      max-width: 1200px;
+      margin: 3rem auto;
+      padding: 0 1rem;
+    }
+
+    .content {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      flex: 1;
+      min-width: 480px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .card h2 {
+      color: #60a5fa;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    ul {
+      list-style: none;
+      line-height: 1.8;
+    }
+
+    ul li {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 0.6rem 0;
+    }
+
+    ul li strong {
+      color: #fbbf24;
+    }
+
+    .price {
+      margin-top: 1.5rem;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+
+    .highlight {
+      color: #22c55e;
+      font-weight: 600;
+    }
+
+    /* ====== CTA ====== */
+    .cta {
+      text-align: center;
+      margin-top: 4rem;
+    }
+
+    .cta h2 {
+      color: #38bdf8;
+      margin-bottom: 1rem;
+    }
+
+    .cta p {
+      color: #cbd5e1;
+      margin-bottom: 1.5rem;
+    }
+
+    .cta a {
+      background: #38bdf8;
+      color: #0f172a;
+      padding: 0.9rem 2rem;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: inline-block;
+    }
+
+    .cta a:hover {
+      background: #0ea5e9;
+      transform: translateY(-3px);
+    }
+
+    /* ====== FOOTER ====== */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: #64748b;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      margin-top: auto;
+      font-size: 0.9rem;
+    }
+
+    /* ====== RESPONSIVO ====== */
+    @media (max-width: 1024px) {
+      .content {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .card {
+        width: 90%;
+        min-width: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>PC Donery</h1>
+  </header>
+
+  <div class="container">
+    <div class="content">
+      <!-- CONFIGURAÇÃO 1 -->
+      <div class="card">
+        <h2>💎 Configuração 1 - Intel</h2>
+        <ul>
+          <li>🧠 <strong>Processador:</strong> Intel Core i7-14700K — R$2.500</li>
+          <li>🧩 <strong>Placa-Mãe:</strong> ASUS B760M-AYW DDR5 Wi-Fi — R$999</li>
+          <li>⚡ <strong>Memória RAM:</strong> 2x Kingston Fury Beast 16GB DDR5 — R$738</li>
+          <li>💾 <strong>SSD:</strong> Kingston NV3 1TB PCIe 4.0 — R$500</li>
+          <li>📀 <strong>HD:</strong> Western Digital 6TB — R$1.200</li>
+          <li>🔌 <strong>Fonte:</strong> Corsair CX550 80 Plus Bronze — R$400</li>
+          <li>🖥️ <strong>Gabinete:</strong> R$150 a R$400</li>
+        </ul>
+        <p class="price">💰 Valor total estimado: <span class="highlight">R$ 6.500 a R$ 6.800</span></p>
+      </div>
+
+      <!-- CONFIGURAÇÃO 2 -->
+      <div class="card">
+        <h2>🔥 Configuração 2 - AMD</h2>
+        <ul>
+          <li>🧠 <strong>Processador:</strong> AMD Ryzen 7 8700G — R$1.700</li>
+          <li>🧩 <strong>Placa-Mãe:</strong> MSI B650M Gaming Wi-Fi — R$999</li>
+          <li>⚡ <strong>Memória RAM:</strong> 2x Kingston Fury Beast 16GB DDR5 — R$738</li>
+          <li>💾 <strong>SSD:</strong> Kingston NV3 1TB PCIe 4.0 — R$500</li>
+          <li>📀 <strong>HD:</strong> Western Digital 6TB — R$1.200</li>
+          <li>🔌 <strong>Fonte:</strong> Corsair CX550 80 Plus Bronze — R$400</li>
+          <li>🖥️ <strong>Gabinete:</strong> R$150 a R$400</li>
+        </ul>
+        <p class="price">💰 Valor total estimado: <span class="highlight">R$ 5.600 a R$ 5.900</span></p>
+      </div>
+    </div>
+
+    <div class="cta">
+      <h2>Monte o seu computador ideal!</h2>
+      <p>Entre em contato comigo e tenha uma máquina sob medida para suas necessidades.</p>
+      <a href="https://wa.me/5551994433951" target="_blank">💬 Falar no WhatsApp</a>
+    </div>
+  </div>
+
+  <footer>
+    © 2025 PC Donery — Todos os direitos reservados
+  </footer>
+
+</body>
+</html>
