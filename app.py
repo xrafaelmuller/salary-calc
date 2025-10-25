@@ -2,7 +2,7 @@
 import os
 from flask import Flask
 from pymongo.errors import ConnectionFailure
-
+from werkzeug.middleware.proxy_fix import ProxyFix
 from apps.services.database import init_db
 
 # 1. IMPORTAÇÕES DOS BLUEPRINTS
@@ -17,6 +17,8 @@ def create_app():
     
     app = Flask(__name__, template_folder='apps/templates', static_folder='apps/static') 
     app.secret_key = os.urandom(24) 
+    
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
     # 2. REGISTRO DE TODOS OS BLUEPRINTS
     app.register_blueprint(main_bp)
